@@ -1,0 +1,24 @@
+{
+  "name": "beartracker-web",
+  "version": "1.0.0",
+  "description": "web portal for tourism",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IvanMTD/beartracker-web.git"
+  },
+  "author": "Ivan Morgan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IvanMTD/beartracker-web/issues"
+  },
+  "homepage": "https://github.com/IvanMTD/beartracker-web#readme",
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "jquery": "^3.7.1"
+  }
+}
