@@ -1,11 +1,11 @@
 package ru.beartrack.web.repositories;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.models.ApplicationUser;
 
-@Repository
-public interface ApplicationUserRepository extends ReactiveCrudRepository<ApplicationUser,Long> {
+import java.util.UUID;
+
+public interface ApplicationUserRepository extends R2dbcRepository<ApplicationUser, UUID> {
     Mono<ApplicationUser> findByUsername(String username);
 }

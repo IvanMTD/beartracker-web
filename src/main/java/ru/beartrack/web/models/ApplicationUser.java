@@ -13,6 +13,7 @@ import ru.beartrack.web.enums.Role;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Data
@@ -20,9 +21,7 @@ import java.util.List;
 @Table(name = "application_user")
 public class ApplicationUser implements UserDetails {
     @Id
-    private Long id;
-
-    private String uuid;
+    private UUID uuid;
 
     private String username;
     private String email;

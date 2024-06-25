@@ -6,7 +6,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.enums.Role;
@@ -14,7 +13,6 @@ import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.repositories.ApplicationUserRepository;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Slf4j
 @Configuration
@@ -41,20 +39,18 @@ public class WebAppConfiguration implements WebFluxConfigurer {
                 }
             }
             log.info("****************** environments end ********************");
-            userRepository.findByUsername(username).flatMap(user -> {
-                log.info("user {} exist", user.getUsername());
-                return Mono.just(user);
+            userRepository.findByUsername(username).flatMap(existingUser  -> {
+                log.info("user {} exist", existingUser .getUsername());
+                return Mono.just(existingUser);
             }).switchIfEmpty(
-                    Mono.just(new ApplicationUser()).flatMap(user -> {
-                        user.setUuid(UUID.randomUUID().toString());
-                        user.setUsername(username);
-                        user.setPassword(passwordEncoder.encode(password));
-                        user.setPlacedAt(LocalDate.now());
-                        user.setRole(Role.ADMIN);
-                        return userRepository.save(user).flatMap(savedUser -> {
-                            log.info("user created {}", savedUser);
-                            return Mono.just(savedUser);
-                        });
+                    Mono.defer(() -> {
+                        ApplicationUser newUser = new ApplicationUser();
+                        newUser.setUsername(username);
+                        newUser.setPassword(passwordEncoder.encode(password));
+                        newUser.setPlacedAt(LocalDate.now());
+                        newUser.setRole(Role.ADMIN);
+                        return userRepository.save(newUser)
+                                .doOnNext(savedUser -> log.info("User created {}", savedUser));
                     })
             ).subscribe();
         };
