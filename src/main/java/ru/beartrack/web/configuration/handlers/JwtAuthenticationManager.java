@@ -3,6 +3,7 @@ package ru.beartrack.web.configuration.handlers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,7 +41,23 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                     log.info("the correct digital signature has been presented");
                     return userService.findByUsername(jwt.getUsernameFromToken(accessToken)).flatMap(user -> Mono.just(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())));
                 }else{
-                    log.error("the digital signature does not match the signature in the token [{},{}]", digitalSignature, jwt.getDigitalSignatureFromToken(accessToken));
+                    log.error("the digital signature does not match the signature in the token [{}] | [{}]", digitalSignature, jwt.getDigitalSignatureFromToken(accessToken));
+                    ServerHttpResponse response = exchange.getResponse();
+                    response.addCookie(ResponseCookie.from(CookieUtil.getInstance().getACCESS(), "")
+                            .httpOnly(true)
+                            .path("/")
+                            .maxAge(0)
+                            .build());
+                    response.addCookie(ResponseCookie.from(CookieUtil.getInstance().getREFRESH(), "")
+                            .httpOnly(true)
+                            .path("/")
+                            .maxAge(0)
+                            .build());
+                    response.addCookie(ResponseCookie.from(CookieUtil.getInstance().getSESSION(), "")
+                            .httpOnly(true)
+                            .path("/")
+                            .maxAge(0)
+                            .build());
                     return Mono.error(new BadCredentialsException("Authentication failed"));
                 }
             });
@@ -77,16 +94,20 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                 }
             });
         }else{
-            log.info("access and refresh token is not valid - try authenticate by basic login");
-            String username = authentication.getPrincipal().toString();
-            String password = authentication.getCredentials().toString();
-            return userService.findByUsername(username).flatMap(user -> {
-                if(encoder.matches(password,user.getPassword())){
-                    return Mono.just(new UsernamePasswordAuthenticationToken(user,null,user.getAuthorities()));
-                } else{
-                    return Mono.error(new BadCredentialsException("Authentication failed"));
-                }
-            }).cast(Authentication.class).switchIfEmpty(Mono.error(new BadCredentialsException("Authentication failed")));
+            return baseAuth(authentication);
         }
+    }
+
+    private Mono<Authentication> baseAuth(Authentication authentication){
+        log.info("access and refresh token is not valid - try authenticate by basic login");
+        String username = authentication.getPrincipal().toString();
+        String password = authentication.getCredentials().toString();
+        return userService.findByUsername(username).flatMap(user -> {
+            if(encoder.matches(password,user.getPassword())){
+                return Mono.just(new UsernamePasswordAuthenticationToken(user,null,user.getAuthorities()));
+            } else{
+                return Mono.error(new BadCredentialsException("Authentication failed"));
+            }
+        }).cast(Authentication.class).switchIfEmpty(Mono.error(new BadCredentialsException("Authentication failed")));
     }
 }

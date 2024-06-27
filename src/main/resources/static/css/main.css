@@ -1,0 +1,8 @@
+.dropdown-form-size-1{
+    width: 20rem
+}
+
+.field-icon {
+    cursor: pointer;
+    z-index: 2;
+}

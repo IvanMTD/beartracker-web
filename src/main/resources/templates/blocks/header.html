@@ -27,10 +27,9 @@
                     </form>
 
                     <ul class="navbar-nav justify-content-end mt-0 mt-lg-0 ">
-                        <li class="nav-item">
+                        <li class="nav-item" th:if="${auth}">
                             <div class="dropdown">
-                                <div aria-expanded="false" aria-haspopup="true" class="nav-link1" data-bs-toggle="dropdown"
-                                     id="dropdownMenuButton" type="button">
+                                <div aria-expanded="false" aria-haspopup="true" class="nav-link1 dropdown-toggle" data-bs-toggle="dropdown" id="dropdownMenuButton" type="button">
                                     Профиль
                                 </div>
                                 <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
@@ -42,8 +41,109 @@
                         </li>
 
 
-                        <li class="nav-item">
-                            <a class="nav-link1" href="#">Выйти</a>
+                        <li class="nav-item" th:if="${auth}">
+                            <form th:method="POST" th:action="@{/logout}">
+                                <button type="submit" class="btn btn-link nav-link1">Выйти</button>
+                            </form>
+                        </li>
+                        <li class="nav-item" th:if="${!auth}">
+                            <div class="dropdown">
+                                <div type="button" id="dropdown-login-form" class="nav-link1 dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-auto-close="outside">
+                                    Вход
+                                </div>
+                                <div aria-labelledby="dropdown-login-form" class="dropdown-menu dropdown-menu-end p-4">
+                                    <form id="auth-form" class="row dropdown-form-size-1 m-auto" th:method="POST" th:action="@{/}">
+                                        <div class="col">
+                                            <div class="row">
+                                                <div class="col form-floating">
+                                                    <input type="text" class="form-control" id="username" name="username" placeholder="username">
+                                                    <label for="username" class="ms-2">Имя пользователя</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="password" class="form-control" id="password" name="password" placeholder="password">
+                                                    <label for="password" class="ms-2">Пароль</label>
+                                                    <i toggle="#password" class="icon feather icon-eye field-icon toggle-password position-absolute end-0 top-40 me-4"></i>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="d-grid gap-2 col-6 mx-auto">
+                                                    <button class="btn btn-outline-success" type="submit">Вход</button>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col text-center">
+                                                    <a href="#" onclick="showRegForm()"><small>Нет учетной записи? Зарегистрируйся!</small></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <form id="reg-form" class="row dropdown-form-size-1 m-auto" th:method="POST" th:action="@{/auth/user/reg}" hidden>
+                                        <div class="col">
+                                            <div class="row">
+                                                <div class="col form-floating">
+                                                    <input type="text" class="form-control" id="username-form" placeholder="username-form">
+                                                    <label for="username-form" class="ms-2">Имя пользователя</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="password" class="form-control" id="password-form" placeholder="password-form">
+                                                    <label for="password-form" class="ms-2">Пароль</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="password" class="form-control" id="confirm-password-form" placeholder="confirm-password-form">
+                                                    <label for="confirm-password-form" class="ms-2">Подтвердите пароль</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="text" class="form-control" id="lastname-form" placeholder="lastname-form">
+                                                    <label for="lastname-form" class="ms-2">Фамилия</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="text" class="form-control" id="name-form" placeholder="name-form">
+                                                    <label for="name-form" class="ms-2">Имя</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="text" class="form-control" id="middle-name-form" placeholder="middle-name-form">
+                                                    <label for="middle-name-form" class="ms-2">Отчество</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="date" class="form-control" id="date-form" placeholder="date-form">
+                                                    <label for="date-form" class="ms-2">Дата рождения</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col form-floating position-relative">
+                                                    <input type="email" class="form-control" id="email-form" placeholder="email-form">
+                                                    <label for="email-form" class="ms-2">Электронная почта</label>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="d-grid gap-2 col-6 mx-auto">
+                                                    <button class="btn btn-outline-success" type="submit">Регистрация</button>
+                                                </div>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col text-center">
+                                                    <a href="#" onclick="showAuthForm()"><small>Есть учетная запись? Авторизуйся!</small></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </li>
                     </ul>
 
@@ -52,3 +152,26 @@
         </div>
     </header>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordField = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            this.classList.toggle('icon-eye-off');
+        });
+    });
+
+    function showAuthForm(){
+        document.getElementById('auth-form').hidden = false;
+        document.getElementById('reg-form').hidden = true;
+    }
+
+    function showRegForm(){
+        document.getElementById('auth-form').hidden = true;
+        document.getElementById('reg-form').hidden = false;
+    }
+</script>

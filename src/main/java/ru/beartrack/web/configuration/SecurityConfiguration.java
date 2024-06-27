@@ -49,7 +49,7 @@ public class SecurityConfiguration {
                 .authorizeExchange(auth -> auth
                         //.pathMatchers("/auth/login","/favicon.ico").permitAll()
                         .anyExchange().permitAll())
-                .formLogin(loginSpec -> loginSpec.loginPage("/auth/login").authenticationSuccessHandler(authenticationSuccessHandler()))
+                .formLogin(loginSpec -> loginSpec.loginPage("/").authenticationSuccessHandler(authenticationSuccessHandler()))
                 .logout(logoutSpec -> logoutSpec.logoutSuccessHandler(logoutSuccessHandler()))
                 .requestCache(requestCacheSpec -> requestCacheSpec.requestCache(serverRequestCache()))
                 .build();
