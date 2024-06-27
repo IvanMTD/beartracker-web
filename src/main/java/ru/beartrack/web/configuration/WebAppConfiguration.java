@@ -7,10 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.server.session.CookieWebSessionIdResolver;
+import org.springframework.web.server.session.WebSessionIdResolver;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.enums.Role;
 import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.repositories.ApplicationUserRepository;
+import ru.beartrack.web.utils.CookieUtil;
 
 import java.time.LocalDate;
 
@@ -22,11 +25,12 @@ public class WebAppConfiguration implements WebFluxConfigurer {
     @Value("${app.admin.password}")
     private String password;
 
-   /* @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/node_modules/**")
-                .addResourceLocations("classpath:/node_modules/");
-    }*/
+    @Bean
+    public WebSessionIdResolver webSessionIdResolver() {
+        CookieWebSessionIdResolver resolver = new CookieWebSessionIdResolver();
+        resolver.setCookieName(CookieUtil.getInstance().getSESSION());
+        return resolver;
+    }
 
     @Bean
     public CommandLineRunner prepare(ApplicationUserRepository userRepository, PasswordEncoder passwordEncoder){

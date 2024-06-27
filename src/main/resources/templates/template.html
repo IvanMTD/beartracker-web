@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1" name="viewport">
+        <title th:text="${title}">page-title</title>
+        <!-- jquery -->
+        <script src="/fw/jquery/dist/jquery.js"></script>
+        <!-- bootstrap -->
+        <link href="/fw/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/fw/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <!-- page -->
+        <header th:insert="~{blocks/header}"></header>
+        <nav th:insert="~{blocks/navbar}"></nav>
+
+        <div th:insert="~{content/main-page}" th:if="${index} == 'main-page'"></div>
+
+        <footer th:insert="~{blocks/footer}"></footer>
+        <!-- scripts -->
+        <script src="/fw/@popperjs/core/dist/umd/popper.min.js"></script>
+        <script src="/fw/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script>
+            let Tooltipelements = document.querySelectorAll("[data-bs-toggle='tooltip']");
+            Tooltipelements.forEach((el) => {
+                new bootstrap.Tooltip(el);
+            });
+        </script>
+    </body>
+</html>
