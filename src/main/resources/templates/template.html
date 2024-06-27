@@ -31,6 +31,14 @@
                 new bootstrap.Tooltip(el);
             });
         </script>
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            if(params.has('error')){
+                const dropdownToggle = document.getElementById('dropdown-login-form');
+                const dropdown = new bootstrap.Dropdown(dropdownToggle);
+                dropdown.show();
+            }
+        </script>
         <!-- Yandex.Metrika counter -->
         <!--
         <script type="text/javascript">
