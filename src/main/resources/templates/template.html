@@ -15,6 +15,16 @@
     </head>
 
     <body>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="auth-error-toast" class="toast align-items-center border-danger bg-danger-subtle" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <p class="text-danger">Неверный логин или пароль.</p>
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
         <!-- page -->
         <header th:insert="~{blocks/header}"></header>
 
@@ -34,9 +44,9 @@
         <script>
             const params = new URLSearchParams(window.location.search);
             if(params.has('error')){
-                const dropdownToggle = document.getElementById('dropdown-login-form');
-                const dropdown = new bootstrap.Dropdown(dropdownToggle);
-                dropdown.show();
+                var authErrorToast = document.getElementById('auth-error-toast');
+                var toast = new bootstrap.Toast(authErrorToast);
+                toast.show();
             }
         </script>
         <!-- Yandex.Metrika counter -->

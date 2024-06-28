@@ -83,12 +83,18 @@
                                         </div>
                                     </form>
 
-                                    <form id="reg-form" class="row dropdown-form-size-1 m-auto" th:method="POST" th:action="@{/auth/user/reg}" hidden>
+                                    <form id="reg-form" class="row dropdown-form-size-1 m-auto" th:method="POST" th:action="@{/auth/user/reg}" novalidate hidden>
                                         <div class="col">
                                             <div class="row">
                                                 <div class="col form-floating">
-                                                    <input type="text" class="form-control" id="username-form" placeholder="username-form">
+                                                    <input type="text" class="form-control" id="username-form" placeholder="username-form" oninput="validateUsername()" required>
                                                     <label for="username-form" class="ms-2">Имя пользователя</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="username-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="username-invalid-data" class="text-center">Укажите имя пользователя!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
@@ -135,7 +141,7 @@
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="d-grid gap-2 col-6 mx-auto">
-                                                    <button class="btn btn-outline-success" type="submit">Регистрация</button>
+                                                    <button class="btn btn-outline-success" type="button" onclick="checkAndSend()">Регистрация</button>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
@@ -167,6 +173,48 @@
             this.classList.toggle('icon-eye-off');
         });
     });
+
+    function checkAndSend(){
+        console.log("first");
+        const form = document.getElementById('reg-form');
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        console.log("second");
+    }
+
+    function validateUsername(){
+        const usernameInput = document.getElementById('username-form');
+        const usernameInvalidFeedback = document.getElementById('username-invalid-data');
+
+        // Если поле пустое, не делаем запрос
+        if (usernameInput.value === '') {
+            usernameInput.classList.remove('is-invalid');
+            usernameInput.classList.remove('is-valid');
+            return;
+        }
+
+        $.ajax({
+            url:'/api/search/username',
+            type:'get',
+            data:{
+                request:usernameInput.value
+            },
+            success:function(response){
+                if(response){
+                    // Имя пользователя уже существует
+                    usernameInput.classList.add('is-invalid');
+                    usernameInput.classList.remove('is-valid');
+                    usernameInvalidFeedback.textContent = 'Такое имя пользователя уже занято!';
+                }else{
+                    // Имя пользователя свободно
+                    usernameInput.classList.remove('is-invalid');
+                    usernameInput.classList.add('is-valid');
+                }
+            }
+        });
+    }
 
     function showAuthForm(){
         document.getElementById('auth-form').hidden = false;
