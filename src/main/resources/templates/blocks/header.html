@@ -259,6 +259,14 @@
                         totalValidate();
                         toggleSubmitButton();
                         showAuthForm();
+
+                        // Заполнение полей формы авторизации
+                        document.getElementById('username').value = personalData.username;
+                        document.getElementById('password').value = personalData.password;
+
+                        // Отправка формы авторизации
+                        document.getElementById('auth-form').submit();
+
                         // Закрытие dropdown
                         const dropdownMenu = document.querySelector('.dropdown-menu');
                         const dropdownButton = document.querySelector('.dropdown-toggle');
