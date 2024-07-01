@@ -8,6 +8,8 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import ru.beartrack.web.dto.PersonDTO;
 import ru.beartrack.web.enums.Role;
 
 import java.time.LocalDate;
@@ -33,6 +35,18 @@ public class ApplicationUser implements UserDetails {
     private LocalDate birthday;
     private LocalDate placedAt;
     private Role role;
+
+    public ApplicationUser(PersonDTO personDTO, PasswordEncoder encoder) {
+        setUsername(personDTO.getUsername());
+        setPassword(encoder.encode(personDTO.getPassword()));
+        setLastname(personDTO.getLastname());
+        setName(personDTO.getName());
+        setMiddleName(personDTO.getMiddleName());
+        setBirthday(LocalDate.parse(personDTO.getBirthday()));
+        setPlacedAt(LocalDate.parse(personDTO.getPlacedAt()));
+        setEmail(personDTO.getEmail());
+        setRole(Role.USER);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

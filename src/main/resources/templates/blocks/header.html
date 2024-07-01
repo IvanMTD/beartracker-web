@@ -99,49 +99,91 @@
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="col form-floating position-relative">
-                                                    <input type="password" class="form-control" id="password-form" placeholder="password-form">
+                                                    <input type="password" class="form-control" id="password-form" placeholder="password-form" oninput="validatePassword()" required>
                                                     <label for="password-form" class="ms-2">Пароль</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="password-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="password-invalid-data" class="text-center">Укажите правильный пароль!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="col form-floating position-relative">
-                                                    <input type="password" class="form-control" id="confirm-password-form" placeholder="confirm-password-form">
+                                                    <input type="password" class="form-control" id="confirm-password-form" placeholder="confirm-password-form" oninput="validateConfirmPassword()" required>
                                                     <label for="confirm-password-form" class="ms-2">Подтвердите пароль</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="confirm-password-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="confirm-password-invalid-data" class="text-center">Пароли не совпадают!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="col form-floating position-relative">
-                                                    <input type="text" class="form-control" id="lastname-form" placeholder="lastname-form">
+                                                    <input type="text" class="form-control" id="lastname-form" placeholder="lastname-form" oninput="validateName('lastname-form')" required>
                                                     <label for="lastname-form" class="ms-2">Фамилия</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="lastname-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="lastname-form-invalid-data" class="text-center">Введите корректное ФИО!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="col form-floating position-relative">
-                                                    <input type="text" class="form-control" id="name-form" placeholder="name-form">
+                                                    <input type="text" class="form-control" id="name-form" placeholder="name-form" oninput="validateName('name-form')" required>
                                                     <label for="name-form" class="ms-2">Имя</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="name-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="name-form-invalid-data" class="text-center">Введите корректное ФИО!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="col form-floating position-relative">
-                                                    <input type="text" class="form-control" id="middle-name-form" placeholder="middle-name-form">
+                                                    <input type="text" class="form-control" id="middle-name-form" placeholder="middle-name-form" oninput="validateName('middle-name-form')" required>
                                                     <label for="middle-name-form" class="ms-2">Отчество</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="middle-name-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="middle-name-form-invalid-data" class="text-center">Введите корректное ФИО!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="col form-floating position-relative">
-                                                    <input type="date" class="form-control" id="date-form" placeholder="date-form">
+                                                    <input type="date" class="form-control" id="date-form" placeholder="date-form" oninput="validateDate()" required>
                                                     <label for="date-form" class="ms-2">Дата рождения</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="date-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="date-invalid-data" class="text-center">Введите корректную дату рождения!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="col form-floating position-relative">
-                                                    <input type="email" class="form-control" id="email-form" placeholder="email-form">
+                                                    <input type="email" class="form-control" id="email-form" placeholder="email-form" oninput="validateEmail()" required>
                                                     <label for="email-form" class="ms-2">Электронная почта</label>
+                                                    <div class="valid-feedback">
+                                                        <p id="email-valid-data" class="text-center">Отлично!</p>
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <p id="email-invalid-data" class="text-center">Введите корректный email!</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
                                                 <div class="d-grid gap-2 col-6 mx-auto">
-                                                    <button class="btn btn-outline-success" type="button" onclick="checkAndSend()">Регистрация</button>
+                                                    <button class="btn btn-outline-success" type="button" id="reg-form-submit" onclick="checkAndSend()" disabled>Регистрация</button>
                                                 </div>
                                             </div>
                                             <div class="row pt-2">
@@ -162,7 +204,8 @@
     </header>
 </div>
 
-<script>
+<script th:inline="javascript">
+    let csrf = [[${_csrf}]];
     document.addEventListener('DOMContentLoaded', function() {
         const togglePassword = document.querySelector('.toggle-password');
         const passwordField = document.querySelector('#password');
@@ -175,14 +218,72 @@
     });
 
     function checkAndSend(){
-        console.log("first");
+        totalValidate();
         const form = document.getElementById('reg-form');
         if (!form.checkValidity()) {
             form.classList.add('was-validated');
             return;
+        }else{
+
+            let birthdayInput = $('#date-form').val();
+            let birthdayDate = new Date(birthdayInput);
+            let birthdayString = birthdayDate.toISOString().split('T')[0];
+
+            let personalData = {
+                username: $('#username-form').val(),
+                password: $('#password-form').val(),
+                lastname: $('#lastname-form').val(),
+                name: $('#name-form').val(),
+                middleName: $('#middle-name-form').val(),
+                birthday: birthdayString,
+                placedAt: new Date().toISOString().split('T')[0],
+                email: $('#email-form').val()
+            };
+
+            let header = csrf.headerName;
+            let token = csrf.token;
+
+            $.ajax({
+                url:'/api/reg/user',
+                type:'post',
+                data: JSON.stringify(personalData),
+                contentType:'application/json',
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function (response){
+                    if(response){
+                        let regForm = document.getElementById('reg-form');
+                        regForm.reset();
+                        regForm.classList.remove('was-validated');
+                        totalValidate();
+                        toggleSubmitButton();
+                        showAuthForm();
+                        // Закрытие dropdown
+                        const dropdownMenu = document.querySelector('.dropdown-menu');
+                        const dropdownButton = document.querySelector('.dropdown-toggle');
+                        dropdownMenu.classList.remove('show');
+                        dropdownButton.setAttribute('aria-expanded', 'false');
+
+                        showToast('success','Вы успешно зарегистрировались.');
+                    }else{
+                        showToast('error','Непредвиденная ошибка.');
+                    }
+                }
+            });
         }
-        console.log("second");
     }
+
+    function totalValidate(){
+        validateUsername();
+        validatePassword();
+        validateName('lastname-form');
+        validateName('name-form');
+        validateName('middle-name-form');
+        validateDate();
+        validateEmail();
+    }
+
 
     function validateUsername(){
         const usernameInput = document.getElementById('username-form');
@@ -193,28 +294,193 @@
             usernameInput.classList.remove('is-invalid');
             usernameInput.classList.remove('is-valid');
             return;
+        }else{
+            if(usernameInput.value.length < 4){
+                usernameInput.classList.add('is-invalid');
+                usernameInput.classList.remove('is-valid');
+                usernameInvalidFeedback.textContent = 'Минимальная длинна 4 знака!';
+            }else{
+                $.ajax({
+                    url:'/api/search/username',
+                    type:'get',
+                    data:{
+                        username:usernameInput.value
+                    },
+                    success:function(response){
+                        if(response){
+                            // Имя пользователя уже существует
+                            usernameInput.classList.add('is-invalid');
+                            usernameInput.classList.remove('is-valid');
+                            usernameInvalidFeedback.textContent = 'Такое имя пользователя уже занято!';
+                        }else{
+                            // Имя пользователя свободно
+                            usernameInput.classList.remove('is-invalid');
+                            usernameInput.classList.add('is-valid');
+                        }
+                    }
+                });
+            }
+        }
+        toggleSubmitButton();
+    }
+
+    function validatePassword(){
+        const passwordInputForm = document.getElementById('password-form');
+        const confirmPasswordInputForm = document.getElementById('confirm-password-form');
+        const passwordInvalidFeedback = document.getElementById('password-invalid-data');
+
+        if(passwordInputForm.value === ''){
+            if(confirmPasswordInputForm.value === ''){
+                passwordInputForm.classList.remove('is-invalid');
+                passwordInputForm.classList.remove('is-valid');
+                confirmPasswordInputForm.classList.remove('is-invalid');
+                confirmPasswordInputForm.classList.remove('is-valid');
+                return;
+            }else{
+                passwordInputForm.classList.remove('is-invalid');
+                passwordInputForm.classList.remove('is-valid');
+                return;
+            }
+        }else{
+            if(passwordInputForm.value.length < 8){
+                passwordInputForm.classList.add('is-invalid');
+                passwordInputForm.classList.remove('is-valid');
+                passwordInvalidFeedback.textContent = 'Минимальная длинна пароля 8 знаков!';
+            } else {
+                passwordInputForm.classList.remove('is-invalid');
+                passwordInputForm.classList.add('is-valid');
+            }
         }
 
+        validateConfirmPassword();
+    }
+
+    function validateConfirmPassword(){
+        const passwordInput = document.getElementById('password-form');
+        const confirmPasswordInput = document.getElementById('confirm-password-form');
+        const confirmPasswordInvalidFeedback = document.getElementById('confirm-password-invalid-data');
+
+        if(confirmPasswordInput.value === ''){
+            confirmPasswordInput.classList.remove('is-invalid');
+            confirmPasswordInput.classList.remove('is-valid');
+            return;
+        }else{
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('is-invalid');
+                confirmPasswordInput.classList.remove('is-valid');
+                confirmPasswordInvalidFeedback.textContent = 'Пароли не совпадают!';
+            } else {
+                confirmPasswordInput.classList.remove('is-invalid');
+                confirmPasswordInput.classList.add('is-valid');
+            }
+        }
+        toggleSubmitButton();
+    }
+
+    function validateName(inputId){
+        const nameInput = document.getElementById(inputId);
+        const nameInvalidFeedback = document.getElementById(inputId + '-invalid-data');
+        const namePattern = /^[А-Я][а-я]*([-][А-Я][а-я]*)?$/;
+
+        if(nameInput.value === ''){
+            nameInput.classList.remove('is-invalid');
+            nameInput.classList.remove('is-valid');
+            return;
+        }else{
+            if (!namePattern.test(nameInput.value)) {
+                nameInput.classList.add('is-invalid');
+                nameInput.classList.remove('is-valid');
+                nameInvalidFeedback.textContent = 'Введите корректное ФИО!';
+            } else {
+                nameInput.classList.remove('is-invalid');
+                nameInput.classList.add('is-valid');
+            }
+        }
+        toggleSubmitButton();
+    }
+
+    function validateDate(){
+        const dateInput = document.getElementById('date-form');
+        const dateInvalidFeedback = document.getElementById('date-invalid-data');
+        const selectedDate = new Date(dateInput.value);
+        const currentDate = new Date();
+        const minDate = new Date();
+        minDate.setFullYear(minDate.getFullYear() - 150);
+
+        if(dateInput.value === ''){
+            dateInput.classList.remove('is-invalid');
+            dateInput.classList.remove('is-valid');
+            return;
+        }else{
+            if (selectedDate > currentDate || selectedDate < minDate) {
+                dateInput.classList.add('is-invalid');
+                dateInput.classList.remove('is-valid');
+                dateInvalidFeedback.textContent = 'Введите корректную дату рождения!';
+            } else {
+                dateInput.classList.remove('is-invalid');
+                dateInput.classList.add('is-valid');
+            }
+        }
+        toggleSubmitButton();
+    }
+
+    function validateEmail(){
+        const emailInput = document.getElementById('email-form');
+        const emailInvalidFeedback = document.getElementById('email-invalid-data');
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if(emailInput.value === ''){
+            emailInput.classList.remove('is-invalid');
+            emailInput.classList.remove('is-valid');
+            return;
+        }else{
+            if (!emailPattern.test(emailInput.value)) {
+                emailInput.classList.add('is-invalid');
+                emailInput.classList.remove('is-valid');
+                emailInvalidFeedback.textContent = 'Введите корректный email!';
+            } else {
+                emailInput.classList.remove('is-invalid');
+                emailInput.classList.add('is-valid');
+            }
+        }
+        validateEmailExists();
+    }
+
+    function validateEmailExists(){
+        const emailInput = document.getElementById('email-form');
+        const emailInvalidFeedback = document.getElementById('email-invalid-data');
+
         $.ajax({
-            url:'/api/search/username',
+            url:'/api/user/email/check',
             type:'get',
             data:{
-                request:usernameInput.value
+                email: emailInput.value
             },
             success:function(response){
                 if(response){
-                    // Имя пользователя уже существует
-                    usernameInput.classList.add('is-invalid');
-                    usernameInput.classList.remove('is-valid');
-                    usernameInvalidFeedback.textContent = 'Такое имя пользователя уже занято!';
-                }else{
-                    // Имя пользователя свободно
-                    usernameInput.classList.remove('is-invalid');
-                    usernameInput.classList.add('is-valid');
+                    // Email уже существует
+                    emailInput.classList.add('is-invalid');
+                    emailInput.classList.remove('is-valid');
+                    emailInvalidFeedback.textContent = 'Такой email уже занят!';
                 }
             }
         });
+
+        toggleSubmitButton();
     }
+
+
+    function toggleSubmitButton(){
+        const form = document.getElementById('reg-form');
+        const submitButton = document.getElementById('reg-form-submit');
+
+        if (form.checkValidity()) {
+            submitButton.removeAttribute('disabled');
+        } else {
+            submitButton.setAttribute('disabled', 'disabled');
+        }
+    }
+
 
     function showAuthForm(){
         document.getElementById('auth-form').hidden = false;
