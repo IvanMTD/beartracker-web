@@ -20,83 +20,19 @@
         <header th:insert="~{blocks/header}"></header>
 
         <div th:insert="~{content/main-page}" th:if="${index} == 'main-page'"></div>
+        <div th:insert="~{content/location/list}" th:if="${index} == 'location-list-page'"></div>
 
         <footer th:insert="~{blocks/footer}"></footer>
 
         <!-- scripts -->
         <script src="/fw/@popperjs/core/dist/umd/popper.min.js"></script>
         <script src="/fw/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="/js/toast.controller.js"></script>
         <script>
             let Tooltipelements = document.querySelectorAll("[data-bs-toggle='tooltip']");
             Tooltipelements.forEach((el) => {
                 new bootstrap.Tooltip(el);
             });
         </script>
-        <script>
-            const params = new URLSearchParams(window.location.search);
-            if(params.has('error')){
-                showToast('error','Неверный логин или пароль!');
-            }
-            function showToast(type, message){
-                let infoToast = $('#info-toast');
-                infoToast.empty();
-                if(type === 'error'){
-                    infoToast.append(
-                        '<div class="toast align-items-center border-danger bg-danger-subtle" role="alert" aria-live="assertive" aria-atomic="true">\n' +
-                        '   <div class="d-flex">\n' +
-                        '       <div class="toast-body">\n' +
-                        '           <p class="text-danger">' + message + '</p>\n' +
-                        '       </div>\n' +
-                        '       <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>\n' +
-                        '   </div>\n' +
-                        '</div>'
-                    );
-                }else{
-                    infoToast.append(
-                        '<div class="toast align-items-center border-success bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">\n' +
-                        '   <div class="d-flex">\n' +
-                        '       <div class="toast-body">\n' +
-                        '           <p class="text-success">' + message + '</p>\n' +
-                        '       </div>\n' +
-                        '       <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>\n' +
-                        '   </div>\n' +
-                        '</div>'
-                    );
-                }
-
-                let toastElement = infoToast.find('.toast');
-                let completedToast = new bootstrap.Toast(toastElement[0]);
-                completedToast.show();
-            }
-        </script>
-        <!-- Yandex.Metrika counter -->
-        <!--
-        <script type="text/javascript">
-            (function (m, e, t, r, i, k, a) {
-                m[i] = m[i] || function () {
-                    (m[i].a = m[i].a || []).push(arguments)
-                };
-                m[i].l = 1 * new Date();
-                for (var j = 0; j < document.scripts.length; j++) {
-                    if (document.scripts[j].src === r) {
-                        return;
-                    }
-                }
-                k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-            })
-            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-            ym(97470277, "init", {
-                clickmap: true,
-                trackLinks: true,
-                accurateTrackBounce: true
-            });
-        </script>
-        <noscript>
-            <div><img alt="" src="https://mc.yandex.ru/watch/97470277" style="position:absolute; left:-9999px;"/>
-            </div>
-        </noscript>
-        &lt;!&ndash; /Yandex.Metrika counter &ndash;&gt;
-        <script crossorigin="anonymous" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
     </body>
 </html>

@@ -17,8 +17,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @Data
+@Slf4j
 @NoArgsConstructor
 @Table(name = "application_user")
 public class ApplicationUser implements UserDetails {

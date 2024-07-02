@@ -13,3 +13,23 @@ CREATE TABLE IF NOT EXISTS application_user (
     placed_at DATE,
     role TEXT
 );
+
+CREATE TABLE IF NOT EXISTS location (
+    uuid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sef TEXT UNIQUE,
+    creator UUID,
+    latitude float,
+    longitude float,
+    title TEXT UNIQUE,
+    notation TEXT,
+    location_content_list UUID[]
+);
+
+CREATE TABLE IF NOT EXISTS location_content (
+    uuid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    content_type TEXT NOT NULL,
+    content TEXT,
+    image_url_sm TEXT,
+    image_url_md TEXT,
+    image_url_lg TEXT
+);
