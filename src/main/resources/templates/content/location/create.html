@@ -1,6 +1,6 @@
 <div class="container">
     <div class="shadow">
-        <div class="row bg-success-custom-1 mx-0 position-relative">
+        <div class="row bg-success-custom-1 bg-header mx-0 position-relative">
             <div class="col d-flex">
                 <div class="text-wrapper mx-auto mt-auto">
                     <p class="text-center text-white fs-2">Добавление нового места</p>
@@ -31,16 +31,16 @@
             </div>
         </div>
 
-        <div class="row mx-0 pt-4">
+        <div id="blocks"></div>
+
+        <div class="row mx-0 py-4">
             <div class="d-grid col-4 mx-auto">
                 <button class="btn btn-outline-success" type="button" onclick="createNewBlock()">Добавить блок</button>
             </div>
         </div>
 
-        <div id="blocks"></div>
-
         <div class="skew-bg-bottom"></div>
-        <div class="row bg-success-custom-1 mx-0"></div>
+        <div class="row bg-success-custom-1 py-4 mx-0"></div>
     </div>
 </div>
 
@@ -51,39 +51,99 @@
     function createNewBlock(){
         let container = $('#blocks');
         container.append(
-            '<div class="row mx-0 pt-4 px-4">' +
+            '<div class="skew-bg-bottom"></div>' +
+            '<div class="row mx-0 pt-4 px-4 bg-success-custom-1">' +
             '   <div class="col-6 d-flex">' +
             '       <div class="my-auto w-100">' +
             '           <div class="row">' +
             '               <div class="col">' +
-            '                   <select class="form-select" id="type-select-' + blockIndex + '">' +
+            '                   <select class="form-select" id="type-select-' + blockIndex + '" onchange="typeControl(this.id)">' +
             '                   </select>' +
             '               </div>' +
             '           </div>' +
             '           <div class="row pt-2">' +
             '               <div class="col">' +
-            '                   <input type="file" class="form-control">' +
+            '                   <input id="file-input-' + blockIndex + '" type="file" class="form-control" onchange="showImagePreview(this.id)">' +
             '               </div>' +
             '           </div>' +
             '           <div class="row pt-2">' +
             '               <div class="col">' +
-            '                   <textarea type="text" class="form-control" placeholder="Контент блока"></textarea>' +
+            '                   <textarea id="content-input-' + blockIndex + '" type="text" class="form-control" placeholder="Контент блока" oninput="showContent(this.id)" hidden></textarea>' +
             '               </div>' +
             '           </div>' +
             '       </div>' +
             '   </div>' +
-            '   <div class="col-6" style="height: 300px">' +
-            '       <p>TEST</p>' +
+            '   <div id="preview-' + blockIndex + '" class="col-6">' +
             '   </div>' +
-            '</div>'
+            '</div>' +
+            '<div class="skew-bg-top"></div>'
         );
 
         types.forEach(function (type){
             $('#type-select-' + blockIndex).append(
-                '<option value="' + type + '">' + type + '</option>'
+                '<option value="' + type.contentType + '">' + type.information + '</option>'
             );
         });
 
         blockIndex++;
+    }
+
+    function typeControl(selectId){
+        let parts = selectId.split('-');
+        let index = parts[parts.length - 1];
+        let type = document.getElementById(selectId).value;
+        if(type === 'BG_IMAGE'){
+            document.getElementById('file-input-' + index).hidden = false;
+            document.getElementById('content-input-' + index).hidden = true;
+        }else if (type === 'CONTENT'){
+            document.getElementById('file-input-' + index).hidden = true;
+            document.getElementById('content-input-' + index).hidden = false;
+        }else{
+            document.getElementById('file-input-' + index).hidden = false;
+            document.getElementById('content-input-' + index).hidden = false;
+        }
+    }
+
+    function showImagePreview(inputId) {
+        var input = document.getElementById(inputId);
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var parts = inputId.split('-');
+                var index = parts[parts.length - 1];
+                var preview = $('#preview-' + index);
+                preview.empty();
+                preview.append(
+                    '<div class="row bg-white">' +
+                    '   <div class="col p-0 d-flex">' +
+                    '       <img src="' + e.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
+                    '   </div>' +
+                    '</div>'
+                );
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+
+    function showContent(contentId){
+        let content = document.getElementById(contentId).value;
+        let parts = contentId.split('-');
+        let index = parts[parts.length - 1];
+        let preview = $('#preview-' + index);
+        let currentType = document.getElementById('type-select-' + index).value;
+        console.log(currentType);
+        preview.empty();
+        preview.append(
+            '<div class="row bg-white">' +
+            '   <div class="col h-100 d-flex">' +
+            '       <div class="m-auto text-break">' +
+            '           <p class="text-center fs-4">' + content + '</p>' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
     }
 </script>

@@ -30,7 +30,7 @@ public class LocationController {
                 Rendering.view("template")
                         .modelAttribute("title","Добавление нового места")
                         .modelAttribute("index","location-create-page")
-                        .modelAttribute("types", ContentType.values())
+                        .modelAttribute("types", ContentType.valuesOfDTO())
                         .build()
         );
     }
