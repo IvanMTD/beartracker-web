@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
+import ru.beartrack.web.enums.ContentType;
 
 @Slf4j
 @Controller
@@ -19,6 +20,17 @@ public class LocationController {
                 Rendering.view("template")
                         .modelAttribute("title","Интересные места")
                         .modelAttribute("index","location-list-page")
+                        .build()
+        );
+    }
+
+    @GetMapping("/create")
+    public Mono<Rendering> locationCreatePage(){
+        return Mono.just(
+                Rendering.view("template")
+                        .modelAttribute("title","Добавление нового места")
+                        .modelAttribute("index","location-create-page")
+                        .modelAttribute("types", ContentType.values())
                         .build()
         );
     }

@@ -1,7 +1,4 @@
 <div class="container">
-    <div class="row" id="error">
-
-    </div>
     <header class="mb-3 yllo">
         <div class="container">
             <nav class="navbar navbar-expand-lg">
@@ -36,9 +33,10 @@
                                     Профиль
                                 </div>
                                 <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
+                                    <a class="dropdown-item" href="#">Редактировать</a>
+                                    <a class="dropdown-item" href="#">Сменить пароль</a>
+                                    <hr class="dropdown-divider" th:if="${admin} or ${moderator}">
+                                    <a class="dropdown-item" th:href="@{/location/create}" th:if="${admin} or ${moderator}">Добавить место</a>
                                 </div>
                             </div>
                         </li>

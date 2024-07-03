@@ -1,0 +1,89 @@
+<div class="container">
+    <div class="shadow">
+        <div class="row bg-success-custom-1 mx-0 position-relative">
+            <div class="col d-flex">
+                <div class="text-wrapper mx-auto mt-auto">
+                    <p class="text-center text-white fs-2">Добавление нового места</p>
+                </div>
+            </div>
+        </div>
+        <div class="skew-bg-top"></div>
+
+        <div class="row mx-0 pt-4">
+            <div class="col">
+                <div class="row">
+                    <div class="col border-bottom border-success">
+                        <p class="fs-4 text-success">Настройка заголовка</p>
+                    </div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col">
+                        <label class="ms-1 text-success">Название места</label>
+                        <input type="text" id="location-title" class="form-control text-success">
+                    </div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col">
+                        <label class="ms-1 text-success">Краткое описание</label>
+                        <textarea type="text" id="location-notation" class="form-control text-success"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mx-0 pt-4">
+            <div class="d-grid col-4 mx-auto">
+                <button class="btn btn-outline-success" type="button" onclick="createNewBlock()">Добавить блок</button>
+            </div>
+        </div>
+
+        <div id="blocks"></div>
+
+        <div class="skew-bg-bottom"></div>
+        <div class="row bg-success-custom-1 mx-0"></div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let types = [[${types}]];
+    var blockIndex = 0;
+
+    function createNewBlock(){
+        let container = $('#blocks');
+        container.append(
+            '<div class="row mx-0 pt-4 px-4">' +
+            '   <div class="col-6 d-flex">' +
+            '       <div class="my-auto w-100">' +
+            '           <div class="row">' +
+            '               <div class="col">' +
+            '                   <select class="form-select" id="type-select-' + blockIndex + '">' +
+            '                   </select>' +
+            '               </div>' +
+            '           </div>' +
+            '           <div class="row pt-2">' +
+            '               <div class="col">' +
+            '                   <input type="file" class="form-control">' +
+            '               </div>' +
+            '           </div>' +
+            '           <div class="row pt-2">' +
+            '               <div class="col">' +
+            '                   <textarea type="text" class="form-control" placeholder="Контент блока"></textarea>' +
+            '               </div>' +
+            '           </div>' +
+            '       </div>' +
+            '   </div>' +
+            '   <div class="col-6" style="height: 300px">' +
+            '       <p>TEST</p>' +
+            '   </div>' +
+            '</div>'
+        );
+
+        types.forEach(function (type){
+            $('#type-select-' + blockIndex).append(
+                '<option value="' + type + '">' + type + '</option>'
+            );
+        });
+
+        blockIndex++;
+    }
+</script>
