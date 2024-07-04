@@ -1,30 +1,52 @@
 <div class="container">
     <div class="shadow">
-        <div class="row bg-success-custom-1 bg-header mx-0 position-relative">
+        <div class="row bg-success-custom-1 skew-bg-down size-100-px mx-0 position-relative">
             <div class="col d-flex">
-                <div class="text-wrapper mx-auto mt-auto">
+                <div class="m-auto">
                     <p class="text-center text-white fs-2">Добавление нового места</p>
                 </div>
             </div>
         </div>
-        <div class="skew-bg-top"></div>
 
         <div class="row mx-0 pt-4">
             <div class="col">
                 <div class="row">
                     <div class="col border-bottom border-success">
-                        <p class="fs-4 text-success">Настройка заголовка</p>
+                        <div class="row">
+                            <div class="col-6 d-flex">
+                                <div class="mt-auto">
+                                    <p class="fs-4 text-success">Настройка заголовка</p>
+                                </div>
+                            </div>
+                            <div class="col-6 py-2 d-flex">
+                                <button class="btn btn-outline-success ms-auto" onclick="checkAndSend()">Отправить</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row pt-2">
-                    <div class="col">
+                    <div class="col-8">
                         <label class="ms-1 text-success">Название места</label>
                         <input type="text" id="location-title" class="form-control text-success">
+                        <div class="valid-feedback">
+                            <p class="ms-1">Отлично!</p>
+                        </div>
+                        <div class="invalid-feedback">
+                            <p class="ms-1">Не может быть пустым!</p>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <label class="ms-1 text-success">Широта</label>
+                        <input type="text" id="location-latitude" class="form-control">
+                    </div>
+                    <div class="col-2">
+                        <label class="ms-1 text-success">Долгота</label>
+                        <input type="text" id="location-longitude" class="form-control">
                     </div>
                 </div>
                 <div class="row pt-2">
                     <div class="col">
-                        <label class="ms-1 text-success">Краткое описание</label>
+                        <label class="ms-1 text-success">Короткое вступительное слово</label>
                         <textarea type="text" id="location-notation" class="form-control text-success"></textarea>
                     </div>
                 </div>
@@ -39,44 +61,41 @@
             </div>
         </div>
 
-        <div class="skew-bg-bottom"></div>
-        <div class="row bg-success-custom-1 py-4 mx-0"></div>
+        <div class="row bg-success-custom-1 size-100-px skew-bg-up py-4 mx-0"></div>
     </div>
 </div>
 
 <script th:inline="javascript">
     let types = [[${types}]];
+    let lc_csrf = [[${_csrf}]];
     var blockIndex = 0;
 
     function createNewBlock(){
         let container = $('#blocks');
         container.append(
-            '<div class="skew-bg-bottom"></div>' +
-            '<div class="row mx-0 pt-4 px-4 bg-success-custom-1">' +
+            '<div class="row mx-0 p-4 my-4 bg-success-custom-1" id="block-' + blockIndex + '">' +
             '   <div class="col-6 d-flex">' +
             '       <div class="my-auto w-100">' +
             '           <div class="row">' +
             '               <div class="col">' +
-            '                   <select class="form-select" id="type-select-' + blockIndex + '" onchange="typeControl(this.id)">' +
+            '                   <select class="form-select" id="type-select-' + blockIndex + '" onchange="showPreview(this.id)">' +
             '                   </select>' +
             '               </div>' +
             '           </div>' +
             '           <div class="row pt-2">' +
             '               <div class="col">' +
-            '                   <input id="file-input-' + blockIndex + '" type="file" class="form-control" onchange="showImagePreview(this.id)">' +
+            '                   <input type="file" accept="image/*" id="file-input-' + blockIndex + '" class="form-control" onchange="showPreview(this.id)">' +
             '               </div>' +
             '           </div>' +
             '           <div class="row pt-2">' +
             '               <div class="col">' +
-            '                   <textarea id="content-input-' + blockIndex + '" type="text" class="form-control" placeholder="Контент блока" oninput="showContent(this.id)" hidden></textarea>' +
+            '                   <textarea id="content-input-' + blockIndex + '" type="text" class="form-control" placeholder="Контент блока" oninput="showPreview(this.id)" hidden></textarea>' +
             '               </div>' +
             '           </div>' +
             '       </div>' +
             '   </div>' +
-            '   <div id="preview-' + blockIndex + '" class="col-6">' +
-            '   </div>' +
-            '</div>' +
-            '<div class="skew-bg-top"></div>'
+            '   <div id="preview-' + blockIndex + '" class="col-6"></div>' +
+            '</div>'
         );
 
         types.forEach(function (type){
@@ -88,62 +107,196 @@
         blockIndex++;
     }
 
-    function typeControl(selectId){
-        let parts = selectId.split('-');
-        let index = parts[parts.length - 1];
-        let type = document.getElementById(selectId).value;
+    function showPreview(inputId) {
+        let index = getIndex(inputId);
+        let fileInput = document.getElementById('file-input-' + index);
+        let content = escapeHtml(document.getElementById('content-input-' + index).value);
+        let type = document.getElementById('type-select-' + index).value;
+
         if(type === 'BG_IMAGE'){
-            document.getElementById('file-input-' + index).hidden = false;
-            document.getElementById('content-input-' + index).hidden = true;
-        }else if (type === 'CONTENT'){
-            document.getElementById('file-input-' + index).hidden = true;
-            document.getElementById('content-input-' + index).hidden = false;
-        }else{
-            document.getElementById('file-input-' + index).hidden = false;
-            document.getElementById('content-input-' + index).hidden = false;
-        }
-    }
-
-    function showImagePreview(inputId) {
-        var input = document.getElementById(inputId);
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                var parts = inputId.split('-');
-                var index = parts[parts.length - 1];
-                var preview = $('#preview-' + index);
-                preview.empty();
-                preview.append(
-                    '<div class="row bg-white">' +
-                    '   <div class="col p-0 d-flex">' +
-                    '       <img src="' + e.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
-                    '   </div>' +
-                    '</div>'
-                );
+            showControl(false,true,index);
+            if (fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (image) {
+                    previewFullScreenImage(image,index);
+                }
+                reader.readAsDataURL(fileInput.files[0]);
             }
-
-            reader.readAsDataURL(input.files[0]);
+        }else if(type === 'BG_IMAGE_CONTENT'){
+            showControl(false,false,index);
+            if (fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (image) {
+                    previewFullScreenImageAndContent(image,content,index);
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }else if(type === 'IMAGE_LEFT_CONTENT'){
+            showControl(false,false,index);
+            if (fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (image) {
+                    previewImageLeftContentRight(image,content,index);
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }else if(type === 'IMAGE_RIGHT_CONTENT'){
+            showControl(false,false,index);
+            if (fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (image) {
+                    previewImageRightContentLeft(image,content,index);
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }else if(type === 'CONTENT'){
+            showControl(true,false,index);
+            previewFullScreenContent(content,index);
         }
     }
 
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\n/g, "<br>");
+    }
 
-    function showContent(contentId){
-        let content = document.getElementById(contentId).value;
-        let parts = contentId.split('-');
-        let index = parts[parts.length - 1];
+    function getIndex(elementId){
+        let parts = elementId.split('-');
+        return parts[parts.length - 1];
+    }
+
+    function showControl(isFileInputShow,isContentInputShow,index){
+        document.getElementById('file-input-' + index).hidden = isFileInputShow;
+        document.getElementById('content-input-' + index).hidden = isContentInputShow;
+    }
+
+    function previewFullScreenImage(image,index){
         let preview = $('#preview-' + index);
-        let currentType = document.getElementById('type-select-' + index).value;
-        console.log(currentType);
         preview.empty();
         preview.append(
-            '<div class="row bg-white">' +
-            '   <div class="col h-100 d-flex">' +
-            '       <div class="m-auto text-break">' +
-            '           <p class="text-center fs-4">' + content + '</p>' +
+            '<div class="row">' +
+            '   <div class="col p-0 d-flex">' +
+            '       <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function previewFullScreenImageAndContent(image, content, index) {
+        let preview = $('#preview-' + index);
+        preview.empty();
+        preview.append(
+            '<div class="row position-relative">' +
+            '   <div class="col p-0 d-flex">' +
+            '       <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       <div class="position-absolute top-50 start-50 translate-middle text-break">' +
+            '           <p class="text-white text-center fs-4"><strong>' + content + '</strong></p>' +
             '       </div>' +
             '   </div>' +
             '</div>'
         );
     }
+
+    function previewImageLeftContentRight(image,content,index){
+        let preview = $('#preview-' + index);
+        preview.empty();
+        preview.append(
+            '<div class="row p-0">' +
+            '   <div class="col-6 px-0">' +
+            '       <div class="img-container">' +
+            '           <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       </div>' +
+            '   </div>' +
+            '   <div class="col-6 bg-white d-flex">' +
+            '       <div class="my-auto text-break">' +
+            '           <p class="fs-6">' + content + '</p>' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function previewImageRightContentLeft(image,content,index){
+        let preview = $('#preview-' + index);
+        preview.empty();
+        preview.append(
+            '<div class="row p-0">' +
+            '   <div class="col-6 bg-white d-flex">' +
+            '       <div class="my-auto text-break">' +
+            '           <p class="fs-6">' + content + '</p>' +
+            '       </div>' +
+            '   </div>' +
+            '   <div class="col-6 px-0">' +
+            '       <div class="img-container">' +
+            '           <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function previewFullScreenContent(content,index){
+        let preview = $('#preview-' + index);
+        preview.empty();
+        preview.append(
+            '<div class="row bg-white">' +
+            '   <div class="col d-flex">' +
+            '       <div class="m-auto full-block text-break">' +
+            '           <p class="fs-4">' + content + '</p>' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function checkAndSend() {
+        let title = $('#location-title').val();
+        let notation = $('#location-notation').val();
+        let latitude = $('#location-latitude').val();
+        let longitude = $('#location-longitude').val();
+        let blocks = document.querySelectorAll('[id^="block-"]');
+
+        let formData = new FormData();
+        formData.append('title', title);
+        formData.append('notation', notation);
+        formData.append('latitude', latitude);
+        formData.append('longitude', longitude);
+
+        blocks.forEach(function (block) {
+            let index = block.id.split('-')[1];
+            let type = $('#type-select-' + index).val();
+            formData.append(`blocks[${index}].type`, type);
+            let file = $('#file-input-' + index)[0].files[0];
+            if (file) {
+                formData.append(`blocks[${index}].image`, file);
+            }
+            let content = $('#content-input-' + index).val();
+            if (content){
+                formData.append(`blocks[${index}].content`, content);
+            }
+        });
+
+        $.ajax({
+            url: '/api/location/create',
+            type: 'post',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(lc_csrf.headerName, lc_csrf.token);
+            },
+            success: function (response) {
+                console.log('response:', response);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
 </script>

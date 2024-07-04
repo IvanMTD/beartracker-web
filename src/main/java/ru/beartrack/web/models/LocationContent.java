@@ -5,8 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+import ru.beartrack.web.dto.ContentDTO;
 import ru.beartrack.web.enums.ContentType;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
