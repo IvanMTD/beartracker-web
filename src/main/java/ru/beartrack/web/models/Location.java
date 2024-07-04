@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import ru.beartrack.web.dto.LocationDTO;
-import ru.beartrack.web.utils.Transliterator;
+import ru.beartrack.web.utils.TransliterateUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +39,7 @@ public class Location {
         setTitle(locationDTO.getTitle());
         setNotation(locationDTO.getNotation());
         setCreator(userId);
-        setSef(Transliterator.transliterate(locationDTO.getTitle()));
+        setSef(TransliterateUtil.transliterate(locationDTO.getTitle()));
         //setSubject();
     }
 }

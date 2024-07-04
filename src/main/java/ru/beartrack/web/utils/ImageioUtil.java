@@ -1,8 +1,8 @@
 package ru.beartrack.web.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;
@@ -10,8 +10,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Slf4j
 public class ImageioUtil {
     private static final String BASE_PATH = "./temp/img/";
 
@@ -23,10 +25,10 @@ public class ImageioUtil {
         return filePart.transferTo(savedFile).then(Mono.just(savedFile));
     }
 
-    public static void createResizedImages(File imageFile, String fileName) throws IOException {
+    public static void createResizedImages(File imageFile, String fileName, String[] sizes) throws IOException {
         BufferedImage originalImage = ImageIO.read(imageFile);
 
-        int[] widths = {300, 640, 1280};
+        int[] widths = {Integer.parseInt(sizes[0]), Integer.parseInt(sizes[1]), Integer.parseInt(sizes[2])};
         for (int width : widths) {
             int height = (int) (originalImage.getHeight() * (width / (double) originalImage.getWidth()));
             BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -41,5 +43,16 @@ public class ImageioUtil {
 
     private static void saveAsWebP(BufferedImage image, File file) throws IOException {
         ImageIO.write(image, "webp", file);
+    }
+
+    public static void releaseTemp(String fileName, String[] sizes) {
+        try {
+            Files.delete(Path.of(BASE_PATH + fileName));
+            Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[0] + ".webp"));
+            Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[1] + ".webp"));
+            Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[2] + ".webp"));
+        } catch (IOException e) {
+            log.error("Cant delete files! Error [{},{}]",e.getMessage(),e.getLocalizedMessage());
+        }
     }
 }

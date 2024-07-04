@@ -16,12 +16,14 @@ import java.io.IOException;
 @PropertySource("classpath:application.properties")
 public class MinioService {
     private final String bucket;
+    private final String minioUrl;
     private final MinioClient minioClient;
 
     @SneakyThrows
-    public MinioService(MinioClient minioClient, @Value("${minio.bucket}") String bucket) {
+    public MinioService(MinioClient minioClient, @Value("${minio.bucket}") String bucket, @Value("${minio.url}") String minioUrl) {
         this.minioClient = minioClient;
         this.bucket = bucket;
+        this.minioUrl = minioUrl;
         if (!this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
             this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
         }
@@ -38,9 +40,9 @@ public class MinioService {
                             .build()
             );
             log.info("minio response [{}]", response);
-            return response.object();
-        } catch (Exception e) {
-            log.error("error [{}]",e);
+            return minioUrl + "/" + bucket +  response.object();
+        } catch (Exception exception) {
+            log.error("exception throw [{}]", exception.getMessage());
             return "";
         }
     }

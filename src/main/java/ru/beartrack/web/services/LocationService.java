@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.LocationDTO;
@@ -43,21 +42,23 @@ public class LocationService {
                     String fileName = UUID.randomUUID() + ".webp";
                     return ImageioUtil.saveImage(filePart,fileName).flatMap(originalFile -> {
                         try {
-                            ImageioUtil.createResizedImages(originalFile,fileName);
                             String[] sizes = {"300", "640", "1280"};
+                            ImageioUtil.createResizedImages(originalFile,fileName,sizes);
                             for (String size : sizes) {
                                 File resizedFile = new File(originalFile.getParent(), FilenameUtils.removeExtension(fileName) + "-" + size + ".webp");
                                 String objectName = "/images/" + preSaved.getUuid() + "/" + resizedFile.getName();
                                 String imageUrl = minioService.uploadFile(resizedFile, objectName);
                                 log.info("Uploaded image URL: " + imageUrl);
-                                if(size.equals("300")){
+                                if(size.equals(sizes[0])){
                                     locationContent.setImageUrlSm(imageUrl);
-                                }else if(size.equals("640")){
+                                }else if(size.equals(sizes[1])){
                                     locationContent.setImageUrlMd(imageUrl);
                                 }else{
                                     locationContent.setImageUrlLg(imageUrl);
                                 }
                             }
+
+                            ImageioUtil.releaseTemp(fileName,sizes);
 
                             return contentRepository.save(locationContent);
                         } catch (IOException e) {

@@ -22,6 +22,6 @@ public class LocationRestController {
         return locationService.saveLocation(locationPost, user.getUuid()).flatMap(location -> {
             log.info("saved location [{}]",location);
             return Mono.just(true);
-        });
+        }).onErrorReturn(false);
     }
 }
