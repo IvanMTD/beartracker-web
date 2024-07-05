@@ -1,12 +1,28 @@
 .rise-animation {
+    animation: rise-effect 0.5s;
+}
+
+@keyframes rise-effect {
+    0% {
+        transform: scale(0.0);
+    }
+    80% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1.0);
+    }
+}
+
+.zoom-collapse {
     animation: zoom-in-out 0.5s;
 }
 
 @keyframes zoom-in-out {
     0% {
-        transform: scale(0.0);
+        transform: scale(0.8);
     }
-    80% {
+    50% {
         transform: scale(1.05);
     }
     100% {

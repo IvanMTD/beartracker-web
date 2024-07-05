@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="row pt-2">
-                    <div class="col-8">
+                    <div class="col-4">
                         <label class="ms-1 text-success">Название места</label>
                         <input type="text" id="location-title" class="form-control text-success">
                         <div class="valid-feedback">
@@ -42,6 +42,12 @@
                     <div class="col-2">
                         <label class="ms-1 text-success">Долгота</label>
                         <input type="text" id="location-longitude" class="form-control">
+                    </div>
+                    <div class="col-4">
+                        <label class="ms-1 text-success">Субъект</label>
+                        <select id="location-subject" class="form-select">
+                            <option th:each="subject : ${subjects}" th:value="${subject.uuid}" th:text="${subject.title}"></option>
+                        </select>
                     </div>
                 </div>
                 <div class="row pt-2">
@@ -259,6 +265,7 @@
         let notation = $('#location-notation').val();
         let latitude = $('#location-latitude').val();
         let longitude = $('#location-longitude').val();
+        let subject = $('#location-subject').val();
         let blocks = document.querySelectorAll('[id^="block-"]');
 
         let formData = new FormData();
@@ -266,9 +273,11 @@
         formData.append('notation', notation);
         formData.append('latitude', latitude);
         formData.append('longitude', longitude);
+        formData.append('subject', subject);
 
         blocks.forEach(function (block) {
             let index = block.id.split('-')[1];
+            formData.append(`blocks[${index}].position`, index);
             let type = $('#type-select-' + index).val();
             formData.append(`blocks[${index}].type`, type);
             let file = $('#file-input-' + index)[0].files[0];
@@ -292,6 +301,12 @@
             },
             success: function (response) {
                 console.log('response:', response);
+                $('#blocks').empty();
+                $('#location-title').val('');
+                $('#location-latitude').val('');
+                $('#location-longitude').val('');
+                $('#location-notation').val('');
+                showToast('warning','Ваш пост передан на модерацию. Следите за состоянием в Вашем профиле.');
             },
             error: function (xhr, status, error) {
                 console.error(error);

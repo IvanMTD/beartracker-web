@@ -17,8 +17,6 @@ import ru.beartrack.web.utils.ImageioUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -33,10 +31,10 @@ public class LocationService {
         return Mono.just(new Location(locationDTO, userID)).flatMap(locationRepository::save).flatMap(preSaved -> {
             return Flux.fromIterable(locationDTO.getBlocks()).flatMap(block -> {
                 LocationContent locationContent = new LocationContent();
-                ContentType type = ContentType.valueOf(block.getType());
-                String content = block.getContent();
-                locationContent.setContentType(type);
-                locationContent.setContent(content);
+                locationContent.setContentType(ContentType.valueOf(block.getType()));
+                locationContent.setContent(block.getContent());
+                locationContent.setPosition(Integer.parseInt(block.getPosition()));
+                locationContent.setParent(preSaved.getUuid());
                 try {
                     FilePart filePart = block.getImage();
                     String fileName = UUID.randomUUID() + ".webp";
@@ -64,19 +62,16 @@ public class LocationService {
                         } catch (IOException e) {
                             return Mono.empty();
                         }
-                    });
+                    }).switchIfEmpty(contentRepository.save(locationContent));
                 } catch (Exception e) {
                     log.error("Error processing image", e);
                 }
                 return contentRepository.save(locationContent);
-            }).collectList().flatMap(l -> {
-                Set<UUID> uuids = new HashSet<>();
-                for(LocationContent lc : l){
-                    uuids.add(lc.getUuid());
-                }
-                preSaved.setLocationContentList(uuids);
-                return locationRepository.save(preSaved);
-            });
+            }).collectList().flatMap(l -> locationRepository.save(preSaved));
         });
+    }
+
+    public Flux<LocationDTO> getAll() {
+        return Flux.empty();
     }
 }

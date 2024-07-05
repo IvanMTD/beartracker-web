@@ -26,7 +26,6 @@ public class Location {
     private float longitude;
     private String title;
     private String notation;
-    private Set<UUID> locationContentList = new HashSet<>();
     private UUID subject;
 
     public Location(LocationDTO locationDTO, UUID userId) {
@@ -40,6 +39,6 @@ public class Location {
         setNotation(locationDTO.getNotation());
         setCreator(userId);
         setSef(TransliterateUtil.transliterate(locationDTO.getTitle()));
-        //setSubject();
+        setSubject(locationDTO.getSubject());
     }
 }

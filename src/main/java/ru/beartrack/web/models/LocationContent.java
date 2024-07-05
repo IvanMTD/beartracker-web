@@ -19,6 +19,8 @@ public class LocationContent {
     @Id
     private UUID uuid;
 
+    private UUID parent;
+    private int position;
     private ContentType contentType;
     private String content;
     private String imageUrlSm;

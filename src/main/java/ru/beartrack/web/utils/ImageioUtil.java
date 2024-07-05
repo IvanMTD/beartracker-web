@@ -18,11 +18,15 @@ public class ImageioUtil {
     private static final String BASE_PATH = "./temp/img/";
 
     public static Mono<File> saveImage(FilePart filePart, String fileName) throws IOException {
-        // Ensure the directory exists
-        Files.createDirectories(Paths.get(BASE_PATH));
-        // Save the original file
-        File savedFile = new File(BASE_PATH + fileName);
-        return filePart.transferTo(savedFile).then(Mono.just(savedFile));
+        if(filePart != null) {
+            // Ensure the directory exists
+            Files.createDirectories(Paths.get(BASE_PATH));
+            // Save the original file
+            File savedFile = new File(BASE_PATH + fileName);
+            return filePart.transferTo(savedFile).then(Mono.just(savedFile));
+        }else{
+            return Mono.empty();
+        }
     }
 
     public static void createResizedImages(File imageFile, String fileName, String[] sizes) throws IOException {
