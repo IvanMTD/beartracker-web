@@ -16,6 +16,17 @@ function showToast(type, message){
             '   </div>\n' +
             '</div>'
         );
+    }else if(type === 'warning'){
+        infoToast.append(
+            '<div class="toast align-items-center border-warning bg-warning-subtle" role="alert" aria-live="assertive" aria-atomic="true">\n' +
+            '   <div class="d-flex">\n' +
+            '       <div class="toast-body">\n' +
+            '           <p class="text-warning">' + message + '</p>\n' +
+            '       </div>\n' +
+            '       <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>\n' +
+            '   </div>\n' +
+            '</div>'
+        );
     }else{
         infoToast.append(
             '<div class="toast align-items-center border-success bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">\n' +

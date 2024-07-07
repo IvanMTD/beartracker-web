@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.beartrack.web.dto.ContentDTO;
 import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.enums.ContentType;
 import ru.beartrack.web.models.Location;
@@ -17,7 +19,9 @@ import ru.beartrack.web.utils.ImageioUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -71,7 +75,19 @@ public class LocationService {
         });
     }
 
-    public Flux<LocationDTO> getAll() {
-        return Flux.empty();
+    public Flux<Location> getAll() {
+        return locationRepository.findAll().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
+        }));
+    }
+
+    public Mono<Location> getBySef(String sef) {
+        return locationRepository.findBySef(sef).flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
+        }));
     }
 }

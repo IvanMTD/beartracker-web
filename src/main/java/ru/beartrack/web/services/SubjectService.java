@@ -2,6 +2,7 @@ package ru.beartrack.web.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -10,6 +11,7 @@ import ru.beartrack.web.models.Subject;
 import ru.beartrack.web.repositories.SubjectRepository;
 
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,5 +33,9 @@ public class SubjectService {
             l = l.stream().sorted(Comparator.comparing(Subject::getTitle)).collect(Collectors.toList());
             return Flux.fromIterable(l);
         }).flatMapSequential(Mono::just);
+    }
+
+    public Mono<Subject> getByUuid(UUID subject) {
+        return subjectRepository.findByUuid(subject);
     }
 }

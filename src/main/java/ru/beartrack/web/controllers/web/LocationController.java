@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
@@ -26,9 +27,26 @@ public class LocationController {
                 Rendering.view("template")
                         .modelAttribute("title","Интересные места")
                         .modelAttribute("index","location-list-page")
-                        .modelAttribute("post", locationService.getAll())
+                        .modelAttribute("posts", locationService.getAll().flatMap(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
+                            location.setSubjectModel(subject);
+                            return Mono.just(location);
+                        })))
                         .build()
         );
+    }
+
+    @GetMapping("/{sef}")
+    public Mono<Rendering> locationShowPage(@PathVariable String sef){
+        return locationService.getBySef(sef).flatMap(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
+            location.setSubjectModel(subject);
+            return Mono.just(
+                    Rendering.view("template")
+                            .modelAttribute("title",location.getTitle())
+                            .modelAttribute("index","location-show-page")
+                            .modelAttribute("post",location)
+                            .build()
+            );
+        }));
     }
 
     @GetMapping("/create")

@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface SubjectRepository extends R2dbcRepository<Subject, UUID> {
     Mono<Subject> findByIso(String iso);
+    Mono<Subject> findByUuid(UUID subject);
 }

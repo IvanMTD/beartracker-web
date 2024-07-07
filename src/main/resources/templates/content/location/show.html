@@ -1,0 +1,118 @@
+<div class="container">
+    <div class="row">
+        <div class="col border-bottom border-dark">
+            <h1 class="display-1" th:text="${post.title}"></h1>
+            <p class="fs-4" th:text="${post.notation}"></p>
+        </div>
+    </div>
+    <div id="blocks"></div>
+</div>
+
+<script th:inline="javascript">
+    let blocks = [[${post.contentList}]];
+    blocks.forEach(function (block){
+        let type = block.contentType;
+        if(type === 'BG_IMAGE'){
+            bgImage(block);
+        }else if(type === 'BG_IMAGE_CONTENT'){
+            bgImageContent(block);
+        }else if(type === 'IMAGE_LEFT_CONTENT'){
+            imageLeftContent(block);
+        }else if(type === 'IMAGE_RIGHT_CONTENT'){
+            imageRightContent(block);
+        }else if(type === 'CONTENT'){
+            contentOnly(block);
+        }
+    });
+
+    function bgImage(block){
+        $('#blocks').append(
+            '<div class="row pt-4">' +
+            '   <div class="col p-0 img-container img-height-40vh d-flex">' +
+            '       <img src="' + block.imageUrlLg + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function bgImageContent(block){
+        $('#blocks').append(
+            '<div class="row position-relative pt-4">' +
+            '   <div class="col p-0 img-container img-height-40vh d-flex">' +
+            '       <img src="' + block.imageUrlLg + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       <div class="position-absolute top-50 start-50 translate-middle text-break">' +
+            '           <p class="text-white text-center fs-2"><strong>' + block.content + '</strong></p>' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function imageLeftContent(block){
+
+        // Разделяем контент на строки
+        let lines = block.content.split('\n');
+
+        // Создаем контейнер для новых параграфов
+        let contentHtml = lines.map(line => `<p class="fs-5">${line}</p>`).join('');
+
+        $('#blocks').append(
+            '<div class="row p-0 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 pt-4">' +
+            '   <div class="col px-0">' +
+            '       <div class="img-container">' +
+            '           <img src="' + block.imageUrlMd + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       </div>' +
+            '   </div>' +
+            '   <div class="col d-flex">' +
+            '       <div class="my-auto content-block text-break">' +
+                        contentHtml +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function imageRightContent(block){
+
+        // Разделяем контент на строки
+        let lines = block.content.split('\n');
+
+        // Создаем контейнер для новых параграфов
+        let contentHtml = lines.map(line => `<p class="fs-5">${line}</p>`).join('');
+
+        $('#blocks').append(
+            '<div class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-2 p-0 pt-4">' +
+            '   <div class="col d-flex">' +
+            '       <div class="my-auto content-block text-break">' +
+                        contentHtml +
+            '       </div>' +
+            '   </div>' +
+            '   <div class="col px-0">' +
+            '       <div class="img-container">' +
+            '           <img src="' + block.imageUrlMd + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function contentOnly(block){
+
+        // Разделяем контент на строки
+        let lines = block.content.split('\n');
+
+        // Создаем контейнер для новых параграфов
+        let contentHtml = lines.map(line => `<p class="fs-5">${line}</p>`).join('');
+
+        // Добавляем контейнер в DOM
+        $('#blocks').append(
+            '<div class="row pt-4">' +
+            '   <div class="col d-flex">' +
+            '       <div class="m-auto content-block text-break">' +
+                        contentHtml +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+</script>

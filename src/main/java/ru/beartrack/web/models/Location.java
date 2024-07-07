@@ -4,12 +4,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.utils.TransliterateUtil;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -27,6 +28,12 @@ public class Location {
     private String title;
     private String notation;
     private UUID subject;
+
+    @Transient
+    private List<LocationContent> contentList = new ArrayList<>();
+    @Transient
+    private Subject subjectModel;
+
 
     public Location(LocationDTO locationDTO, UUID userId) {
         try{
