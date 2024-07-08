@@ -67,6 +67,19 @@
             </div>
         </div>
 
+        <div class="row mx-0 pt-4">
+            <div class="col">
+                <label class="ms-1 text-secondary"><small>Meta description</small></label>
+                <input id="meta-description" type="text" class="form-control text-secondary">
+            </div>
+        </div>
+        <div class="row mx-0 pb-4">
+            <div class="col">
+                <label class="ms-1 text-secondary"><small>Meta keywords: </small><small class="text-danger">Указывайте keywords через запятую с пробелом</small></label>
+                <input id="meta-keywords" type="text" class="form-control text-secondary" oninput="validateKeywords()">
+            </div>
+        </div>
+
         <div class="row bg-success-custom-1 size-100-px skew-bg-up py-4 mx-0"></div>
     </div>
 </div>
@@ -75,6 +88,28 @@
     let types = [[${types}]];
     let lc_csrf = [[${_csrf}]];
     var blockIndex = 0;
+
+    function validateKeywords(){
+        /*let keywordInput = document.getElementById('meta-keywords');
+        let keywords = $('#meta-keywords').val();
+        let parts = keywords.split(', ');
+
+        if(keywords === ''){
+            keywordInput.classList.remove('is-invalid');
+            keywordInput.classList.remove('is-valid');
+            return;
+        }
+
+        parts.forEach(function (part){
+            if(part.endsWith(',')){
+                keywordInput.classList.remove('is-invalid');
+                keywordInput.classList.add('is-valid');
+            }else{
+                keywordInput.classList.remove('is-valid');
+                keywordInput.classList.add('is-invalid');
+            }
+        });*/
+    }
 
     function createNewBlock(){
         let container = $('#blocks');
@@ -95,7 +130,17 @@
             '           </div>' +
             '           <div class="row pt-2">' +
             '               <div class="col">' +
-            '                   <textarea id="content-input-' + blockIndex + '" type="text" class="form-control" placeholder="Контент блока" oninput="showPreview(this.id)" hidden></textarea>' +
+            '                   <input type="text" id="file-title-input-' + blockIndex + '" class="form-control" placeholder="Подпись под картинкой" oninput="showPreview(this.id)">' +
+            '               </div>' +
+            '           </div>' +
+            '           <div class="row pt-2">' +
+            '               <div class="col">' +
+            '                   <input type="text" class="form-control" id="content-title-input-' + blockIndex + '" placeholder="Заголовок блока" oninput="showPreview(this.id)" hidden>' +
+            '               </div>' +
+            '           </div>' +
+            '           <div class="row pt-2">' +
+            '               <div class="col">' +
+            '                   <textarea type="text" class="form-control" id="content-input-' + blockIndex + '" placeholder="Контент блока" oninput="showPreview(this.id)" hidden></textarea>' +
             '               </div>' +
             '           </div>' +
             '       </div>' +
@@ -116,48 +161,50 @@
     function showPreview(inputId) {
         let index = getIndex(inputId);
         let fileInput = document.getElementById('file-input-' + index);
+        let fileTitle = document.getElementById('file-title-input-' + index).value;
+        let contentTitle = document.getElementById('content-title-input-' + index).value;
         let content = escapeHtml(document.getElementById('content-input-' + index).value);
         let type = document.getElementById('type-select-' + index).value;
 
         if(type === 'BG_IMAGE'){
-            showControl(false,true,index);
+            showControl(false,true,true,index);
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewFullScreenImage(image,index);
+                    previewFullScreenImage(image,fileTitle,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
         }else if(type === 'BG_IMAGE_CONTENT'){
-            showControl(false,false,index);
+            showControl(false,true,false,index);
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewFullScreenImageAndContent(image,content,index);
+                    previewFullScreenImageAndContent(image,fileTitle,content,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
         }else if(type === 'IMAGE_LEFT_CONTENT'){
-            showControl(false,false,index);
+            showControl(false,false,false,index);
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewImageLeftContentRight(image,content,index);
+                    previewImageLeftContentRight(image,fileTitle,contentTitle,content,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
         }else if(type === 'IMAGE_RIGHT_CONTENT'){
-            showControl(false,false,index);
+            showControl(false,false,false,index);
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewImageRightContentLeft(image,content,index);
+                    previewImageRightContentLeft(image,fileTitle,contentTitle,content,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
         }else if(type === 'CONTENT'){
-            showControl(true,false,index);
-            previewFullScreenContent(content,index);
+            showControl(true,false,false,index);
+            previewFullScreenContent(contentTitle,content,index);
         }
     }
 
@@ -176,12 +223,14 @@
         return parts[parts.length - 1];
     }
 
-    function showControl(isFileInputShow,isContentInputShow,index){
-        document.getElementById('file-input-' + index).hidden = isFileInputShow;
-        document.getElementById('content-input-' + index).hidden = isContentInputShow;
+    function showControl(hideFileInput,hideContentTitle, hideContent,index){
+        document.getElementById('file-input-' + index).hidden = hideFileInput;
+        document.getElementById('file-title-input-' + index).hidden = hideFileInput;
+        document.getElementById('content-title-input-' + index).hidden = hideContentTitle;
+        document.getElementById('content-input-' + index).hidden = hideContent;
     }
 
-    function previewFullScreenImage(image,index){
+    function previewFullScreenImage(image,imageTitle,index){
         let preview = $('#preview-' + index);
         preview.empty();
         preview.append(
@@ -189,11 +238,16 @@
             '   <div class="col p-0 d-flex">' +
             '       <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
             '   </div>' +
+            '</div>' +
+            '<div class="row bg-white">' +
+            '   <div class="col">' +
+            '       <small class="text-left text-secondary">' + imageTitle + '</small>' +
+            '   </div>' +
             '</div>'
         );
     }
 
-    function previewFullScreenImageAndContent(image, content, index) {
+    function previewFullScreenImageAndContent(image, imageTitle, content, index) {
         let preview = $('#preview-' + index);
         preview.empty();
         preview.append(
@@ -204,56 +258,82 @@
             '           <p class="text-white text-center fs-4"><strong>' + content + '</strong></p>' +
             '       </div>' +
             '   </div>' +
-            '</div>'
-        );
-    }
-
-    function previewImageLeftContentRight(image,content,index){
-        let preview = $('#preview-' + index);
-        preview.empty();
-        preview.append(
-            '<div class="row p-0">' +
-            '   <div class="col-6 px-0">' +
-            '       <div class="img-container">' +
-            '           <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
-            '       </div>' +
-            '   </div>' +
-            '   <div class="col-6 bg-white d-flex">' +
-            '       <div class="my-auto text-break">' +
-            '           <p class="fs-6">' + content + '</p>' +
-            '       </div>' +
+            '</div>' +
+            '<div class="row bg-white">' +
+            '   <div class="col">' +
+            '       <small class="text-left text-secondary">' + imageTitle + '</small>' +
             '   </div>' +
             '</div>'
         );
     }
 
-    function previewImageRightContentLeft(image,content,index){
-        let preview = $('#preview-' + index);
-        preview.empty();
-        preview.append(
-            '<div class="row p-0">' +
-            '   <div class="col-6 bg-white d-flex">' +
-            '       <div class="my-auto text-break">' +
-            '           <p class="fs-6">' + content + '</p>' +
-            '       </div>' +
-            '   </div>' +
-            '   <div class="col-6 px-0">' +
-            '       <div class="img-container">' +
-            '           <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
-            '       </div>' +
-            '   </div>' +
-            '</div>'
-        );
-    }
-
-    function previewFullScreenContent(content,index){
+    function previewImageLeftContentRight(image,imageTitle,contentTitle,content,index){
         let preview = $('#preview-' + index);
         preview.empty();
         preview.append(
             '<div class="row bg-white">' +
+            '   <div class="col">' +
+            '       <p class="text-left py-2 text-dark fs-3"><strong>' + contentTitle + '</strong></p>' +
+            '   </div>' +
+            '</div>' +
+            '<div class="row p-0">' +
+            '   <div class="col-6 px-0">' +
+            '       <div class="img-container">' +
+            '           <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       </div>' +
+            '       <div class="w-100">' +
+            '           <small class="text-left text-dark">' + imageTitle + '</small>' +
+            '       </div>' +
+            '   </div>' +
+            '   <div class="col-6 bg-white d-flex">' +
+            '       <div class="text-break">' +
+            '           <p class="fs-6 pt-2" style="text-indent: 1.2rem">' + content + '</p>' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function previewImageRightContentLeft(image,imageTitle,contentTitle,content,index){
+        let preview = $('#preview-' + index);
+        preview.empty();
+        preview.append(
+            '<div class="row bg-white">' +
+            '   <div class="col">' +
+            '       <p class="text-left py-2 text-dark fs-3"><strong>' + contentTitle + '</strong></p>' +
+            '   </div>' +
+            '</div>' +
+            '<div class="row p-0">' +
+            '   <div class="col-6 bg-white d-flex">' +
+            '       <div class="text-break">' +
+            '           <p class="fs-6 pt-2" style="text-indent: 1.2rem">' + content + '</p>' +
+            '       </div>' +
+            '   </div>' +
+            '   <div class="col-6 px-0">' +
+            '       <div class="img-container bg-white">' +
+            '           <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
+            '       </div>' +
+            '       <div class="w-100">' +
+            '           <small class="text-left text-dark">' + imageTitle + '</small>' +
+            '       </div>' +
+            '   </div>' +
+            '</div>'
+        );
+    }
+
+    function previewFullScreenContent(contentTitle,content,index){
+        let preview = $('#preview-' + index);
+        preview.empty();
+        preview.append(
+            '<div class="row bg-white">' +
+            '   <div class="col">' +
+            '       <p class="text-left py-2 text-dark fs-3"><strong>' + contentTitle + '</strong></p>' +
+            '   </div>' +
+            '</div>' +
+            '<div class="row bg-white">' +
             '   <div class="col d-flex">' +
             '       <div class="m-auto full-block text-break">' +
-            '           <p class="fs-4">' + content + '</p>' +
+            '           <p class="fs-4" style="text-indent: 1.2rem">' + content + '</p>' +
             '       </div>' +
             '   </div>' +
             '</div>'
@@ -266,6 +346,8 @@
         let latitude = $('#location-latitude').val();
         let longitude = $('#location-longitude').val();
         let subject = $('#location-subject').val();
+        let metaDescription = $('#meta-description').val();
+        let metaKeywords = $('#meta-keywords').val();
         let blocks = document.querySelectorAll('[id^="block-"]');
 
         let formData = new FormData();
@@ -274,6 +356,8 @@
         formData.append('latitude', latitude);
         formData.append('longitude', longitude);
         formData.append('subject', subject);
+        formData.append('metaDescription', metaDescription);
+        formData.append('metaKeywords', metaKeywords);
 
         blocks.forEach(function (block) {
             let index = block.id.split('-')[1];
@@ -283,6 +367,14 @@
             let file = $('#file-input-' + index)[0].files[0];
             if (file) {
                 formData.append(`blocks[${index}].image`, file);
+            }
+            let imageDescription = $('#file-title-input-' + index).val();
+            if(imageDescription){
+                formData.append(`blocks[${index}].imageDescription`, imageDescription);
+            }
+            let contentTitle = $('#content-title-input-' + index).val();
+            if(contentTitle){
+                formData.append(`blocks[${index}].contentTitle`, contentTitle);
             }
             let content = $('#content-input-' + index).val();
             if (content){
@@ -306,6 +398,8 @@
                 $('#location-latitude').val('');
                 $('#location-longitude').val('');
                 $('#location-notation').val('');
+                $('#meta-description').val('');
+                $('#meta-keywords').val('');
                 showToast('warning','Ваш пост передан на модерацию. Следите за состоянием в Вашем профиле.');
             },
             error: function (xhr, status, error) {

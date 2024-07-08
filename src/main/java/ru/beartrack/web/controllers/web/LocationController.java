@@ -43,6 +43,7 @@ public class LocationController {
                     Rendering.view("template")
                             .modelAttribute("title",location.getTitle())
                             .modelAttribute("index","location-show-page")
+                            .modelAttribute("description",location.getMetaDescription())
                             .modelAttribute("post",location)
                             .build()
             );

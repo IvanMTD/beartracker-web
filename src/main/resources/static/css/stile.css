@@ -30,6 +30,36 @@
     text-align: justify;
     text-indent: 25px;
 }
+.block-text-size{
+    margin: 1.1rem;
+    padding: 0;
+    color: #2d3034;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 1.2rem;
+    text-align: justify;
+    text-indent: 25px;
+}
+.block-text-anons-size{
+    margin: 0;
+    padding: 0;
+    color: #2d3034;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    text-align: justify;
+    text-indent: 25px;
+    font-style: italic;
+}
+.block-text-title{
+    margin: 0;
+    /*padding: 0 0 1.3rem 0;*/
+    color: #2d3034;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    text-align: justify;
+    text-indent: 25px;
+}
 .card_pod{
     padding: 0.3rem;
     margin-bottom: 0.3rem;

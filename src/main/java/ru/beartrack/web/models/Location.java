@@ -9,9 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.utils.TransliterateUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Slf4j
@@ -28,6 +26,8 @@ public class Location {
     private String title;
     private String notation;
     private UUID subject;
+    private String metaDescription;
+    private Set<String> metaKeywords = new HashSet<>();
 
     @Transient
     private List<LocationContent> contentList = new ArrayList<>();
@@ -40,12 +40,16 @@ public class Location {
             setLatitude(Float.parseFloat(locationDTO.getLatitude()));
             setLongitude(Float.parseFloat(locationDTO.getLongitude()));
         }catch (Exception exception){
-            log.error("Not valid latitude or Longitude! Error: [" + exception + "]");
+            log.error("Not valid latitude or Longitude! Error: [" + exception.getMessage() + "]");
         }
         setTitle(locationDTO.getTitle());
         setNotation(locationDTO.getNotation());
         setCreator(userId);
         setSef(TransliterateUtil.transliterate(locationDTO.getTitle()));
         setSubject(locationDTO.getSubject());
+
+        setMetaDescription(locationDTO.getMetaDescription());
+        String[] keywords = locationDTO.getMetaKeywords().split(", ");
+        metaKeywords.addAll(Arrays.asList(keywords));
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -35,14 +36,24 @@ public class ImageioUtil {
         int[] widths = {Integer.parseInt(sizes[0]), Integer.parseInt(sizes[1]), Integer.parseInt(sizes[2])};
         for (int width : widths) {
             int height = (int) (originalImage.getHeight() * (width / (double) originalImage.getWidth()));
-            BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            resizedImage.getGraphics().drawImage(originalImage, 0, 0, width, height, null);
+            /*BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            resizedImage.getGraphics().drawImage(originalImage, 0, 0, width, height, null);*/
+            BufferedImage resizedImage = resizeImage(originalImage, width, height);
 
             String resizedFileName = FilenameUtils.removeExtension(fileName) + "-" + width + ".webp";
             File resizedFile = new File(BASE_PATH + resizedFileName);
 
             saveAsWebP(resizedImage, resizedFile);
         }
+    }
+
+    private static BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
+        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = resizedImage.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.drawImage(originalImage, 0, 0, width, height, null);
+        g.dispose();
+        return resizedImage;
     }
 
     private static void saveAsWebP(BufferedImage image, File file) throws IOException {

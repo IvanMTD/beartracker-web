@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS location (
     longitude float,
     title TEXT UNIQUE,
     notation TEXT,
-    subject UUID
+    subject UUID,
+    meta_description TEXT,
+    meta_keywords TEXT[]
 );
 
 CREATE TABLE IF NOT EXISTS location_content (
@@ -30,10 +32,12 @@ CREATE TABLE IF NOT EXISTS location_content (
     parent UUID NOT NULL,
     position int NOT NULL,
     content_type TEXT NOT NULL,
+    content_title TEXT,
     content TEXT,
     image_url_sm TEXT,
     image_url_md TEXT,
-    image_url_lg TEXT
+    image_url_lg TEXT,
+    image_description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS subject(

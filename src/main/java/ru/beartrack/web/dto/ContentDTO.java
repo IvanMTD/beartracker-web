@@ -10,6 +10,8 @@ import ru.beartrack.web.models.LocationContent;
 public class ContentDTO {
     private String position;
     private String type;
+    private String contentTitle;
     private String content;
     private FilePart image;
+    private String imageDescription;
 }

@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.beartrack.web.dto.ContentDTO;
 import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.enums.ContentType;
 import ru.beartrack.web.models.Location;
@@ -36,9 +34,11 @@ public class LocationService {
             return Flux.fromIterable(locationDTO.getBlocks()).flatMap(block -> {
                 LocationContent locationContent = new LocationContent();
                 locationContent.setContentType(ContentType.valueOf(block.getType()));
+                locationContent.setContentTitle(block.getContentTitle());
                 locationContent.setContent(block.getContent());
                 locationContent.setPosition(Integer.parseInt(block.getPosition()));
                 locationContent.setParent(preSaved.getUuid());
+                locationContent.setImageDescription(block.getImageDescription());
                 try {
                     FilePart filePart = block.getImage();
                     String fileName = UUID.randomUUID() + ".webp";
