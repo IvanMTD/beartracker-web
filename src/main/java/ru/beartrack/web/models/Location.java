@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.utils.TransliterateUtil;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Data
@@ -28,6 +30,10 @@ public class Location {
     private UUID subject;
     private String metaDescription;
     private Set<String> metaKeywords = new HashSet<>();
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate created;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate updated;
 
     @Transient
     private List<LocationContent> contentList = new ArrayList<>();
@@ -51,5 +57,6 @@ public class Location {
         setMetaDescription(locationDTO.getMetaDescription());
         String[] keywords = locationDTO.getMetaKeywords().split(", ");
         metaKeywords.addAll(Arrays.asList(keywords));
+        setCreated(LocalDate.now());
     }
 }

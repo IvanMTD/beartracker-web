@@ -11,23 +11,23 @@
         <div class="row mx-0 pt-4">
             <div class="col">
                 <div class="row">
-                    <div class="col border-bottom border-success">
+                    <div class="col border-bottom border-dark">
                         <div class="row">
                             <div class="col-6 d-flex">
                                 <div class="mt-auto">
-                                    <p class="fs-4 text-success">Настройка заголовка</p>
+                                    <p class="fs-4 text-dark">Настройка заголовка</p>
                                 </div>
                             </div>
                             <div class="col-6 py-2 d-flex">
-                                <button class="btn btn-outline-success ms-auto" onclick="checkAndSend()">Отправить</button>
+                                <button class="btn btn-outline-dark ms-auto" onclick="checkAndSend()">Отправить</button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row pt-2">
                     <div class="col-4">
-                        <label class="ms-1 text-success">Название места</label>
-                        <input type="text" id="location-title" class="form-control text-success">
+                        <label class="ms-1 text-dark">Название места</label>
+                        <input type="text" id="location-title" class="form-control text-dark">
                         <div class="valid-feedback">
                             <p class="ms-1">Отлично!</p>
                         </div>
@@ -36,15 +36,15 @@
                         </div>
                     </div>
                     <div class="col-2">
-                        <label class="ms-1 text-success">Широта</label>
+                        <label class="ms-1 text-dark">Широта</label>
                         <input type="text" id="location-latitude" class="form-control">
                     </div>
                     <div class="col-2">
-                        <label class="ms-1 text-success">Долгота</label>
+                        <label class="ms-1 text-dark">Долгота</label>
                         <input type="text" id="location-longitude" class="form-control">
                     </div>
                     <div class="col-4">
-                        <label class="ms-1 text-success">Субъект</label>
+                        <label class="ms-1 text-dark">Субъект</label>
                         <select id="location-subject" class="form-select">
                             <option th:each="subject : ${subjects}" th:value="${subject.uuid}" th:text="${subject.title}"></option>
                         </select>
@@ -52,8 +52,8 @@
                 </div>
                 <div class="row pt-2">
                     <div class="col">
-                        <label class="ms-1 text-success">Короткое вступительное слово</label>
-                        <textarea type="text" id="location-notation" class="form-control text-success"></textarea>
+                        <label class="ms-1 text-dark">Короткое вступительное слово</label>
+                        <textarea type="text" id="location-notation" class="form-control text-dark"></textarea>
                     </div>
                 </div>
             </div>
@@ -63,20 +63,20 @@
 
         <div class="row mx-0 py-4">
             <div class="d-grid col-4 mx-auto">
-                <button class="btn btn-outline-success" type="button" onclick="createNewBlock()">Добавить блок</button>
+                <button class="btn btn-outline-dark" type="button" onclick="createNewBlock()">Добавить блок</button>
             </div>
         </div>
 
         <div class="row mx-0 pt-4">
             <div class="col">
                 <label class="ms-1 text-secondary"><small>Meta description</small></label>
-                <input id="meta-description" type="text" class="form-control text-secondary">
+                <input id="meta-description" type="text" class="form-control text-dark">
             </div>
         </div>
         <div class="row mx-0 pb-4">
             <div class="col">
                 <label class="ms-1 text-secondary"><small>Meta keywords: </small><small class="text-danger">Указывайте keywords через запятую с пробелом</small></label>
-                <input id="meta-keywords" type="text" class="form-control text-secondary" oninput="validateKeywords()">
+                <input id="meta-keywords" type="text" class="form-control text-dark" oninput="validateKeywords()">
             </div>
         </div>
 
@@ -114,7 +114,7 @@
     function createNewBlock(){
         let container = $('#blocks');
         container.append(
-            '<div class="row rise-animation mx-0 p-4 my-4 bg-success-custom-1" id="block-' + blockIndex + '">' +
+            '<div class="row rise-animation mx-0 p-4 my-4 border-top border-bottom border-dark" id="block-' + blockIndex + '">' +
             '   <div class="col-6 d-flex">' +
             '       <div class="my-auto w-100">' +
             '           <div class="row">' +
@@ -239,7 +239,7 @@
             '       <img src="' + image.target.result + '" class="img-fluid img-ratio-control" alt="Preview">' +
             '   </div>' +
             '</div>' +
-            '<div class="row bg-white">' +
+            '<div class="row">' +
             '   <div class="col">' +
             '       <small class="text-left text-secondary">' + imageTitle + '</small>' +
             '   </div>' +
@@ -259,7 +259,7 @@
             '       </div>' +
             '   </div>' +
             '</div>' +
-            '<div class="row bg-white">' +
+            '<div class="row">' +
             '   <div class="col">' +
             '       <small class="text-left text-secondary">' + imageTitle + '</small>' +
             '   </div>' +
@@ -271,7 +271,7 @@
         let preview = $('#preview-' + index);
         preview.empty();
         preview.append(
-            '<div class="row bg-white">' +
+            '<div class="row">' +
             '   <div class="col">' +
             '       <p class="text-left py-2 text-dark fs-3"><strong>' + contentTitle + '</strong></p>' +
             '   </div>' +
@@ -285,7 +285,7 @@
             '           <small class="text-left text-dark">' + imageTitle + '</small>' +
             '       </div>' +
             '   </div>' +
-            '   <div class="col-6 bg-white d-flex">' +
+            '   <div class="col-6 d-flex">' +
             '       <div class="text-break">' +
             '           <p class="fs-6 pt-2" style="text-indent: 1.2rem">' + content + '</p>' +
             '       </div>' +
@@ -298,13 +298,13 @@
         let preview = $('#preview-' + index);
         preview.empty();
         preview.append(
-            '<div class="row bg-white">' +
+            '<div class="row">' +
             '   <div class="col">' +
             '       <p class="text-left py-2 text-dark fs-3"><strong>' + contentTitle + '</strong></p>' +
             '   </div>' +
             '</div>' +
             '<div class="row p-0">' +
-            '   <div class="col-6 bg-white d-flex">' +
+            '   <div class="col-6 d-flex">' +
             '       <div class="text-break">' +
             '           <p class="fs-6 pt-2" style="text-indent: 1.2rem">' + content + '</p>' +
             '       </div>' +
@@ -325,12 +325,12 @@
         let preview = $('#preview-' + index);
         preview.empty();
         preview.append(
-            '<div class="row bg-white">' +
+            '<div class="row">' +
             '   <div class="col">' +
             '       <p class="text-left py-2 text-dark fs-3"><strong>' + contentTitle + '</strong></p>' +
             '   </div>' +
             '</div>' +
-            '<div class="row bg-white">' +
+            '<div class="row">' +
             '   <div class="col d-flex">' +
             '       <div class="m-auto full-block text-break">' +
             '           <p class="fs-4" style="text-indent: 1.2rem">' + content + '</p>' +

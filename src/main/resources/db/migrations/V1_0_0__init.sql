@@ -24,7 +24,9 @@ CREATE TABLE IF NOT EXISTS location (
     notation TEXT,
     subject UUID,
     meta_description TEXT,
-    meta_keywords TEXT[]
+    meta_keywords TEXT[],
+    created date,
+    updated date
 );
 
 CREATE TABLE IF NOT EXISTS location_content (
