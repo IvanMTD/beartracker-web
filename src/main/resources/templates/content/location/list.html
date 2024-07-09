@@ -1,32 +1,55 @@
 <div class="container">
-    <div class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-4">
-        <div class="col" th:each="post, post_stat : ${posts}">
-            <div class="card m-auto">
-                <div th:id="'carousel-' + ${post_stat.index}" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item img-ratio-control size-150-px" th:each="block, blockStat : ${post.contentList}" th:if="${block.imageUrlSm} != null" th:classappend="${blockStat.index == 0} ? ' active' : ''">
-                            <img th:src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="img">
+    <div id="row-posts" class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-4"></div>
+</div>
+
+<script th:inline="javascript">
+    let posts = [[${posts}]];
+    let postRow = $('#row-posts');
+    posts.forEach(function (post) {
+        let carouselId = 'carousel-' + post.uuid;
+        let prevId = 'prev-' + post.uuid;
+        let nextId = 'next-' + post.uuid;
+        let carouselInner = '';
+        let active = true;
+        post.contentList.forEach(function (block) {
+            if (block.imageUrlSm != null) {
+                let activeClass = active === true ? ' active' : '';
+                active = false;
+                carouselInner += `
+                    <div class="carousel-item img-ratio-control size-150-px${activeClass}">
+                        <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="img">
+                    </div>
+                `;
+            }
+        });
+        let postHtml = `
+            <div class="col mt-4">
+                <div class="card m-auto">
+                    <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            ${carouselInner}
                         </div>
+                        <button id="${prevId}" class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button id="${nextId}" class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
-                    <button th:id="'prev-' + ${post_stat.index}" class="carousel-control-prev" type="button" th:data-bs-target="'#carousel-' + ${post_stat.index}" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button th:id="'next-' + ${post_stat.index}" class="carousel-control-next" type="button" th:data-bs-target="'#carousel-' + ${post_stat.index}" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-                <a th:href="@{/location/{sef}(sef=${post.sef})}">
-                    <div class="card-body size-200-px">
-                        <p><strong class="text-decoration-none text-danger" th:text="${post.title}"></strong></p>
-                        <p class="card-text text-dark text-decoration-none" th:text="${post.notation}"></p>
+                    <a href="/location/${post.sef}">
+                        <div class="card-body size-200-px">
+                            <p><strong class="text-decoration-none text-danger">${post.title}</strong></p>
+                            <p class="card-text text-dark text-decoration-none">${post.notation}</p>
+                        </div>
+                    </a>
+                    <div class="card-footer">
+                        <span class="text-danger">#</span><span>${post.subjectModel.title}</span>
                     </div>
-                </a>
-                <div class="card-footer">
-                    <span class="text-danger">#</span><span th:text="${post.subjectModel.title}"></span>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+        `;
+        postRow.append(postHtml);
+    });
+</script>

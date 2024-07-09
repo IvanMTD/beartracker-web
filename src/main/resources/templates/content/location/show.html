@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row">
         <div class="col border-bottom border-dark">
-            <h1 class="display-2 block-text-title" th:text="${post.title}"></h1>
+            <h1 class="display-3 block-text-title" th:text="${post.title}"></h1>
             <p class="fs-4 block-text-anons-size" th:text="${post.notation}"></p>
         </div>
     </div>
@@ -36,7 +36,7 @@
             '</div>' +
             '<div class="row">' +
             '   <div class="col">' +
-            '       <small class="text-secondary">' + block.imageDescription + '</small>' +
+            '       <small class="text-secondary">' + (block.imageDescription === null ? "" : block.imageDescription) + '</small>' +
             '   </div>' +
             '</div>'
         );
@@ -75,7 +75,7 @@
             '           <img src="' + block.imageUrlMd + '" class="img-fluid img-ratio-control" alt="Preview">' +
             '       </div>' +
             '       <div class="w-100">' +
-            '           <small class="text-secondary">' + block.imageDescription + '</small>' +
+            '           <small class="text-secondary">' + (block.imageDescription === null ? "" : block.imageDescription) + '</small>' +
             '       </div>' +
             '   </div>' +
             '   <div class="col d-flex mt-2">' +
@@ -112,7 +112,7 @@
             '           <img src="' + block.imageUrlMd + '" class="img-fluid img-ratio-control" alt="Preview">' +
             '       </div>' +
             '       <div class="w-100">' +
-            '           <small class="text-secondary">' + block.imageDescription + '</small>' +
+            '           <small class="text-secondary">' + (block.imageDescription === null ? "" : block.imageDescription) + '</small>' +
             '       </div>' +
             '   </div>' +
             '</div>'
@@ -144,7 +144,7 @@
         );
     }
 
-    async function setupMap(){
+    function setupMap(){
         $('#blocks').append(
             '<div class="row border-bottom border-dark">' +
             '   <div class="col px-0">' +
@@ -152,17 +152,35 @@
             '   </div>' +
             '</div>'
         );
+        initMap();
+    }
+
+    async function initMap(){
         await ymaps3.ready;
-        const {YMap, YMapDefaultSchemeLayer} = ymaps3;
+
+        const {YMap, YMapDefaultSchemeLayer,YMapDefaultFeaturesLayer} = ymaps3;
+        const {YMapDefaultMarker} = await ymaps3.import('@yandex/ymaps3-markers@0.0.1');
+
         const map = new YMap(
             document.getElementById('map'),
-            {
-                location: {
-                    center: [post.longitude,post.latitude],
-                    zoom: 10
-                }
-            }
+            {location: {center: [post.longitude, post.latitude], zoom: 14}},
+            [
+                new YMapDefaultSchemeLayer({}),
+                new YMapDefaultFeaturesLayer({})
+            ]
         );
-        map.addChild(new YMapDefaultSchemeLayer());
+
+        let subtitle = post.latitude + ', ' + post.longitude;
+
+        const markerSource = {
+            coordinates: [post.longitude, post.latitude],
+            color: '#01BBEA',
+            title: post.title,
+            subtitle: subtitle
+        }
+
+        const marker = new YMapDefaultMarker(markerSource);
+
+        map.addChild(marker);
     }
 </script>

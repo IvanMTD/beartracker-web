@@ -90,4 +90,11 @@ public class LocationService {
             return Mono.just(location);
         }));
     }
+
+    public Flux<Location> getAllByUserUuid(UUID uuid) {
+        return locationRepository.findAllByCreator(uuid).collectList().flatMapMany(l -> {
+            l = l.stream().sorted(Comparator.comparing(Location::getCreated)).collect(Collectors.toList());
+            return Flux.fromIterable(l);
+        }).flatMapSequential(Mono::just);
+    }
 }

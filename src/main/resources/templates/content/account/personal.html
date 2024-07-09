@@ -1,0 +1,50 @@
+<div class="container">
+    <div class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-3 mx-0 mb-4">
+        <div id="user-block" class="col-12 col-lg-3 border rounded-3 mx-auto mt-4">
+
+        </div>
+        <div class="col-12 col-lg-5 mx-auto">
+            <div class="row row-cols-auto">
+                <div class="col-12 border rounded-3 mt-4">
+
+                </div>
+                <div class="col-12 border rounded-3 mt-4">
+
+                </div>
+                <div class="col-12 border rounded-3 mt-4">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-3 border rounded-3 mx-auto mt-4">
+
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let user = [[${user}]];
+    let locations = [[${locations}]];
+
+    setupUserBlock();
+
+    function setupUserBlock(){
+        let birthday = new Date(user.birthday);
+        let formattedBirthday = birthday.toLocaleDateString('ru-RU');
+        let userBlock = $('#user-block');
+        userBlock.empty();
+        userBlock.append(
+            '<p class="w-100 fs-3 my-font my-4"><strong>Пользователь</strong></p>' +
+            '<p class="w-100 fs-6 text-secondary">Фамилия:</p>' +
+            '<p class="w-100 fs-4">' + user.lastname + '</p>' +
+            '<p class="w-100 fs-6 text-secondary">Имя:</p>' +
+            '<p class="w-100 fs-4">' + user.name + '</p>' +
+            '<p class="w-100 fs-6 text-secondary">Отчество:</p>' +
+            '<p class="w-100 fs-4">' + user.middleName + '</p>' +
+            '<p class="w-100 fs-6 text-secondary">День рождения:</p>' +
+            '<p class="w-100 fs-4">' + formattedBirthday + '</p>' +
+            '<p class="w-100 fs-6 text-secondary">Электронная почта:</p>' +
+            '<p class="w-100 fs-4 mb-4">' + user.email + '</p>'
+        );
+    }
+</script>

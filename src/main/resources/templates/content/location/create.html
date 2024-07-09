@@ -1,6 +1,6 @@
 <div class="container">
     <div class="shadow">
-        <div class="row bg-success-custom-1 skew-bg-down size-100-px mx-0 position-relative">
+        <div class="row bg-gray-custom-1 skew-bg-down size-100-px mx-0 position-relative">
             <div class="col d-flex">
                 <div class="m-auto">
                     <p class="text-center text-white fs-2">Добавление нового места</p>
@@ -24,8 +24,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="row pt-2">
-                    <div class="col-4">
+                <div class="row row-cols-auto pt-2">
+                    <div class="col-12 col-lg-4">
                         <label class="ms-1 text-dark">Название места</label>
                         <input type="text" id="location-title" class="form-control text-dark">
                         <div class="valid-feedback">
@@ -35,15 +35,15 @@
                             <p class="ms-1">Не может быть пустым!</p>
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-12 col-lg-2">
                         <label class="ms-1 text-dark">Широта</label>
                         <input type="text" id="location-latitude" class="form-control">
                     </div>
-                    <div class="col-2">
+                    <div class="col-12 col-lg-2">
                         <label class="ms-1 text-dark">Долгота</label>
                         <input type="text" id="location-longitude" class="form-control">
                     </div>
-                    <div class="col-4">
+                    <div class="col-12 col-lg-4">
                         <label class="ms-1 text-dark">Субъект</label>
                         <select id="location-subject" class="form-select">
                             <option th:each="subject : ${subjects}" th:value="${subject.uuid}" th:text="${subject.title}"></option>
@@ -62,7 +62,7 @@
         <div id="blocks"></div>
 
         <div class="row mx-0 py-4">
-            <div class="d-grid col-4 mx-auto">
+            <div class="d-grid col-12 col-lg-4 mx-auto">
                 <button class="btn btn-outline-dark" type="button" onclick="createNewBlock()">Добавить блок</button>
             </div>
         </div>
@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <div class="row bg-success-custom-1 size-100-px skew-bg-up py-4 mx-0"></div>
+        <div class="row bg-gray-custom-1 size-100-px skew-bg-up py-4 mx-0"></div>
     </div>
 </div>
 
@@ -115,7 +115,7 @@
         let container = $('#blocks');
         container.append(
             '<div class="row rise-animation mx-0 p-4 my-4 border-top border-bottom border-dark" id="block-' + blockIndex + '">' +
-            '   <div class="col-6 d-flex">' +
+            '   <div class="col-12 col-lg-6 d-flex">' +
             '       <div class="my-auto w-100">' +
             '           <div class="row">' +
             '               <div class="col">' +
@@ -145,7 +145,7 @@
             '           </div>' +
             '       </div>' +
             '   </div>' +
-            '   <div id="preview-' + blockIndex + '" class="col-6"></div>' +
+            '   <div id="preview-' + blockIndex + '" class="col-12 col-lg-6 pt-2"></div>' +
             '</div>'
         );
 

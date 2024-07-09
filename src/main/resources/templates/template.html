@@ -13,7 +13,7 @@
         <!-- bootstrap -->
         <!--<link href="/fw/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">-->
         <link href="/fw/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-        <!-- ynadex.map.api -->
+        <!-- ynadex.map.api 7c13cf7d-c937-4ca6-8021-145ac16bdcae -->
         <script src="https://api-maps.yandex.ru/v3/?apikey=7c13cf7d-c937-4ca6-8021-145ac16bdcae&lang=ru_RU"></script>
     </head>
 
@@ -26,6 +26,7 @@
         <div th:insert="~{content/location/create}" th:if="${index} == 'location-create-page'"></div>
         <div th:insert="~{content/location/list}" th:if="${index} == 'location-list-page'"></div>
         <div th:insert="~{content/location/show}" th:if="${index} == 'location-show-page'"></div>
+        <div th:insert="~{content/account/personal}" th:if="${index} == 'account-personal-page'"></div>
 
         <footer th:insert="~{blocks/footer}"></footer>
 
