@@ -3,7 +3,7 @@
         <div class="row bg-gray-custom-1 skew-bg-down size-100-px mx-0 position-relative">
             <div class="col d-flex">
                 <div class="m-auto">
-                    <p class="text-center text-white fs-2">Добавление нового места</p>
+                    <p class="text-center text-white fs-2">Редактор</p>
                 </div>
             </div>
         </div>
@@ -25,15 +25,16 @@
                     </div>
                 </div>
                 <div class="row row-cols-auto pt-2">
+                    <input type="text" id="post-uuid" th:value="${post.uuid}" hidden>
                     <div class="col-12 col-lg-4">
                         <label class="ms-1 text-dark">Название места</label>
                         <input type="text" id="location-title" class="form-control text-dark">
-                        <div class="valid-feedback">
+                        <!--<div class="valid-feedback">
                             <p class="ms-1">Отлично!</p>
                         </div>
                         <div class="invalid-feedback">
                             <p class="ms-1">Не может быть пустым!</p>
-                        </div>
+                        </div>-->
                     </div>
                     <div class="col-12 col-lg-2">
                         <label class="ms-1 text-dark">Широта</label>
@@ -86,8 +87,55 @@
 
 <script th:inline="javascript">
     let types = [[${types}]];
+    let post = [[${post}]];
     let lc_csrf = [[${_csrf}]];
     var blockIndex = 0;
+
+    setupPost();
+
+    function setupPost(){
+        $('#location-title').val(post.title);
+        $('#location-latitude').val(post.latitude);
+        $('#location-longitude').val(post.longitude);
+        document.getElementById('location-subject').value = post.subject;
+        $('#location-notation').val(post.notation);
+        $('#meta-description').val(post.metaDescription);
+        $('#meta-keywords').val(post.metaKeywords);
+        fillBlocks();
+    }
+
+    /*
+    private UUID uuid;
+
+    private UUID parent;
+    private int position;
+    private ContentType contentType;
+    private String contentTitle;
+    private String content;
+    private String imageUrlSm;
+    private String imageUrlMd;
+    private String imageUrlLg;
+    private String imageDescription;
+     */
+
+    function fillBlocks(){
+        post.contentList.forEach(function (block){
+            let currentIndex = blockIndex;
+            createNewBlock();
+            $('#content-uuid-' + currentIndex).val(block.uuid);
+            $('#type-select-' + currentIndex).val(block.contentType);
+            if(block.contentTitle){
+                $('#content-title-input-' + currentIndex).val(block.contentTitle);
+            }
+            if(block.content){
+                $('#content-input-' + currentIndex).val(block.content);
+            }
+            if(block.imageDescription){
+                $('#file-title-input-' + currentIndex).val(block.imageDescription);
+            }
+            setupPreview(block.contentType, currentIndex, block.imageUrlMd);
+        });
+    }
 
     function validateKeywords(){
         /*let keywordInput = document.getElementById('meta-keywords');
@@ -166,6 +214,29 @@
         blockIndex++;
     }
 
+    function setupPreview(type, index, image) {
+        let fileTitle = document.getElementById('file-title-input-' + index).value;
+        let contentTitle = document.getElementById('content-title-input-' + index).value;
+        let content = escapeHtml(document.getElementById('content-input-' + index).value);
+
+        if(type === 'BG_IMAGE'){
+            showControl(false,true,true,index);
+            previewFullScreenImage(image,fileTitle,index);
+        }else if(type === 'BG_IMAGE_CONTENT'){
+            showControl(false,true,false,index);
+            previewFullScreenImageAndContent(image,fileTitle,content,index);
+        }else if(type === 'IMAGE_LEFT_CONTENT'){
+            showControl(false,false,false,index);
+            previewImageLeftContentRight(image,fileTitle,contentTitle,content,index);
+        }else if(type === 'IMAGE_RIGHT_CONTENT'){
+            showControl(false,false,false,index);
+            previewImageRightContentLeft(image,fileTitle,contentTitle,content,index);
+        }else if(type === 'CONTENT'){
+            showControl(true,false,false,index);
+            previewFullScreenContent(contentTitle,content,index);
+        }
+    }
+
     function showPreview(inputId) {
         let index = getIndex(inputId);
         let fileInput = document.getElementById('file-input-' + index);
@@ -179,7 +250,7 @@
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewFullScreenImage(image,fileTitle,index);
+                    previewFullScreenImage(image.target.result,fileTitle,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
@@ -188,7 +259,7 @@
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewFullScreenImageAndContent(image,fileTitle,content,index);
+                    previewFullScreenImageAndContent(image.target.result,fileTitle,content,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
@@ -197,7 +268,7 @@
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewImageLeftContentRight(image,fileTitle,contentTitle,content,index);
+                    previewImageLeftContentRight(image.target.result,fileTitle,contentTitle,content,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
@@ -206,7 +277,7 @@
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (image) {
-                    previewImageRightContentLeft(image,fileTitle,contentTitle,content,index);
+                    previewImageRightContentLeft(image.target.result,fileTitle,contentTitle,content,index);
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             }
@@ -244,7 +315,7 @@
         preview.append(
             '<div class="row">' +
             '   <div class="col p-0 d-flex">' +
-            '       <img src="' + image.target.result + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
+            '       <img src="' + image + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
             '   </div>' +
             '</div>' +
             '<div class="row">' +
@@ -261,7 +332,7 @@
         preview.append(
             '<div class="row position-relative">' +
             '   <div class="col p-0 d-flex">' +
-            '       <img src="' + image.target.result + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
+            '       <img src="' + image + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
             '       <div class="position-absolute top-50 start-50 translate-middle text-break">' +
             '           <p class="text-white text-center fs-4"><strong>' + content + '</strong></p>' +
             '       </div>' +
@@ -287,7 +358,7 @@
             '<div class="row p-0">' +
             '   <div class="col-6 px-0">' +
             '       <div class="img-container">' +
-            '           <img src="' + image.target.result + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
+            '           <img src="' + image + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
             '       </div>' +
             '       <div class="w-100">' +
             '           <small class="text-left text-dark">' + imageTitle + '</small>' +
@@ -319,7 +390,7 @@
             '   </div>' +
             '   <div class="col-6 px-0">' +
             '       <div class="img-container bg-white">' +
-            '           <img src="' + image.target.result + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
+            '           <img src="' + image + '" class="img-fluid img-thumbnail img-ratio-control" alt="Preview">' +
             '       </div>' +
             '       <div class="w-100">' +
             '           <small class="text-left text-dark">' + imageTitle + '</small>' +
@@ -354,6 +425,7 @@
     }
 
     function checkAndSend() {
+        let locationUuid = $('#post-uuid').val();
         let title = $('#location-title').val();
         let notation = $('#location-notation').val();
         let latitude = $('#location-latitude').val();
@@ -364,6 +436,7 @@
         let blocks = document.querySelectorAll('[id^="block-"]');
 
         let formData = new FormData();
+        formData.append('uuid', locationUuid);
         formData.append('title', title);
         formData.append('notation', notation);
         formData.append('latitude', latitude);
@@ -377,9 +450,16 @@
             formData.append(`blocks[${index}].position`, index);
             let type = $('#type-select-' + index).val();
             formData.append(`blocks[${index}].type`, type);
-            let file = $('#file-input-' + index)[0].files[0];
+            let uuid = $('#content-uuid-' + index).val();
+            if(uuid){
+                formData.append(`blocks[${index}].uuid`,uuid);
+            }
+            let file = $('#file-input-' + index)[0];
             if (file) {
-                formData.append(`blocks[${index}].image`, file);
+                file = $('#file-input-' + index)[0].files[0];
+                if(file){
+                    formData.append(`blocks[${index}].image`, file);
+                }
             }
             let imageDescription = $('#file-title-input-' + index).val();
             if(imageDescription){
@@ -396,7 +476,7 @@
         });
 
         $.ajax({
-            url: '/api/location/create',
+            url: '/api/location/update',
             type: 'post',
             data: formData,
             processData: false,
@@ -406,13 +486,6 @@
             },
             success: function (response) {
                 console.log('response:', response);
-                $('#blocks').empty();
-                $('#location-title').val('');
-                $('#location-latitude').val('');
-                $('#location-longitude').val('');
-                $('#location-notation').val('');
-                $('#meta-description').val('');
-                $('#meta-keywords').val('');
                 showToast('warning','Ваш пост передан на модерацию. Следите за состоянием в Вашем профиле.');
             },
             error: function (xhr, status, error) {

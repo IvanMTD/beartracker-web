@@ -17,7 +17,7 @@
                             <a class="nav-link1" th:href="@{/location/list}"><i class="icon feather icon-map-pin fs-6 text-secondary"></i> Места</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link1" th:href="@{/location/list}"><i class="icon feather icon-book-open fs-6 text-secondary"></i> Статьи</a>
+                            <a class="nav-link1" href="#"><i class="icon feather icon-book-open fs-6 text-secondary"></i> Статьи</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link1" href="#"><i class="icon feather icon-download fs-6 text-secondary"></i> Скачать приложение</a>
@@ -39,8 +39,6 @@
                                     <a class="dropdown-item" th:href="@{/account/personal}">Личный кабинет</a>
                                     <a class="dropdown-item" href="#">Редактировать</a>
                                     <a class="dropdown-item" href="#">Сменить пароль</a>
-                                    <hr class="dropdown-divider" th:if="${admin} or ${moderator}">
-                                    <a class="dropdown-item" th:href="@{/location/create}" th:if="${admin} or ${moderator}">Добавить место</a>
                                 </div>
                             </div>
                         </li>

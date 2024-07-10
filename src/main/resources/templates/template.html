@@ -23,9 +23,10 @@
         <header th:insert="~{blocks/header}"></header>
 
         <div th:insert="~{content/main-page}" th:if="${index} == 'main-page'"></div>
-        <div th:insert="~{content/location/create}" th:if="${index} == 'location-create-page'"></div>
         <div th:insert="~{content/location/list}" th:if="${index} == 'location-list-page'"></div>
+        <div th:insert="~{content/location/create}" th:if="${index} == 'location-create-page'"></div>
         <div th:insert="~{content/location/show}" th:if="${index} == 'location-show-page'"></div>
+        <div th:insert="~{content/location/edit}" th:if="${index} == 'location-edit-page'"></div>
         <div th:insert="~{content/account/personal}" th:if="${index} == 'account-personal-page'"></div>
 
         <footer th:insert="~{blocks/footer}"></footer>

@@ -63,4 +63,21 @@ public class LocationController {
                         .build()
         );
     }
+
+    @GetMapping("/edit/{sef}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<Rendering> locationEditPage(@PathVariable String sef){
+        return locationService.getBySef(sef).flatMap(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
+            location.setSubjectModel(subject);
+            return Mono.just(
+                    Rendering.view("template")
+                            .modelAttribute("title","Редактор локаций")
+                            .modelAttribute("index","location-edit-page")
+                            .modelAttribute("types", ContentType.valuesOfDTO())
+                            .modelAttribute("subjects", subjectService.getAll())
+                            .modelAttribute("post",location)
+                            .build()
+            );
+        }));
+    }
 }

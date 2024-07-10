@@ -10,6 +10,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 public class LocationDTO {
+    private UUID uuid;
     private String title;
     private String notation;
     private String latitude;

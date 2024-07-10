@@ -26,4 +26,11 @@ public class LocationRestController {
             return Mono.just(true);
         }).onErrorReturn(false);
     }
+
+    @PostMapping("/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<Boolean> updateLocationPost(@AuthenticationPrincipal ApplicationUser user, @ModelAttribute LocationDTO locationPost) {
+        log.info("details [{}]",locationPost.getBlocks().get(0).getImage());
+        return Mono.just(true);
+    }
 }
