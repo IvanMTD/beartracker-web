@@ -13,6 +13,8 @@ import ru.beartrack.web.enums.ContentType;
 import ru.beartrack.web.services.LocationService;
 import ru.beartrack.web.services.SubjectService;
 
+import java.util.UUID;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -44,7 +46,9 @@ public class LocationController {
                     Rendering.view("template")
                             .modelAttribute("title",location.getTitle())
                             .modelAttribute("index","location-show-page")
-                            .modelAttribute("description",location.getMetaDescription())
+                            .modelAttribute("metaTitle",location.getMetaTitle())
+                            .modelAttribute("metaDescription",location.getMetaDescription())
+                            .modelAttribute("metaKeywords",location.stringKeywords())
                             .modelAttribute("post",location)
                             .build()
             );
@@ -79,5 +83,14 @@ public class LocationController {
                             .build()
             );
         }));
+    }
+
+    @GetMapping("/delete/{uuid}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<Rendering> deleteLocationPost(@PathVariable UUID uuid){
+        return locationService.delete(uuid).flatMap(location -> {
+            log.info("location has been deleted [{}]",location);
+            return Mono.just(Rendering.redirectTo("/account/personal").build());
+        });
     }
 }

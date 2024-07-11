@@ -1,9 +1,9 @@
 <div class="container">
     <div class="shadow">
-        <div class="row bg-gray-custom-1 skew-bg-down size-100-px mx-0 position-relative">
+        <div class="row mx-0 position-relative">
             <div class="col d-flex">
                 <div class="m-auto">
-                    <p class="text-center text-white fs-2">Добавление нового места</p>
+                    <p class="fs-2">Добавление нового места</p>
                 </div>
             </div>
         </div>
@@ -67,7 +67,16 @@
             </div>
         </div>
 
-        <div class="row mx-0 pt-4">
+        <div class="row mx-0 border-bottom border-dark">
+            <p class="fs-4 text-dark">Настройка мета данных</p>
+        </div>
+        <div class="row mx-0">
+            <div class="col">
+                <label class="ms-1 text-secondary"><small>Meta title</small></label>
+                <input id="meta-title" type="text" class="form-control text-dark">
+            </div>
+        </div>
+        <div class="row mx-0">
             <div class="col">
                 <label class="ms-1 text-secondary"><small>Meta description</small></label>
                 <input id="meta-description" type="text" class="form-control text-dark">
@@ -79,8 +88,6 @@
                 <input id="meta-keywords" type="text" class="form-control text-dark" oninput="validateKeywords()">
             </div>
         </div>
-
-        <div class="row bg-gray-custom-1 size-100-px skew-bg-up py-4 mx-0"></div>
     </div>
 </div>
 
@@ -116,12 +123,12 @@
         container.append(
             '<div id="full-block-' + blockIndex + '">' +
             '<input type="text" id="content-uuid-' + blockIndex + '" hidden>' +
-            '<div class="row rise-animation mx-0 mt-4 pt-2 border-top border-dark">' +
+            '<div class="row mx-0 mt-4 pt-2 border-top border-dark">' +
             '   <div class="col">' +
             '       <button id="delete-' + blockIndex + '" type="button" class="btn-close float-end fs-4" aria-label="Close" onclick="deleteBlock(this.id)"></button>' +
             '   </div>' +
             '</div>' +
-            '<div class="row rise-animation mx-0 p-4 pb-5 mb-4 border-bottom border-dark" id="block-' + blockIndex + '">' +
+            '<div class="row mx-0 p-4 pb-5 mb-4 border-bottom border-dark" id="block-' + blockIndex + '">' +
             '   <div class="col-12 col-lg-6 d-flex">' +
             '       <div class="my-auto w-100">' +
             '           <div class="row">' +
@@ -359,6 +366,7 @@
         let latitude = $('#location-latitude').val();
         let longitude = $('#location-longitude').val();
         let subject = $('#location-subject').val();
+        let metaTitle = $('#meta-title').val();
         let metaDescription = $('#meta-description').val();
         let metaKeywords = $('#meta-keywords').val();
         let blocks = document.querySelectorAll('[id^="block-"]');
@@ -369,6 +377,7 @@
         formData.append('latitude', latitude);
         formData.append('longitude', longitude);
         formData.append('subject', subject);
+        formData.append('metaTitle',metaTitle);
         formData.append('metaDescription', metaDescription);
         formData.append('metaKeywords', metaKeywords);
 
@@ -411,6 +420,7 @@
                 $('#location-latitude').val('');
                 $('#location-longitude').val('');
                 $('#location-notation').val('');
+                $('#meta-title').val('');
                 $('#meta-description').val('');
                 $('#meta-keywords').val('');
                 showToast('warning','Ваш пост передан на модерацию. Следите за состоянием в Вашем профиле.');

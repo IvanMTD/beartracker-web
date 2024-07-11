@@ -28,6 +28,7 @@ public class Location {
     private String title;
     private String notation;
     private UUID subject;
+    private String metaTitle;
     private String metaDescription;
     private Set<String> metaKeywords = new HashSet<>();
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -54,9 +55,37 @@ public class Location {
         setSef(TransliterateUtil.transliterate(locationDTO.getTitle()));
         setSubject(locationDTO.getSubject());
 
+        setMetaTitle(locationDTO.getMetaTitle());
         setMetaDescription(locationDTO.getMetaDescription());
         String[] keywords = locationDTO.getMetaKeywords().split(", ");
         metaKeywords.addAll(Arrays.asList(keywords));
         setCreated(LocalDate.now());
+    }
+
+    public void update(LocationDTO locationDTO) {
+        try{
+            setLatitude(Float.parseFloat(locationDTO.getLatitude()));
+            setLongitude(Float.parseFloat(locationDTO.getLongitude()));
+        }catch (Exception exception){
+            log.error("Not valid latitude or Longitude! Error: [" + exception.getMessage() + "]");
+        }
+        setTitle(locationDTO.getTitle());
+        setNotation(locationDTO.getNotation());
+        setSef(TransliterateUtil.transliterate(locationDTO.getTitle()));
+        setSubject(locationDTO.getSubject());
+
+        setMetaTitle(locationDTO.getMetaTitle());
+        setMetaDescription(locationDTO.getMetaDescription());
+        String[] keywords = locationDTO.getMetaKeywords().split(", ");
+        metaKeywords.addAll(Arrays.asList(keywords));
+        setUpdated(LocalDate.now());
+    }
+
+    public String stringKeywords(){
+        StringBuilder s = new StringBuilder();
+        for(String keyword : metaKeywords){
+            s.append(keyword).append(", ");
+        }
+        return s.substring(0,s.length()-2);
     }
 }

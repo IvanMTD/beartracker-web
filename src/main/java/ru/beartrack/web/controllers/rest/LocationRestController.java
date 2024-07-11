@@ -10,6 +10,8 @@ import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.services.LocationService;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +32,6 @@ public class LocationRestController {
     @PostMapping("/update")
     @PreAuthorize("hasRole('ADMIN')")
     public Mono<Boolean> updateLocationPost(@AuthenticationPrincipal ApplicationUser user, @ModelAttribute LocationDTO locationPost) {
-        log.info("details [{}]",locationPost.getBlocks().get(0).getImage());
-        return Mono.just(true);
+        return locationService.update(locationPost).onErrorReturn(false);
     }
 }

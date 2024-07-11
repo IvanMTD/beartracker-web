@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS location (
     title TEXT UNIQUE,
     notation TEXT,
     subject UUID,
+    meta_title TEXT,
     meta_description TEXT,
     meta_keywords TEXT[],
     created date,

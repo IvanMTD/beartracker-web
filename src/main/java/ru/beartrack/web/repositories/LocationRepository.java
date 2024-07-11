@@ -8,7 +8,9 @@ import ru.beartrack.web.models.Location;
 import java.util.UUID;
 
 public interface LocationRepository extends R2dbcRepository<Location, UUID> {
+    Mono<Location> findByUuid(UUID uuid);
     Mono<Location> findBySef(String sef);
 
     Flux<Location> findAllByCreator(UUID uuid);
+    Flux<Location> findAllByOrderByCreated();
 }

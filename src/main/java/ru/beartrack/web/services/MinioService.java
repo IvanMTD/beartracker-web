@@ -1,6 +1,7 @@
 package ru.beartrack.web.services;
 
 import io.minio.*;
+import io.minio.errors.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Slf4j
 @Service
@@ -44,6 +47,16 @@ public class MinioService {
         } catch (Exception exception) {
             log.error("exception throw [{}]", exception.getMessage());
             return "";
+        }
+    }
+
+    public void deleteFile(String fileName){
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            log.error("cannot delete file because: {}", e.getMessage());
         }
     }
 }

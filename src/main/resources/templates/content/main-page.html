@@ -4,58 +4,7 @@
 
             <h2 class="podzagolovok">Интересные места</h2>
 
-            <div class="row row-cols-1 row-cols-lg-4 row-cols-md-2 g-4 mb-2 v-otstup-min">
-
-                <div class="col">
-                    <div class="card">
-                        <a href="sokskiy_karer.html">
-                            <img alt="Сокский карьер" class="card-img-top" src="/img/fon-8.png">
-                            <div class="card-body">
-                                <h5 class="card-title">Сокский карьер</h5>
-                                <p class="paragraph_card truncate-text">Заброшенный известковый карьер, находящийся в посёлке Волжский Красноглинского района городского округа Самара, с обширной сетью штолен.</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-
-                <div class="col">
-                    <div class="card">
-                        <a href="gora_otvajnaya.html">
-                            <img alt="Гора Отважная" class="card-img-top" src="/img/fon-2.png">
-                            <div class="card-body">
-                                <h5 class="card-title">Гора Отважная и гора Шишка</h5>
-                                <p class="paragraph_card truncate-text">Две вершины, откуда открывается потрясающий панорамный вид на Жигулёвские горы, Волгу и ГЭС.</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card">
-                        <a href="molodeckiy_kurgan.html">
-                            <img alt="Молодецкий курган" class="card-img-top" src="/img/fon-7.png">
-                            <div class="card-body">
-                                <h5 class="card-title">Молодецкий курган</h5>
-                                <p class="paragraph_card truncate-text">Молодецкий курган — гора в западной части Жигулёвских гор, находящаяся у слияния рек Уса и Волга, напротив Тольятти.</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-
-                <div class="col">
-                    <div class="card">
-                        <a href="vertoletnaya_ploshadka.html">
-                            <img alt="Вертолётная площадка" class="card-img-top" src="/img/fon-9.png">
-                            <div class="card-body">
-                                <h5 class="card-title">Вертолётная площадка в Самаре</h5>
-                                <p class="paragraph_card truncate-text">Обновленная вертолетная площадка в самарском поселке Управленческий признана лучшим реализованным проектом общественного пространства в России.</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <div id="row-posts" class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-4"></div>
 
 
             <div class="container">
@@ -90,3 +39,55 @@
         </div>
     </main>
 </div>
+
+<script th:inline="javascript">
+    let posts = [[${posts}]];
+    let postRow = $('#row-posts');
+    posts.forEach(function (post) {
+        let carouselId = 'carousel-' + post.uuid;
+        let prevId = 'prev-' + post.uuid;
+        let nextId = 'next-' + post.uuid;
+        let carouselInner = '';
+        let active = true;
+        post.contentList.forEach(function (block) {
+            if (block.imageUrlSm != null) {
+                let activeClass = active === true ? ' active' : '';
+                active = false;
+                carouselInner += `
+                    <div class="carousel-item img-ratio-control size-150-px${activeClass}">
+                        <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="img">
+                    </div>
+                `;
+            }
+        });
+        let postHtml = `
+            <div class="col mt-4">
+                <div class="card zoom-in-light m-auto">
+                    <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            ${carouselInner}
+                        </div>
+                        <button id="${prevId}" class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button id="${nextId}" class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <a href="/location/${post.sef}">
+                        <div class="card-body size-200-px">
+                            <p><strong class="text-decoration-none text-danger">${post.title}</strong></p>
+                            <p class="card-text text-dark text-decoration-none">${post.notation}</p>
+                        </div>
+                    </a>
+                    <div class="card-footer">
+                        <span class="text-danger">#</span><span>${post.subjectModel.title}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        postRow.append(postHtml);
+    });
+</script>
