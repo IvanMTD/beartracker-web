@@ -11,10 +11,17 @@
 }
 
 .top-logo {
-    width: 180px;
+    width: 200px;
     padding: 0;
     margin: 5px 30px 5px 30px;
 }
+
+.footer-logo {
+    width: 150px;
+    padding: 0;
+    margin: 5px 30px 5px 30px;
+}
+
 .visota-kartozrki{
     min-height: 12rem;
 }
@@ -123,7 +130,7 @@
   color:  #23ccab;
 }
 .yllo{
-  box-shadow: 0 2px 10px rgba(115, 128, 157, .2);
+    box-shadow: 0 2px 7px 1px rgba(115, 128, 157, 0.4);
 }
 .dropdown-item{
     color: #2a2a2a;
