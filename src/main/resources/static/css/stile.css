@@ -1,7 +1,19 @@
-.top-logo {
-    width: 40px;
+.card-zag{
     padding: 0;
-    margin: 10px 30px 10px 30px;
+    margin: 0;
+    color:  #545454;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700!important;
+    font-size: 1.3rem!important;
+    text-transform: none!important;
+    margin-bottom: 0.5rem;
+    min-height: 3rem;
+}
+
+.top-logo {
+    width: 180px;
+    padding: 0;
+    margin: 5px 30px 5px 30px;
 }
 .visota-kartozrki{
     min-height: 12rem;

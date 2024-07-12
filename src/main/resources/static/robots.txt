@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://beartrack.ru/sitemap.xml

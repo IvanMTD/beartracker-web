@@ -44,9 +44,8 @@ public class LocationController {
             location.setSubjectModel(subject);
             return Mono.just(
                     Rendering.view("template")
-                            .modelAttribute("title",location.getTitle())
+                            .modelAttribute("title",location.getMetaTitle())
                             .modelAttribute("index","location-show-page")
-                            .modelAttribute("metaTitle",location.getMetaTitle())
                             .modelAttribute("metaDescription",location.getMetaDescription())
                             .modelAttribute("metaKeywords",location.stringKeywords())
                             .modelAttribute("post",location)

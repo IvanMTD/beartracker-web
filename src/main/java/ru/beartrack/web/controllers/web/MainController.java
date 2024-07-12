@@ -19,8 +19,10 @@ public class MainController {
     public Mono<Rendering> homePage(){
         return Mono.just(
                 Rendering.view("template")
-                        .modelAttribute("title","Главная страница")
+                        .modelAttribute("title","BearTrack: маршруты для самостоятельных путешествий")
                         .modelAttribute("index","main-page")
+                        .modelAttribute("metaDescription","BearTrack – ваш путеводитель по самостоятельным путешествиям. Открывайте лучшие маршруты, карты и советы для активного отдыха. Путешествуйте легко и безопасно с BearTrack!")
+                        .modelAttribute("metaKeywords","камчатка, тропы, экотропы, туризм, вулканы")
                         .modelAttribute("posts", locationService.getAllOrderByCreated().flatMap(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
                             location.setSubjectModel(subject);
                             return Mono.just(location);
