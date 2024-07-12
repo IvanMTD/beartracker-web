@@ -173,3 +173,7 @@
   line-height: 1.3em;
   height: 4.9em;
 }
+
+.nav-bar-w-300 {
+    width: 300px;
+}
