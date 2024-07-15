@@ -60,6 +60,15 @@
     let locations = [[${locations}]];
     let locationPage = 0;
 
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('showToast') === 'true') {
+            // отображаем toast
+            showToast("success","Данные пользователя обновлены");
+            // удаляем информацию о том, что нужно отобразить toast
+            localStorage.removeItem('showToast');
+        }
+    });
+
     setupUserBlock();
     setupLocationsFiled();
     setupUserPanel();
@@ -241,6 +250,7 @@
             success: function(data) {
                 console.log(data);
                 hideSpinner();
+                localStorage.setItem('showToast', 'true');
                 location.reload(true);
             },
             error: function(jqXHR, textStatus, errorThrown) {
