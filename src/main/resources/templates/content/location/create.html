@@ -415,6 +415,7 @@
             },
             success: function (response) {
                 if(response === true){
+                    let t = $('#location-title').val();
                     console.log('response:', response);
                     $('#blocks').empty();
                     $('#location-title').val('');
@@ -424,7 +425,7 @@
                     $('#meta-title').val('');
                     $('#meta-description').val('');
                     $('#meta-keywords').val('');
-                    showToast('success','Пост "Новое Место" добавлен');
+                    showToast('success','Пост ' + t + ' добавлен');
                 }else{
                     showToast("error",'Пока ошибка не определена')
                 }
