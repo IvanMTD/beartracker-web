@@ -1,3 +1,16 @@
+#overlay {
+    display: none; /* по умолчанию скрыт */
+    position: fixed; /* фиксированное позиционирование */
+    z-index: 1000; /* находится над всеми элементами */
+    top: 0; left: 0; right: 0; bottom: 0; /* занимает всю страницу */
+    background-color: rgba(0,0,0,0.5); /* полупрозрачный фон */
+
+    /* Центрирование спиннера */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .rise-animation {
     animation: rise-effect 0.5s ease-out;
 }

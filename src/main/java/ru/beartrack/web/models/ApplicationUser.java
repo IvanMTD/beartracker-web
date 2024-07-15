@@ -72,4 +72,17 @@ public class ApplicationUser implements UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
+    public String getFullName(){
+        return lastname + " " + name + " " + middleName;
+    }
+
+    public void update(PersonDTO personDTO) {
+        setLastname(personDTO.getLastname());
+        setName(personDTO.getName());
+        setMiddleName(personDTO.getMiddleName());
+        setBirthday(LocalDate.parse(personDTO.getBirthday()));
+        setEmail(personDTO.getEmail());
+        setRole(Role.valueOf(personDTO.getRole()));
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
+import ru.beartrack.web.enums.Role;
 import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.services.ApplicationUserService;
 import ru.beartrack.web.services.LocationService;
@@ -32,6 +33,8 @@ public class AccountController {
                             .modelAttribute("index","account-personal-page")
                             .modelAttribute("user", u)
                             .modelAttribute("locations", locationService.getAllByUserUuid(user.getUuid()))
+                            .modelAttribute("roles", Role.valuesOfDTO())
+                            .modelAttribute("users", userService.getAll())
                             .build()
             );
         });

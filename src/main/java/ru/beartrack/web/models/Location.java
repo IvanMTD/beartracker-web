@@ -77,11 +77,12 @@ public class Location {
         setMetaTitle(locationDTO.getMetaTitle());
         setMetaDescription(locationDTO.getMetaDescription());
         String[] keywords = locationDTO.getMetaKeywords().split(", ");
+        metaKeywords.clear();
         metaKeywords.addAll(Arrays.asList(keywords));
         setUpdated(LocalDate.now());
     }
 
-    public String stringKeywords(){
+    public String getKeywords(){
         StringBuilder s = new StringBuilder();
         for(String keyword : metaKeywords){
             s.append(keyword).append(", ");

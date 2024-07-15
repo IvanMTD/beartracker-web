@@ -2,6 +2,8 @@ package ru.beartrack.web.controllers.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.PersonDTO;
@@ -29,5 +31,17 @@ public class UserRestController {
             log.info("user has been registered [{}]",user);
             return Mono.just(true);
         }).switchIfEmpty(Mono.just(false));
+    }
+
+    @GetMapping("/user/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<ResponseEntity<String>> updateUser(@ModelAttribute(name = "person") PersonDTO personDTO){
+        return userService.updateUser(personDTO).flatMap(u -> {
+            if(u.getUuid() == null){
+                return Mono.just(ResponseEntity.notFound().build());
+            }else{
+                return Mono.just(ResponseEntity.ok("success"));
+            }
+        });
     }
 }

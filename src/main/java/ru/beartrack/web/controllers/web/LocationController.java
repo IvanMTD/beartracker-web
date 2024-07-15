@@ -47,7 +47,7 @@ public class LocationController {
                             .modelAttribute("title",location.getMetaTitle())
                             .modelAttribute("index","location-show-page")
                             .modelAttribute("metaDescription",location.getMetaDescription())
-                            .modelAttribute("metaKeywords",location.stringKeywords())
+                            .modelAttribute("metaKeywords",location.getKeywords())
                             .modelAttribute("post",location)
                             .build()
             );

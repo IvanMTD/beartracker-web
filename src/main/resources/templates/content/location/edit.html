@@ -101,6 +101,7 @@
     setupPost();
 
     function setupPost(){
+        console.log(post);
         $('#location-title').val(post.title);
         $('#location-latitude').val(post.latitude);
         $('#location-longitude').val(post.longitude);
@@ -108,7 +109,7 @@
         $('#location-notation').val(post.notation);
         $('#meta-title').val(post.metaTitle);
         $('#meta-description').val(post.metaDescription);
-        $('#meta-keywords').val(post.metaKeywords);
+        $('#meta-keywords').val(post.keywords);
         fillBlocks();
     }
 

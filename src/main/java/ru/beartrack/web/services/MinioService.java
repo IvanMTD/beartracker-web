@@ -20,13 +20,15 @@ import java.security.NoSuchAlgorithmException;
 public class MinioService {
     private final String bucket;
     private final String minioUrl;
+    private final String minioCdn;
     private final MinioClient minioClient;
 
     @SneakyThrows
-    public MinioService(MinioClient minioClient, @Value("${minio.bucket}") String bucket, @Value("${minio.url}") String minioUrl) {
+    public MinioService(MinioClient minioClient, @Value("${minio.bucket}") String bucket, @Value("${minio.url}") String minioUrl, @Value("${minio.cdn}") String minioCdn) {
         this.minioClient = minioClient;
         this.bucket = bucket;
         this.minioUrl = minioUrl;
+        this.minioCdn = minioCdn;
         if (!this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
             this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
         }

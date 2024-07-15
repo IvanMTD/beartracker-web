@@ -46,19 +46,23 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-3 border rounded-3 mx-auto mt-4">
+        <div id="user-control-panel" class="col-12 col-lg-3 border rounded-3 mx-auto mt-4">
 
         </div>
     </div>
 </div>
 
 <script th:inline="javascript">
+    let admin = [[${admin}]];
     let user = [[${user}]];
+    let users = [[${users}]];
+    let roles = [[${roles}]];
     let locations = [[${locations}]];
     let locationPage = 0;
 
     setupUserBlock();
     setupLocationsFiled();
+    setupUserPanel();
 
     function setupUserBlock(){
         let birthday = new Date(user.birthday);
@@ -128,5 +132,121 @@
 
     function editUserData(){
 
+    }
+
+    function setupUserPanel(){
+        let panel = $('#user-control-panel');
+        if(admin){
+            let usersBlock = '';
+            users.forEach(function (u){
+                usersBlock += `
+                <div class="row shadow rounded-3 m-2">
+                    <div class="col-6 border-end m-0 p-0 d-flex">
+                        <p class="m-auto">${u.username}</p>
+                    </div>
+                    <div class="col-6 d-flex m-0 p-0">
+                        <div class="m-auto py-1 btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#user-edit-${u.uuid}"><i class="icon feather icon-edit-2"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-danger disabled"><i class="icon feather icon-trash-2"></i></button>
+                        </div>
+                        <div class="modal fade" id="user-edit-${u.uuid}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="user-edit-window" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Редактировать: ${u.fullName}</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <label class="ms-1" for="lastname-${u.uuid}">Фамилия</label>
+                                                    <input type="text" class="form-control" id="lastname-${u.uuid}" value="${u.lastname}">
+                                                </div>
+                                                <div class="col-4">
+                                                    <label class="ms-1" for="name-${u.uuid}">Имя</label>
+                                                    <input type="text" class="form-control" id="name-${u.uuid}" value="${u.name}">
+                                                </div>
+                                                <div class="col-4">
+                                                    <label class="ms-1" for="middlename-${u.uuid}">Отчество</label>
+                                                    <input type="text" class="form-control" id="middlename-${u.uuid}" value="${u.middleName}">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <label class="ms-1" for="birthday-${u.uuid}">День рождения</label>
+                                                    <input type="date" class="form-control" id="birthday-${u.uuid}" value="${u.birthday}">
+                                                </div>
+                                                <div class="col-4">
+                                                    <label class="ms-1" for="email-${u.uuid}">Email</label>
+                                                    <input type="email" class="form-control" id="email-${u.uuid}" value="${u.email}">
+                                                </div>
+                                                <div class="col-4">
+                                                    <label class="ms-1" for="role-${u.uuid}">Роль</label>
+                                                    <select class="form-select" id="role-${u.uuid}">
+                                                        ${roles.map(function (role){
+                                                            let selected = (u.role === role.role) ? 'selected' : '';
+                                                            return `<option value="${role.role}" ${selected}>${role.roleTitle}</option>`;
+                                                        }).join('')}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" id="${u.uuid}" class="btn btn-primary" onclick="updateUserData(this.id)">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            let innerBlock = `
+            <div class="row">
+                <div class="col">
+                    <p class="my-font fs-4 py-4 border-bottom"><b>Панель администратора</b></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    ${usersBlock}
+                </div>
+            </div>
+            `;
+            panel.append(innerBlock);
+        }
+    }
+
+    function updateUserData(uuid){
+
+        showSpinner();
+
+        let person = {
+            uuid:uuid,
+            lastname: $('#lastname-' + uuid).val(),
+            name: $('#name-' + uuid).val(),
+            middleName: $('#middlename-' + uuid).val(),
+            birthday: $('#birthday-' + uuid).val(),
+            email: $('#email-' + uuid).val(),
+            role: $('#role-' + uuid).val()
+        }
+
+        $.ajax({
+            url:'/api/user/update',
+            type:'get',
+            data: person,
+            success: function(data) {
+                console.log(data);
+                hideSpinner();
+                location.reload(true);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log('Error:', textStatus, errorThrown);
+                hideSpinner();
+            }
+        });
     }
 </script>

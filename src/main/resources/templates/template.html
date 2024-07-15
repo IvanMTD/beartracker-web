@@ -19,6 +19,13 @@
     </head>
 
     <body>
+
+        <div id="overlay">
+            <div class="spinner-border fs-1 text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
         <div class="toast-container position-fixed bottom-0 end-0 p-3" id="info-toast"></div>
         <!-- page -->
         <header th:insert="~{blocks/header}"></header>
@@ -33,6 +40,7 @@
         <footer th:insert="~{blocks/footer}"></footer>
 
         <!-- scripts -->
+        <script src="/js/overlay.js"></script>
         <script src="/fw/@popperjs/core/dist/umd/popper.min.js"></script>
         <script src="/fw/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="/js/toast.controller.js"></script>
