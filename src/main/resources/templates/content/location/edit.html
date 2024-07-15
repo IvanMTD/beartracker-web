@@ -490,11 +490,17 @@
                 xhr.setRequestHeader(lc_csrf.headerName, lc_csrf.token);
             },
             success: function (response) {
-                console.log('response:', response);
-                showToast('success','Обновление прошло успешно!');
+                if(response === true){
+                    console.log('response:', response);
+                    showToast('success','Обновление прошло успешно!');
+                }else{
+                    console.log('response:', response);
+                    showToast('error','Пока ошибка не определена');
+                }
             },
             error: function (xhr, status, error) {
                 console.error(error);
+                showToast("error", status + ': ' + error)
             }
         });
     }

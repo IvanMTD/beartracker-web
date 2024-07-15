@@ -414,19 +414,24 @@
                 xhr.setRequestHeader(lc_csrf.headerName, lc_csrf.token);
             },
             success: function (response) {
-                console.log('response:', response);
-                $('#blocks').empty();
-                $('#location-title').val('');
-                $('#location-latitude').val('');
-                $('#location-longitude').val('');
-                $('#location-notation').val('');
-                $('#meta-title').val('');
-                $('#meta-description').val('');
-                $('#meta-keywords').val('');
-                showToast('warning','Ваш пост передан на модерацию. Следите за состоянием в Вашем профиле.');
+                if(response === true){
+                    console.log('response:', response);
+                    $('#blocks').empty();
+                    $('#location-title').val('');
+                    $('#location-latitude').val('');
+                    $('#location-longitude').val('');
+                    $('#location-notation').val('');
+                    $('#meta-title').val('');
+                    $('#meta-description').val('');
+                    $('#meta-keywords').val('');
+                    showToast('success','Пост "Новое Место" добавлен');
+                }else{
+                    showToast("error",'Пока ошибка не определена')
+                }
             },
             error: function (xhr, status, error) {
                 console.error(error);
+                showToast("error", status + ': ' + error)
             }
         });
     }
