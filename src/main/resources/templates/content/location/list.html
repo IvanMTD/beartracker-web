@@ -8,7 +8,7 @@
                         <a class="page-link" th:href="@{/location/list(page=0)}">First</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" th:href="@{/location/list(page=${page - 1})}"><i class="bi bi-arrow-left"></i></a>
+                        <a class="page-link" th:href="@{/location/list(page=${page - 1})}"><i class="icon feather icon-arrow-left"></i></a>
                     </li>
                     <li class="page-item">
                         <a class="page-link" th:href="@{/location/list(page=${page - 2})}" th:if="${page - 2 >= 0}" th:text="${page - 1}"></a>
@@ -26,7 +26,7 @@
                         <a class="page-link" th:href="@{/location/list(page=${page + 2})}" th:if="${page + 2} <= ${lastPage}" th:text="${page + 3}"></a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" th:href="@{/location/list(page=${page + 1})}"><i class="bi bi-arrow-right"></i></a>
+                        <a class="page-link" th:href="@{/location/list(page=${page + 1})}"><i class="icon feather icon-arrow-right"></i></a>
                     </li>
                     <li class="page-item">
                         <a class="page-link" th:href="@{/location/list(page=${lastPage})}">Last</a>
