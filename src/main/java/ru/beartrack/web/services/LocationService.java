@@ -3,6 +3,7 @@ package ru.beartrack.web.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -53,7 +54,7 @@ public class LocationService {
     }
 
     public Flux<Location> getAllOrderByCreated() {
-        return locationRepository.findAllByOrderByCreated().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+        return locationRepository.findAllByOrderByCreatedDesc().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
             location.setContentList(l);
             return Mono.just(location);
@@ -197,5 +198,17 @@ public class LocationService {
                 }
             }
         }
+    }
+
+    public Mono<Long> getCount() {
+        return locationRepository.count();
+    }
+
+    public Flux<Location> getAllOrderByCreated(Pageable pageable) {
+        return locationRepository.findAllByOrderByCreatedDesc(pageable).flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
+        }));
     }
 }

@@ -21,7 +21,7 @@ public class LocationRestController {
     private final LocationService locationService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     public Mono<Boolean> createLocationPost(@AuthenticationPrincipal ApplicationUser user, @ModelAttribute LocationDTO locationPost) {
         return locationService.saveLocation(locationPost, user.getUuid()).flatMap(location -> {
             log.info("saved location [{}]",location);
@@ -30,7 +30,7 @@ public class LocationRestController {
     }
 
     @PostMapping("/update")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     public Mono<Boolean> updateLocationPost(@AuthenticationPrincipal ApplicationUser user, @ModelAttribute LocationDTO locationPost) {
         return locationService.update(locationPost).onErrorReturn(false);
     }

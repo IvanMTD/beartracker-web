@@ -55,7 +55,7 @@
                 active = false;
                 carouselInner += `
                     <div class="carousel-item img-ratio-control size-h-150 ${activeClass}">
-                        <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="img">
+                        <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="${post.title}">
                     </div>
                 `;
             }
@@ -78,8 +78,8 @@
                     </div>
                     <a href="/location/${post.sef}">
                         <div class="card-body size-h-200">
-                            <p><strong class="text-decoration-none card-zag">${post.title}</strong></p>
-                            <p class="card-text text-dark text-decoration-none">${post.notation}</p>
+                            <p><strong class="text-decoration-none clamp-line-2 card-zag">${post.title}</strong></p>
+                            <p class="card-text text-dark clamp-line-3 text-decoration-none">${post.notation}</p>
                         </div>
                     </a>
                     <div class="card-footer">

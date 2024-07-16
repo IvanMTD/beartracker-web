@@ -1,5 +1,6 @@
 package ru.beartrack.web.repositories;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,5 +13,7 @@ public interface LocationRepository extends R2dbcRepository<Location, UUID> {
     Mono<Location> findBySef(String sef);
 
     Flux<Location> findAllByCreator(UUID uuid);
-    Flux<Location> findAllByOrderByCreated();
+    Flux<Location> findAllByOrderByCreatedDesc();
+
+    Flux<Location> findAllByOrderByCreatedDesc(Pageable pageable);
 }

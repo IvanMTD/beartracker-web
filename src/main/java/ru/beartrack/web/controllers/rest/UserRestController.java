@@ -2,6 +2,7 @@ package ru.beartrack.web.controllers.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,6 @@ public class UserRestController {
     }
 
     @GetMapping("/user/update")
-    @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<String>> updateUser(@ModelAttribute(name = "person") PersonDTO personDTO){
         return userService.updateUser(personDTO).flatMap(u -> {
             if(u.getUuid() == null){

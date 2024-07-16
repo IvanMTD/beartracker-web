@@ -1,5 +1,40 @@
 <div class="container">
     <div id="row-posts" class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-4"></div>
+    <div class="row py-3">
+        <div class="col d-flex">
+            <nav class="m-auto">
+                <ul class="pagination">
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=0)}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=${page - 1})}"><i class="bi bi-arrow-left"></i></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=${page - 2})}" th:if="${page - 2 >= 0}" th:text="${page - 1}"></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=${page - 1})}" th:if="${page - 1 >= 0}" th:text="${page}"></a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link disabled" href="#" th:text="${page + 1}"></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=${page + 1})}" th:if="${page + 1} <= ${lastPage}" th:text="${page + 2}"></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=${page + 2})}" th:if="${page + 2} <= ${lastPage}" th:text="${page + 3}"></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=${page + 1})}"><i class="bi bi-arrow-right"></i></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/location/list(page=${lastPage})}">Last</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
 </div>
 
 <script th:inline="javascript">
@@ -17,7 +52,7 @@
                 active = false;
                 carouselInner += `
                     <div class="carousel-item img-ratio-control size-h-150 ${activeClass}">
-                        <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="img">
+                        <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="${post.title}">
                     </div>
                 `;
             }
@@ -40,8 +75,8 @@
                     </div>
                     <a href="/location/${post.sef}">
                         <div class="card-body size-h-200">
-                            <p><strong class="text-decoration-none card-zag">${post.title}</strong></p>
-                            <p class="card-text text-dark text-decoration-none">${post.notation}</p>
+                            <p><strong class="text-decoration-none clamp-line-2 card-zag">${post.title}</strong></p>
+                            <p class="card-text text-dark clamp-line-3 text-decoration-none">${post.notation}</p>
                         </div>
                     </a>
                     <div class="card-footer">

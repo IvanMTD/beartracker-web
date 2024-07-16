@@ -35,14 +35,14 @@
                             <p class="ms-1">Не может быть пустым!</p>
                         </div>
                     </div>
-                    <div class="col-12 col-lg-2">
-                        <label class="ms-1 text-dark">Широта</label>
-                        <input type="text" id="location-latitude" class="form-control">
+                    <div class="col-12 col-lg-4">
+                        <label for="location-latitude-longitude" class="ms-1 text-dark">Широта и Долгота: <span class="text-danger fs-6">Через запятую</span></label>
+                        <input type="text" id="location-latitude-longitude" class="form-control">
                     </div>
-                    <div class="col-12 col-lg-2">
+                    <!--<div class="col-12 col-lg-2">
                         <label class="ms-1 text-dark">Долгота</label>
                         <input type="text" id="location-longitude" class="form-control">
-                    </div>
+                    </div>-->
                     <div class="col-12 col-lg-4">
                         <label class="ms-1 text-dark">Субъект</label>
                         <select id="location-subject" class="form-select">
@@ -363,8 +363,10 @@
     function checkAndSend() {
         let title = $('#location-title').val();
         let notation = $('#location-notation').val();
-        let latitude = $('#location-latitude').val();
-        let longitude = $('#location-longitude').val();
+        let lat_long = $('#location-latitude-longitude').val();
+        let ll_parts = lat_long.split(',');
+        let latitude = ll_parts[0].trim();
+        let longitude = ll_parts[1].trim();
         let subject = $('#location-subject').val();
         let metaTitle = $('#meta-title').val();
         let metaDescription = $('#meta-description').val();
@@ -419,8 +421,7 @@
                     console.log('response:', response);
                     $('#blocks').empty();
                     $('#location-title').val('');
-                    $('#location-latitude').val('');
-                    $('#location-longitude').val('');
+                    $('#location-latitude-longitude').val('');
                     $('#location-notation').val('');
                     $('#meta-title').val('');
                     $('#meta-description').val('');

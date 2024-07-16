@@ -13,7 +13,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex m-0 p-0">
-                            <a href="#" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100"><i class="icon feather icon-navigation"></i> Добавить маршрут</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100 disabled"><i class="icon feather icon-navigation"></i> Добавить маршрут</a>
                         </div>
                     </div>
                     <div id="tracks" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
@@ -26,10 +26,25 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex m-0 p-0">
-                            <a th:href="@{/location/create}" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100"><i class="icon feather icon-map-pin"></i> Добавить локацию</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100 disabled" th:if="${!admin} and ${!moderator}"><i class="icon feather icon-map-pin"></i> Добавить локацию</a>
+                            <a th:href="@{/location/create}" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100" th:if="${admin} or ${moderator}"><i class="icon feather icon-map-pin"></i> Добавить локацию</a>
+                        </div>
+                    </div>
+                    <div class="row border-bottom py-2">
+                        <div class="col-10">
+                            <input type="search" list="location-search-list" class="form-control" id="location-search" onchange="updateLocationList()">
+                            <datalist id="location-search-list"></datalist>
+                        </div>
+                        <div class="col-2 d-flex">
+                            <i class="icon feather icon-search fs-3 text-secondary my-auto"></i>
                         </div>
                     </div>
                     <div id="locations" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
+                    <div class="row">
+                        <div id="location-pagination" class="col d-flex">
+
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12 border rounded-3 mt-4">
                     <div class="row border-bottom">
@@ -39,7 +54,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex m-0 p-0">
-                            <a href="#" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100"><i class="icon feather icon-book-open"></i> Добавить статью</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100 disabled"><i class="icon feather icon-book-open"></i> Добавить статью</a>
                         </div>
                     </div>
                     <div id="posts" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
@@ -54,11 +69,14 @@
 
 <script th:inline="javascript">
     let admin = [[${admin}]];
+    let moderator = [[${moderator}]]
     let user = [[${user}]];
     let users = [[${users}]];
     let roles = [[${roles}]];
     let locations = [[${locations}]];
+    // location
     let locationPage = 0;
+    let locationPageSize = 12;
 
     document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('showToast') === 'true') {
@@ -70,6 +88,7 @@
     });
 
     setupUserBlock();
+    setupLocationSearchList()
     setupLocationsFiled();
     setupUserPanel();
 
@@ -94,17 +113,91 @@
 
         <div class="row mb-4">
             <div class="col">
-                <buttin id="edit-user-button" class="btn btn-outline-secondary w-100" onclick="editUserData()"><i class="icon feather icon-edit-2"> Редактировать</i></buttin>
+                <buttin id="edit-user-button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#user-edit-modal"><i class="icon feather icon-edit-2"> Редактировать</i></buttin>
+                <div class="modal fade" id="user-edit-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="user-edit-window" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Редактировать: ${user.fullName}</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label class="ms-1" for="lastname">Фамилия</label>
+                                            <input type="text" class="form-control" id="lastname" value="${user.lastname}">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="ms-1" for="name">Имя</label>
+                                            <input type="text" class="form-control" id="name" value="${user.name}">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="ms-1" for="middlename">Отчество</label>
+                                            <input type="text" class="form-control" id="middlename" value="${user.middleName}">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label class="ms-1" for="birthday">День рождения</label>
+                                            <input type="date" class="form-control" id="birthday" value="${user.birthday}">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="ms-1" for="email">Email</label>
+                                            <input type="email" class="form-control" id="email" value="${user.email}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="button" id="${user.uuid}" class="btn btn-primary" onclick="updateUserDataSelf(this.id)">Обновить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         `
         );
     }
 
+    function setupLocationSearchList(){
+        let locationList = $('#location-search-list');
+        locationList.empty();
+        let locationSearchList = '';
+        locations.forEach(function (location){
+            locationList.append(`
+            <option value="${location.title}"></option>
+            `);
+        });
+        locationList.append(locationSearchList);
+    }
+
+    function updateLocationList(){
+        let locationTitle = $('#location-search').val();
+        reformLocation(locationTitle);
+    }
+
+    function reformLocation(t){
+        let location = null;
+        locations.forEach(function (l){
+            if(l.title === t){
+                location = l;
+            }
+        });
+        let locationsTemp = locations;
+        locations = [location];
+        console.log(locationsTemp, locations);
+        setupLocationsFiled();
+        locations = locationsTemp;
+        reloadTooltip();
+    }
+
     function setupLocationsFiled(){
         let locationsFiled = $('#locations');
         locationsFiled.empty();
-        for(let i=locationPage; i<(locationPage + 12); i++){
+        for(let i=(locationPage * locationPageSize); i<((locationPage * locationPageSize) + locationPageSize); i++){
             let location = locations[i];
             if(location){
                 locationsFiled.append(`
@@ -119,7 +212,7 @@
                                 </div>
                                 <div class="col-9 m-0 p-0 d-flex">
                                     <a class="text-decoration-none text-dark my-auto p-2" href="/location/${location.sef}">
-                                        <p style="font-size: 10px">${location.title}</p>
+                                        <p class="clamp-line-2" data-bs-toggle="tooltip" data-bs-title="${location.title}" style="font-size: 10px">${location.title}</p>
                                     </a>
                                 </div>
                             </div>
@@ -137,10 +230,88 @@
                 `);
             }
         }
+
+        setupLocationPagination();
     }
 
-    function editUserData(){
+    function setupLocationPagination(){
+        let lastPage = parseInt(locations.length / 12);
+        $('#location-pagination').empty();
+        let pagination = `
+        <nav aria-label="Page navigation" class="m-auto">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous" onclick="locationPrevious()">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                ${0 < locationPage ? `<li class="page-item"><a class="page-link" href="#" onclick="locationGoToPage(${locationPage - 1})">${locationPage}</a></li>` : ''}
+                <li class="page-item"><a class="page-link active" href="#">${locationPage + 1}</a></li>
+                ${locationPage < lastPage ? `<li class="page-item"><a class="page-link" href="#" onclick="locationGoToPage(${locationPage + 1})">${locationPage + 2}</a></li>` : ''}
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next" onclick="locationNext()">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        `;
+        $('#location-pagination').append(pagination);
+    }
 
+    function locationNext(){
+        let lastPage = parseInt(locations.length / 12);
+        locationPage ++;
+        if(locationPage > lastPage){
+            locationPage = lastPage;
+        }
+        setupLocationsFiled();
+        reloadTooltip();
+    }
+
+    function locationPrevious(){
+        locationPage --;
+        if(locationPage < 0){
+            locationPage = 0;
+        }
+        setupLocationsFiled();
+        reloadTooltip();
+    }
+
+    function locationGoToPage(page){
+        locationPage = page;
+        setupLocationsFiled();
+        reloadTooltip();
+    }
+
+    function updateUserDataSelf(uuid){
+        let person = {
+            uuid:uuid,
+            lastname: $('#lastname').val(),
+            name: $('#name').val(),
+            middleName: $('#middlename').val(),
+            birthday: $('#birthday').val(),
+            email: $('#email').val(),
+            role: user.role
+        }
+
+        showSpinner();
+        $.ajax({
+            url:'/api/user/update',
+            type:'get',
+            data: person,
+            success: function(data) {
+                console.log(data);
+                hideSpinner();
+                localStorage.setItem('showToast', 'true');
+                location.reload(true);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log('Error:', textStatus, errorThrown);
+                showToast('error', 'Error: ' + jqXHR.responseJSON.message);
+                hideSpinner();
+            }
+        });
     }
 
     function setupUserPanel(){
@@ -203,8 +374,8 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" id="${u.uuid}" class="btn btn-primary" onclick="updateUserData(this.id)">Save changes</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                        <button type="button" id="${u.uuid}" class="btn btn-primary" onclick="updateUserData(this.id)">Обновить</button>
                                     </div>
                                 </div>
                             </div>
