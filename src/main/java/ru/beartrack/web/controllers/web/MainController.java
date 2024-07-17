@@ -1,9 +1,12 @@
 package ru.beartrack.web.controllers.web;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.reactive.result.view.Rendering;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.services.LocationService;
 import ru.beartrack.web.services.SubjectService;
