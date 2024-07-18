@@ -1,6 +1,6 @@
 <div class="container">
     <div class="row">
-        <div class="col border-bottom border-dark">
+        <div class="col mb-3">
             <h1 class="display-3 block-text-title" th:text="${post.title}"></h1>
             <p class="fs-4 block-text-anons-size" th:text="${post.notation}"></p>
         </div>
@@ -30,7 +30,7 @@
     function bgImage(block){
         $('#blocks').append(
             '<div class="row pt-4">' +
-            '   <div class="col p-0 img-container img-height-40vh d-flex">' +
+            '   <div class="col p-0 img-container img-height-40vh d-flex shadow">' +
             '       <img src="' + block.imageUrlLg + '" class="img-fluid img-thumbnail img-ratio-control" alt="' + post.title + '">' +
             '   </div>' +
             '</div>' +
@@ -45,7 +45,7 @@
     function bgImageContent(block){
         $('#blocks').append(
             '<div class="row position-relative pt-4">' +
-            '   <div class="col p-0 img-container img-height-40vh d-flex">' +
+            '   <div class="col p-0 img-container img-height-40vh d-flex shadow">' +
             '       <img src="' + block.imageUrlLg + '" class="img-fluid img-thumbnail img-ratio-control" alt="' + post.title + '">' +
             '       <div class="position-absolute top-50 start-50 translate-middle text-break">' +
             '           <p class="text-white my-font text-center fs-2 block-text-size"><strong>' + (block.content === null ? "" : block.content)  + '</strong></p>' +
@@ -73,7 +73,7 @@
             '</div>' +
             '<div class="row p-0 row-cols-sm-1 row-cols-md-2 row-cols-lg-2">' +
             '   <div class="col px-0">' +
-            '       <div class="img-container">' +
+            '       <div class="img-container shadow">' +
             '           <img src="' + block.imageUrlMd + '" class="img-fluid img-thumbnail img-ratio-control" alt="' + post.title + '">' +
             '       </div>' +
             '       <div class="w-100">' +
@@ -112,7 +112,7 @@
             '       </div>' +
             '   </div>' +
             '   <div class="col px-0">' +
-            '       <div class="img-container">' +
+            '       <div class="img-container shadow">' +
             '           <img src="' + block.imageUrlMd + '" class="img-fluid img-thumbnail img-ratio-control" alt="' + post.title + '">' +
             '       </div>' +
             '       <div class="w-100">' +
@@ -150,9 +150,9 @@
 
     function setupMap(){
         $('#blocks').append(
-            '<div class="row border-bottom border-dark">' +
+            '<div class="row">' +
             '   <div class="col px-0">' +
-            '       <div id="map" style="width: 100%; height: 300px"></div>' +
+            '       <div id="map" class="w-100 img-thumbnail shadow" style="height: 300px"></div>' +
             '   </div>' +
             '</div>'
         );
