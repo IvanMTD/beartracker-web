@@ -26,7 +26,7 @@ public class MainController {
                         .modelAttribute("index","main-page")
                         .modelAttribute("metaDescription","BearTrack – ваш путеводитель по самостоятельным путешествиям. Открывайте лучшие маршруты, карты и советы для активного отдыха. Путешествуйте легко и безопасно с BearTrack!")
                         .modelAttribute("metaKeywords","камчатка, тропы, экотропы, туризм, вулканы")
-                        .modelAttribute("posts", locationService.getAllOrderByCreated().flatMap(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
+                        .modelAttribute("posts", locationService.getAllOrderByCount().flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
                             location.setSubjectModel(subject);
                             return Mono.just(location);
                         })).take(8))

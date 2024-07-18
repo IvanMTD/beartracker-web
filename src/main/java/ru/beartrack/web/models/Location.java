@@ -30,6 +30,7 @@ public class Location {
     private UUID subject;
     private String metaTitle;
     private String metaDescription;
+    private long count;
     private Set<String> metaKeywords = new HashSet<>();
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate created;
@@ -42,7 +43,7 @@ public class Location {
     private Subject subjectModel;
 
 
-    public Location(LocationDTO locationDTO, UUID userId) {
+    public Location(LocationDTO locationDTO, UUID userId, long count) {
         try{
             setLatitude(Float.parseFloat(locationDTO.getLatitude()));
             setLongitude(Float.parseFloat(locationDTO.getLongitude()));
@@ -60,6 +61,7 @@ public class Location {
         String[] keywords = locationDTO.getMetaKeywords().split(", ");
         metaKeywords.addAll(Arrays.asList(keywords));
         setCreated(LocalDate.now());
+        setCount(count);
     }
 
     public void update(LocationDTO locationDTO) {

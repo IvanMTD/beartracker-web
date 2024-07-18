@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.SubjectDTO;
+import ru.beartrack.web.models.Subject;
 import ru.beartrack.web.services.SubjectService;
 
 @Slf4j
@@ -38,5 +40,10 @@ public class SubjectRestController {
                     log.info("all data synchronize [{}]",l);
                     return Mono.just(true);
                 });
+    }
+
+    @GetMapping("/get/all")
+    public Flux<Subject> getAllSubject(){
+        return subjectService.getAll();
     }
 }

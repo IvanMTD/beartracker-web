@@ -47,7 +47,7 @@ public class LocationController {
                             .modelAttribute("index","location-list-page")
                             .modelAttribute("page",pageControl)
                             .modelAttribute("lastPage",lastPage)
-                            .modelAttribute("posts", locationService.getAllOrderByCreated(PageRequest.of(pageControl,pageSize)).flatMap(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
+                            .modelAttribute("posts", locationService.getAllOrderByCount(PageRequest.of(pageControl,pageSize)).flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
                                 location.setSubjectModel(subject);
                                 return Mono.just(location);
                             })))

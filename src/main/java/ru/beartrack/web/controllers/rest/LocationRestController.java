@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.models.ApplicationUser;
+import ru.beartrack.web.models.Location;
 import ru.beartrack.web.services.LocationService;
-
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -33,5 +33,10 @@ public class LocationRestController {
     @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     public Mono<Boolean> updateLocationPost(@AuthenticationPrincipal ApplicationUser user, @ModelAttribute LocationDTO locationPost) {
         return locationService.update(locationPost).onErrorReturn(false);
+    }
+
+    @GetMapping("/get/all")
+    public Flux<Location> getAllLocation(){
+        return locationService.getAll();
     }
 }

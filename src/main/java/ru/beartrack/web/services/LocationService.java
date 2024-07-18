@@ -3,6 +3,7 @@ package ru.beartrack.web.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
@@ -31,18 +32,16 @@ public class LocationService {
     private final MinioService minioService;
 
     public Mono<Location> saveLocation(LocationDTO locationDTO, UUID userID){
-        return Mono.just(new Location(locationDTO, userID)).flatMap(locationRepository::save).flatMap(preSaved -> {
-            return Flux.fromIterable(locationDTO.getBlocks()).flatMap(block -> {
-                LocationContent locationContent = new LocationContent();
-                locationContent.setContentType(ContentType.valueOf(block.getType()));
-                locationContent.setContentTitle(block.getContentTitle());
-                locationContent.setContent(block.getContent());
-                locationContent.setPosition(Integer.parseInt(block.getPosition()));
-                locationContent.setParent(preSaved.getUuid());
-                locationContent.setImageDescription(block.getImageDescription());
-                return saveImage(block,locationContent,preSaved).flatMap(lc -> contentRepository.save(locationContent));
-            }).collectList().flatMap(l -> locationRepository.save(preSaved));
-        });
+        return locationRepository.count().flatMap( count -> Mono.just(new Location(locationDTO, userID, (count + 1))).flatMap(locationRepository::save).flatMap(preSaved -> Flux.fromIterable(locationDTO.getBlocks()).flatMap(block -> {
+            LocationContent locationContent = new LocationContent();
+            locationContent.setContentType(ContentType.valueOf(block.getType()));
+            locationContent.setContentTitle(block.getContentTitle());
+            locationContent.setContent(block.getContent());
+            locationContent.setPosition(Integer.parseInt(block.getPosition()));
+            locationContent.setParent(preSaved.getUuid());
+            locationContent.setImageDescription(block.getImageDescription());
+            return saveImage(block,locationContent,preSaved).flatMap(lc -> contentRepository.save(locationContent));
+        }).collectList().flatMap(l -> locationRepository.save(preSaved))));
     }
 
     public Flux<Location> getAll() {
@@ -55,6 +54,14 @@ public class LocationService {
 
     public Flux<Location> getAllOrderByCreated() {
         return locationRepository.findAllByOrderByCreatedDesc().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
+        }));
+    }
+
+    public Flux<Location> getAllOrderByCount() {
+        return locationRepository.findAllByOrderByCountDesc().flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
             location.setContentList(l);
             return Mono.just(location);
@@ -206,6 +213,14 @@ public class LocationService {
 
     public Flux<Location> getAllOrderByCreated(Pageable pageable) {
         return locationRepository.findAllByOrderByCreatedDesc(pageable).flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
+        }));
+    }
+
+    public Flux<Location> getAllOrderByCount(Pageable pageable) {
+        return locationRepository.findAllByOrderByCountDesc(pageable).flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
             location.setContentList(l);
             return Mono.just(location);

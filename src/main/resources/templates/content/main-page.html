@@ -4,6 +4,13 @@
 
             <h2 class="podzagolovok">Интересные места</h2>
 
+            <div class="row p-0 m-0 border-top border-bottom border-dark">
+                <div class="col p-0 m-0">
+                    <div id="locations-map" class="locations-map"></div>
+                    <div id="popup" class="popup"></div>
+                </div>
+            </div>
+
             <div id="row-posts" class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-4"></div>
 
 
@@ -48,6 +55,7 @@
 <script th:inline="javascript">
     let posts = [[${posts}]];
     let postRow = $('#row-posts');
+
     posts.forEach(function (post) {
         let carouselId = 'carousel-' + post.uuid;
         let prevId = 'prev-' + post.uuid;
@@ -95,4 +103,114 @@
         `;
         postRow.append(postHtml);
     });
+
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(position => {
+            let userLocation = [position.coords.longitude, position.coords.latitude];
+            initLocationsMap(userLocation,5);
+        }, () => {
+            // Если пользователь отклонил запрос на получение местоположения
+            initLocationsMap([105.3188, 61.5240], 3); // Центр России
+        });
+    }else{
+        // Если геолокация не поддерживается
+        initLocationsMap([105.3188, 61.5240], 3); // Центр России
+    }
+
+    async function initLocationsMap(center, zoom){
+        await ymaps3.ready;
+
+        const {YMapListener, YMap, YMapDefaultSchemeLayer,YMapDefaultFeaturesLayer, YMapMarker, YMapTileDataSource} = ymaps3;
+
+        const map = new YMap(
+            document.getElementById('locations-map'),
+            {location: {center: center, zoom: zoom}},
+            [
+                new YMapDefaultSchemeLayer({}),
+                new YMapDefaultFeaturesLayer({})
+            ]
+        );
+
+        const popup = document.getElementById('popup');
+
+        posts.forEach(function (post){
+            let imgUrl = '/img/loc/ekotropy.png';
+            /*post.contentList.forEach(function (block){
+                if(block.imageUrlSm !== null){
+                    imgUrl = block.imageUrlSm;
+                }
+            });*/
+
+            let markerHtml = `
+                <div class="row p-0 m-0" style="width: 32px; height: 32px; cursor: pointer">
+                    <div class="col p-0 m-0" style="overflow: hidden">
+                        <img class="img-fluid rounded-circle border border-white border-3" src="${imgUrl}" alt="${post.title}" style="object-fit: cover; height: 100%">
+                    </div>
+                </div>
+            `;
+            let marker = document.createElement('div');
+            marker.innerHTML = markerHtml;
+            marker.className = 'icon-marker';
+
+            marker.onclick = (e) => {
+                popup.innerHTML = `<strong>${post.title}</strong>`;
+                popup.style.display = 'block';
+
+                const mapRect = map.container.getBoundingClientRect();
+                const markerRect = marker.getBoundingClientRect();
+                const popupRect = document.getElementById('popup').getBoundingClientRect();
+
+                popup.style.left = `${markerRect.left - (popupRect.width / 2) + 16}px`;
+                popup.style.top = `${markerRect.top - 48}px`;
+
+                if (
+                    popupRect.left < mapRect.left ||
+                    popupRect.right > mapRect.right ||
+                    popupRect.top < mapRect.top ||
+                    popupRect.bottom > mapRect.bottom
+                ) {
+                    popup.style.display = 'none';
+                } else {
+                    popup.style.display = 'block';
+                }
+            };
+
+            map.addChild(new YMapMarker(
+                {
+                    coordinates: [post.longitude, post.latitude]
+                },
+                marker
+            ));
+
+            const updateHandler  = () => {
+                const mapRect = map.container.getBoundingClientRect();
+                const markerRect = marker.getBoundingClientRect();
+                const popupRect = document.getElementById('popup').getBoundingClientRect();
+
+                popup.style.left = `${markerRect.left - (popupRect.width / 2) + 16}px`;
+                popup.style.top = `${markerRect.top - 48}px`;
+
+                if (
+                    popupRect.left < mapRect.left ||
+                    popupRect.right > mapRect.right ||
+                    popupRect.top < mapRect.top ||
+                    popupRect.bottom > mapRect.bottom
+                ) {
+                    popup.style.display = 'none';
+                } else {
+                    popup.style.display = 'block';
+                }
+            };
+
+            // Создание объекта-слушателя.
+            const mapListener = new YMapListener({
+                layer: 'any',
+                // Добавление обработчиков на слушатель.
+                onUpdate: updateHandler
+            });
+
+            // Добавление слушателя на карту.
+            map.addChild(mapListener);
+        });
+    }
 </script>

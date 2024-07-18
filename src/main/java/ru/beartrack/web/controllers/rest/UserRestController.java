@@ -2,9 +2,7 @@ package ru.beartrack.web.controllers.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.PersonDTO;
@@ -13,7 +11,7 @@ import ru.beartrack.web.services.ApplicationUserService;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class UserRestController {
     private final ApplicationUserService userService;
     @GetMapping("/search/username")
@@ -21,12 +19,12 @@ public class UserRestController {
         return userService.findByUsername(username).flatMap(userDetails -> Mono.just(true)).switchIfEmpty(Mono.just(false));
     }
 
-    @GetMapping("/user/email/check")
+    @GetMapping("/email/check")
     public Mono<Boolean> isEmailExist(@RequestParam(name = "email") String email){
         return userService.findByEmail(email).flatMap(user -> Mono.just(true)).switchIfEmpty(Mono.just(false));
     }
 
-    @PostMapping("/reg/user")
+    @PostMapping("/reg")
     public Mono<Boolean> regUser(@RequestBody PersonDTO personDTO){
         return userService.registrationUser(personDTO).flatMap(user -> {
             log.info("user has been registered [{}]",user);
@@ -34,7 +32,7 @@ public class UserRestController {
         }).switchIfEmpty(Mono.just(false));
     }
 
-    @GetMapping("/user/update")
+    @GetMapping("/update")
     public Mono<ResponseEntity<String>> updateUser(@ModelAttribute(name = "person") PersonDTO personDTO){
         return userService.updateUser(personDTO).flatMap(u -> {
             if(u.getUuid() == null){

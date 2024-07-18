@@ -247,7 +247,7 @@
             let token = csrf.token;
 
             $.ajax({
-                url:'/api/reg/user',
+                url:'/api/user/reg',
                 type:'post',
                 data: JSON.stringify(personalData),
                 contentType:'application/json',
@@ -312,7 +312,7 @@
                 usernameInvalidFeedback.textContent = 'Минимальная длинна 4 знака!';
             }else{
                 $.ajax({
-                    url:'/api/search/username',
+                    url:'/api/user/search/username',
                     type:'get',
                     data:{
                         username:usernameInput.value

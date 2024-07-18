@@ -16,4 +16,6 @@ public interface LocationRepository extends R2dbcRepository<Location, UUID> {
     Flux<Location> findAllByOrderByCreatedDesc();
 
     Flux<Location> findAllByOrderByCreatedDesc(Pageable pageable);
+    Flux<Location> findAllByOrderByCountDesc();
+    Flux<Location> findAllByOrderByCountDesc(Pageable pageable);
 }

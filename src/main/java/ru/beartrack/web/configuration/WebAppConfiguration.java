@@ -15,13 +15,19 @@ import ru.beartrack.web.dto.SubjectRecord;
 import ru.beartrack.web.enums.FederalDistrict;
 import ru.beartrack.web.enums.Role;
 import ru.beartrack.web.models.ApplicationUser;
+import ru.beartrack.web.models.Location;
 import ru.beartrack.web.models.Subject;
 import ru.beartrack.web.repositories.ApplicationUserRepository;
+import ru.beartrack.web.repositories.LocationRepository;
 import ru.beartrack.web.repositories.SubjectRepository;
 import ru.beartrack.web.utils.CookieUtil;
 import ru.beartrack.web.utils.SubjectRepoUtil;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
@@ -39,7 +45,7 @@ public class WebAppConfiguration implements WebFluxConfigurer {
     }
 
     @Bean
-    public CommandLineRunner prepare(ApplicationUserRepository userRepository, PasswordEncoder passwordEncoder, SubjectRepository subjectRepository){
+    public CommandLineRunner prepare(ApplicationUserRepository userRepository, PasswordEncoder passwordEncoder, SubjectRepository subjectRepository, LocationRepository locationRepository){
         return args -> {
             log.info("***************** environments start *******************");
             for(String key : System.getenv().keySet()){
@@ -56,15 +62,18 @@ public class WebAppConfiguration implements WebFluxConfigurer {
                     return Mono.just(existingUser);
                 }).switchIfEmpty(
                         Mono.defer(() -> {
+                            log.info("try create user");
                             ApplicationUser newUser = new ApplicationUser();
                             newUser.setUsername(username);
                             newUser.setPassword(passwordEncoder.encode(password));
                             newUser.setPlacedAt(LocalDate.now());
                             newUser.setRole(Role.ADMIN);
-                            return userRepository.save(newUser)
-                                    .doOnNext(savedUser -> log.info("User created {}", savedUser));
+                            return userRepository.save(newUser);
                         })
-                );
+                ).flatMap(u -> {
+                    log.info("user in db is {}", u);
+                    return countControl(locationRepository).collectList().flatMap(l -> Mono.empty());
+                });
             }).subscribe();
         };
     }
@@ -82,5 +91,19 @@ public class WebAppConfiguration implements WebFluxConfigurer {
                 return subjectRepository.save(subject);
             }));
         });
+    }
+
+    private Flux<Location> countControl(LocationRepository locationRepository){
+        return locationRepository.findAll().collectList().flatMapMany(l -> {
+            l = l.stream().sorted(Comparator.comparing(Location::getCreated)).collect(Collectors.toList());
+            long n = 1;
+            List<Location> updateList = new ArrayList<>();
+            for(Location location : l){
+                location.setCount(n);
+                n++;
+                updateList.add(location);
+            }
+            return Flux.fromIterable(updateList);
+        }).flatMap(locationRepository::save);
     }
 }
