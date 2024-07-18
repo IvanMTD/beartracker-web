@@ -29,7 +29,7 @@ public class MainController {
                         .modelAttribute("posts", locationService.getAllOrderByCount().flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
                             location.setSubjectModel(subject);
                             return Mono.just(location);
-                        })).take(8))
+                        })))
                         .build()
         );
     }

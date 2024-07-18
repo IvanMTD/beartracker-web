@@ -56,24 +56,26 @@
     let posts = [[${posts}]];
     let postRow = $('#row-posts');
 
+    let n = 0;
     posts.forEach(function (post) {
-        let carouselId = 'carousel-' + post.uuid;
-        let prevId = 'prev-' + post.uuid;
-        let nextId = 'next-' + post.uuid;
-        let carouselInner = '';
-        let active = true;
-        post.contentList.forEach(function (block) {
-            if (block.imageUrlSm != null) {
-                let activeClass = active === true ? 'active' : '';
-                active = false;
-                carouselInner += `
+        if(n < 8) {
+            let carouselId = 'carousel-' + post.uuid;
+            let prevId = 'prev-' + post.uuid;
+            let nextId = 'next-' + post.uuid;
+            let carouselInner = '';
+            let active = true;
+            post.contentList.forEach(function (block) {
+                if (block.imageUrlSm != null) {
+                    let activeClass = active === true ? 'active' : '';
+                    active = false;
+                    carouselInner += `
                     <div class="carousel-item img-ratio-control size-h-150 ${activeClass}">
                         <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="${post.title}">
                     </div>
                 `;
-            }
-        });
-        let postHtml = `
+                }
+            });
+            let postHtml = `
             <div class="col mt-4">
                 <div class="card zoom-in-light m-auto">
                     <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
@@ -100,8 +102,10 @@
                     </div>
                 </div>
             </div>
-        `;
-        postRow.append(postHtml);
+            `;
+            postRow.append(postHtml);
+        }
+        n++;
     });
 
     if(navigator.geolocation){
