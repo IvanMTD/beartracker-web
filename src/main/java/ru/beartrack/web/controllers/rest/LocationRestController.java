@@ -9,9 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.LocationDTO;
-import ru.beartrack.web.dto.SubjectDTO;
+import ru.beartrack.web.dto.LocationTypeDTO;
 import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.models.Location;
+import ru.beartrack.web.models.LocationType;
 import ru.beartrack.web.services.LocationService;
 
 @Slf4j
@@ -35,6 +36,20 @@ public class LocationRestController {
     @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     public Mono<Boolean> updateLocationPost(@AuthenticationPrincipal ApplicationUser user, @ModelAttribute LocationDTO locationPost) {
         return locationService.update(locationPost).onErrorReturn(false);
+    }
+
+    @GetMapping("/type/get/all")
+    public Flux<LocationType> typeGetAll(){
+        return locationService.getAllLocationTypes();
+    }
+
+    @PostMapping("/type/add")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<Boolean> addLocationType(@ModelAttribute LocationTypeDTO locationTypeDTO){
+        return locationService.saveLocationType(locationTypeDTO).flatMap(locationType -> {
+            log.info("location type has been saved {}", locationType);
+            return Mono.just(true);
+        }).switchIfEmpty(Mono.just(false));
     }
 
     @GetMapping("/get/all")

@@ -39,6 +39,7 @@
                             <i class="icon feather icon-search fs-3 text-secondary my-auto"></i>
                         </div>
                     </div>
+                    <div id="location-types" class="row row-cols-auto"></div>
                     <div id="locations" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
                     <div class="row">
                         <div id="location-pagination" class="col d-flex">
@@ -69,7 +70,8 @@
 
 <script th:inline="javascript">
     let admin = [[${admin}]];
-    let moderator = [[${moderator}]]
+    let moderator = [[${moderator}]];
+    let admin_csrf = [[${_csrf}]];
     let user = [[${user}]];
     let users = [[${users}]];
     let roles = [[${roles}]];
@@ -81,14 +83,17 @@
     document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('showToast') === 'true') {
             // отображаем toast
-            showToast("success","Данные пользователя обновлены");
+            showToast(localStorage.getItem('status'),localStorage.getItem('message'));
             // удаляем информацию о том, что нужно отобразить toast
             localStorage.removeItem('showToast');
+            localStorage.removeItem('status');
+            localStorage.removeItem('message');
         }
     });
 
     setupUserBlock();
-    setupLocationSearchList()
+    setupLocationSearchList();
+    setupLocationTypes();
     setupLocationsFiled();
     setupUserPanel();
 
@@ -192,6 +197,67 @@
         setupLocationsFiled();
         locations = locationsTemp;
         reloadTooltip();
+    }
+
+    function setupLocationTypes(){
+        if(admin){
+            $.ajax({
+                url:'/api/location/type/get/all',
+                type:'get',
+                success:function (response){
+                    let types = $('#location-types');
+                    types.empty();
+                    response.forEach(function (type){
+                        types.append(`
+                            <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
+                                <div class="m-auto w-75 h-75">
+                                    <img class="img-thumbnail rounded-circle m-auto" src="${type.imageUrl}" alt="${type.name}">
+                                </div>
+                            </div>
+                        `);
+                    });
+                    types.append(`
+                        <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
+                            <button type="button" class="btn btn-link m-auto text-decoration-none text-dark rounded-circle border shadow w-75 h-75 d-flex" data-bs-toggle="modal" data-bs-target="#location-type-add-modal">
+                                <i class="icon feather icon-plus m-auto"></i>
+                            </button>
+                            <div class="modal fade" id="location-type-add-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="location-modal-label" aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Окно добавления типов мест</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <label for="location-type-name ms-1">Уникальное имя типа места</label>
+                                                    <input type="text" id="location-type-name" class="form-control">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label for="location-type-image ms-1">Изображение</label>
+                                                    <input type="file" id="location-type-image" accept="image/*" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label for="location-type-description ms-1">Описание</label>
+                                                    <textarea type="text" id="location-type-description" class="form-control" rows="4"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                            <button type="button" class="btn btn-primary" onclick="addLocationType()">Добавить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+        }
     }
 
     function setupLocationsFiled(){
@@ -306,6 +372,8 @@
                 console.log(data);
                 hideSpinner();
                 localStorage.setItem('showToast', 'true');
+                localStorage.setItem('status', 'success');
+                localStorage.setItem('message','Данные пользователя' + person.name + 'обновлены')
                 location.reload(true);
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -392,6 +460,7 @@
                     <p class="my-font fs-4 py-4 border-bottom"><b>Панель администратора</b></p>
                 </div>
             </div>
+            <p class="my-font text-center">Пользователи</p>
             <div class="row">
                 <div class="col">
                     ${usersBlock}
@@ -424,11 +493,53 @@
                 console.log(data);
                 hideSpinner();
                 localStorage.setItem('showToast', 'true');
+                localStorage.setItem('status', 'success');
+                localStorage.setItem('message','Данные пользователя' + person.name + 'обновлены')
                 location.reload(true);
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log('Error:', textStatus, errorThrown);
                 hideSpinner();
+            }
+        });
+    }
+
+    function addLocationType(){
+        let formData = new FormData();
+        formData.append('name',$('#location-type-name').val());
+        formData.append('description',$('#location-type-description').val());
+        let file = $('#location-type-image')[0];
+        if(file){
+            file = file.files[0];
+            if(file){
+                formData.append('image',file);
+            }
+        }else{
+            return;
+        }
+
+        showSpinner();
+        $.ajax({
+            url:'/api/location/type/add',
+            type:'post',
+            data:formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(admin_csrf.headerName, admin_csrf.token);
+            },
+            success: function (response) {
+                console.log(response);
+                hideSpinner();
+                localStorage.setItem('showToast', 'true');
+                localStorage.setItem('status', 'success');
+                localStorage.setItem('message','Новый тип места успешно добавлен')
+                location.reload(true);
+            },
+            error: function (xhr, status, error) {
+                hideSpinner();
+                console.error(status, error);
+                showToast("error", 'error: ' + xhr.responseJSON.message)
             }
         });
     }

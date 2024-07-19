@@ -31,6 +31,7 @@ public class Location {
     private String metaTitle;
     private String metaDescription;
     private long count;
+    private UUID locationType;
     private Set<String> metaKeywords = new HashSet<>();
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate created;
@@ -41,6 +42,8 @@ public class Location {
     private List<LocationContent> contentList = new ArrayList<>();
     @Transient
     private Subject subjectModel;
+    @Transient
+    private LocationType locationTypeModel;
 
 
     public Location(LocationDTO locationDTO, UUID userId, long count) {

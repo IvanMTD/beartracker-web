@@ -3,8 +3,6 @@ package ru.beartrack.web.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.reactivestreams.Publisher;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
@@ -12,12 +10,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.ContentDTO;
 import ru.beartrack.web.dto.LocationDTO;
+import ru.beartrack.web.dto.LocationTypeDTO;
 import ru.beartrack.web.enums.ContentType;
 import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.models.Location;
 import ru.beartrack.web.models.LocationContent;
+import ru.beartrack.web.models.LocationType;
 import ru.beartrack.web.repositories.LocationContentRepository;
 import ru.beartrack.web.repositories.LocationRepository;
+import ru.beartrack.web.repositories.LocationTypeRepository;
 import ru.beartrack.web.utils.ImageioUtil;
 
 import java.io.File;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class LocationService {
     private final LocationRepository locationRepository;
     private final LocationContentRepository contentRepository;
+    private final LocationTypeRepository typeRepository;
     private final MinioService minioService;
 
     public Mono<Location> saveLocation(LocationDTO locationDTO, UUID userID){
@@ -250,6 +252,41 @@ public class LocationService {
             }).collectList().flatMap(l -> {
                 return Mono.just(saved);
             });
+        });
+    }
+
+    public Flux<LocationType> getAllLocationTypes() {
+        return typeRepository.findAll().collectList().flatMapMany(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationType::getName)).collect(Collectors.toList());
+            return Flux.fromIterable(l);
+        }).flatMapSequential(Mono::just);
+    }
+
+    public Mono<LocationType> saveLocationType(LocationTypeDTO locationTypeDTO) {
+        return Mono.just(new LocationType(locationTypeDTO)).flatMap(locationType -> {
+            try {
+                return saveImageSimple(locationTypeDTO.getImage()).flatMap(imageUrl -> {
+                    locationType.setImageUrl(imageUrl);
+                    return typeRepository.save(locationType);
+                });
+            } catch (IOException e) {
+                return Mono.error(new RuntimeException(e));
+            }
+        });
+    }
+
+    private Mono<String> saveImageSimple(FilePart image) throws IOException {
+        String extension = FilenameUtils.getExtension(image.filename());
+        String fileName = UUID.randomUUID() + "." + extension;
+        return ImageioUtil.saveImage(image,fileName).flatMap(originalFile -> {
+            String objectName = "/images/location-types/" + fileName;
+            String imageUrl = null;
+            try {
+                imageUrl = minioService.uploadFile(originalFile, objectName);
+            } catch (IOException e) {
+                return Mono.error(new RuntimeException(e));
+            }
+            return Mono.just(imageUrl);
         });
     }
 }
