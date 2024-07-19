@@ -218,9 +218,11 @@
                     });
                     types.append(`
                         <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
-                            <button type="button" class="btn btn-link m-auto text-decoration-none text-dark rounded-circle border shadow w-75 h-75 d-flex" data-bs-toggle="modal" data-bs-target="#location-type-add-modal">
-                                <i class="icon feather icon-plus m-auto"></i>
-                            </button>
+                            <div class="m-auto w-75 h-75 rounded-circle border">
+                                <button type="button" class="zoom-in btn btn-link m-auto text-decoration-none text-dark rounded-circle border border-4 border-white w-100 h-100 d-flex" style="background: #f1f1f1" data-bs-toggle="modal" data-bs-target="#location-type-add-modal">
+                                    <i class="icon feather icon-plus m-auto" style="transform: translate(-1px,0px)"></i>
+                                </button>
+                            </div>
                             <div class="modal fade" id="location-type-add-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="location-modal-label" aria-hidden="true">
                                 <div class="modal-dialog modal-lg modal-dialog-centered">
                                     <div class="modal-content">

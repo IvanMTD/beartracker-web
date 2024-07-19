@@ -81,6 +81,7 @@ public class LocationController {
                         .modelAttribute("index","location-create-page")
                         .modelAttribute("types", ContentType.valuesOfDTO())
                         .modelAttribute("subjects", subjectService.getAll())
+                        .modelAttribute("locationTypes",locationService.getAllLocationTypes())
                         .build()
         );
     }
@@ -96,6 +97,7 @@ public class LocationController {
                             .modelAttribute("index","location-edit-page")
                             .modelAttribute("types", ContentType.valuesOfDTO())
                             .modelAttribute("subjects", subjectService.getAll())
+                            .modelAttribute("locationTypes",locationService.getAllLocationTypes())
                             .modelAttribute("post",location)
                             .build()
             );

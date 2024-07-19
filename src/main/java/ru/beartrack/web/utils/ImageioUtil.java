@@ -63,9 +63,11 @@ public class ImageioUtil {
     public static void releaseTemp(String fileName, String[] sizes) {
         try {
             Files.delete(Path.of(BASE_PATH + fileName));
-            Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[0] + ".webp"));
-            Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[1] + ".webp"));
-            Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[2] + ".webp"));
+            if(sizes != null) {
+                Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[0] + ".webp"));
+                Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[1] + ".webp"));
+                Files.delete(Path.of(BASE_PATH + FilenameUtils.removeExtension(fileName) + "-" + sizes[2] + ".webp"));
+            }
         } catch (IOException e) {
             log.error("Cant delete files! Error [{},{}]",e.getMessage(),e.getLocalizedMessage());
         }

@@ -26,7 +26,7 @@
                 </div>
                 <div class="row row-cols-auto pt-2">
                     <input type="text" id="post-uuid" th:value="${post.uuid}" hidden>
-                    <div class="col-12 col-lg-4">
+                    <div class="col-12 col-lg-3">
                         <label class="ms-1 text-dark">Название места</label>
                         <input type="text" id="location-title" class="form-control text-dark">
                         <!--<div class="valid-feedback">
@@ -36,19 +36,23 @@
                             <p class="ms-1">Не может быть пустым!</p>
                         </div>-->
                     </div>
-                    <div class="col-12 col-lg-4">
+                    <div class="col-12 col-lg-3">
                         <label class="ms-1 text-dark">Широта и Долгота: <span class="text-danger fs-6">Через запятую</span></label>
                         <input type="text" id="location-latitude-longitude" class="form-control">
                     </div>
-                    <!--<div class="col-12 col-lg-2">
-                        <label class="ms-1 text-dark">Долгота</label>
-                        <input type="text" id="location-longitude" class="form-control">
-                    </div>-->
-                    <div class="col-12 col-lg-4">
+                    <div class="col-12 col-lg-3">
                         <label class="ms-1 text-dark">Субъект</label>
                         <select id="location-subject" class="form-select">
                             <option th:each="subject : ${subjects}" th:value="${subject.uuid}" th:text="${subject.title}"></option>
                         </select>
+                    </div>
+                    <div class="col-12 col-lg-3">
+                        <label for="location-type" class="ms-1 text-dark">Тип места</label>
+                        <div class="custom-select" id="location-type-select">
+                            <select id="location-type" class="form-select">
+                                <option th:each="type : ${locationTypes}" th:value="${type.uuid}" th:text="${type.name}" th:data-image="${type.imageUrl}"></option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="row pt-2">
@@ -507,3 +511,4 @@
     }
 
 </script>
+<script src="/js/custom.select.js"></script>

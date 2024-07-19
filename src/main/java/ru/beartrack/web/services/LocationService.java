@@ -19,12 +19,15 @@ import ru.beartrack.web.models.LocationType;
 import ru.beartrack.web.repositories.LocationContentRepository;
 import ru.beartrack.web.repositories.LocationRepository;
 import ru.beartrack.web.repositories.LocationTypeRepository;
+import ru.beartrack.web.repositories.SubjectRepository;
 import ru.beartrack.web.utils.ImageioUtil;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,6 +37,7 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final LocationContentRepository contentRepository;
     private final LocationTypeRepository typeRepository;
+    private final SubjectRepository subjectRepository;
     private final MinioService minioService;
 
     public Mono<Location> saveLocation(LocationDTO locationDTO, UUID userID){
@@ -238,8 +242,10 @@ public class LocationService {
             loc.setCreator(user.getUuid());
             loc.setCreated(LocalDate.now());
             loc.setUpdated(null);
-            loc.setSubject(UUID.fromString("7e12cbc5-0ff9-4e1e-a9e7-48dbccb1da1d"));
-            return locationRepository.save(loc);
+            return subjectRepository.findByIso("RU-MOW").flatMap(subject -> {
+                loc.setSubject(subject.getUuid());
+                return locationRepository.save(loc);
+            });
         }).flatMap(saved -> {
             log.info("location saved {}", saved);
             return Flux.fromIterable(location.getContentList()).flatMap(lc -> {
@@ -283,6 +289,7 @@ public class LocationService {
             String imageUrl = null;
             try {
                 imageUrl = minioService.uploadFile(originalFile, objectName);
+                ImageioUtil.releaseTemp(fileName,null);
             } catch (IOException e) {
                 return Mono.error(new RuntimeException(e));
             }

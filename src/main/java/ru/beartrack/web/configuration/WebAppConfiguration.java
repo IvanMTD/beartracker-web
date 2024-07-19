@@ -69,10 +69,10 @@ public class WebAppConfiguration implements WebFluxConfigurer {
                             newUser.setRole(Role.ADMIN);
                             return userRepository.save(newUser);
                         })
-                );/*.flatMap(u -> {
+                ).flatMap(u -> {
                     log.info("user in db is {}", u);
-                    return countControl(locationRepository).collectList().flatMap(l -> Mono.empty());
-                });*/
+                    return Mono.empty(); //countControl(locationRepository).collectList().flatMap(l -> Mono.empty());
+                });
             }).subscribe();
         };
     }
