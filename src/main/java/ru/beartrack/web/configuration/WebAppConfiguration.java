@@ -11,7 +11,6 @@ import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.beartrack.web.dto.SubjectRecord;
 import ru.beartrack.web.enums.FederalDistrict;
 import ru.beartrack.web.enums.Role;
 import ru.beartrack.web.models.ApplicationUser;

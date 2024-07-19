@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.LocationDTO;
+import ru.beartrack.web.dto.SubjectDTO;
 import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.models.Location;
 import ru.beartrack.web.services.LocationService;
@@ -38,5 +40,25 @@ public class LocationRestController {
     @GetMapping("/get/all")
     public Flux<Location> getAllLocation(){
         return locationService.getAll();
+    }
+
+    @GetMapping("/synchronise")
+    public Mono<Boolean> synchroniseData(@AuthenticationPrincipal ApplicationUser user, @RequestParam(name = "domain") String domain){
+        WebClient webClient = WebClient.builder()
+                .baseUrl("https://" + domain)
+                .build();
+
+        return webClient.get()
+                .uri("/api/location/get/all")
+                .retrieve()
+                .bodyToFlux(Location.class)
+                .flatMap(location -> {
+                    return locationService.synchronise(location,user);
+                })
+                .collectList()
+                .flatMap(l -> {
+                    log.info("all data synchronize [{}]",l);
+                    return Mono.just(true);
+                });
     }
 }

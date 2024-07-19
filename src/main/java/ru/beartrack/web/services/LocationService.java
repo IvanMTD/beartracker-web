@@ -3,6 +3,7 @@ package ru.beartrack.web.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.reactivestreams.Publisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.FilePart;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.ContentDTO;
 import ru.beartrack.web.dto.LocationDTO;
 import ru.beartrack.web.enums.ContentType;
+import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.models.Location;
 import ru.beartrack.web.models.LocationContent;
 import ru.beartrack.web.repositories.LocationContentRepository;
@@ -20,6 +22,7 @@ import ru.beartrack.web.utils.ImageioUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -225,5 +228,28 @@ public class LocationService {
             location.setContentList(l);
             return Mono.just(location);
         }));
+    }
+
+    public Mono<Location> synchronise(Location location, ApplicationUser user) {
+        return Mono.just(location).flatMap(loc -> {
+            loc.setUuid(null);
+            loc.setCreator(user.getUuid());
+            loc.setCreated(LocalDate.now());
+            loc.setUpdated(null);
+            loc.setSubject(UUID.fromString("7e12cbc5-0ff9-4e1e-a9e7-48dbccb1da1d"));
+            return locationRepository.save(loc);
+        }).flatMap(saved -> {
+            log.info("location saved {}", saved);
+            return Flux.fromIterable(location.getContentList()).flatMap(lc -> {
+                lc.setUuid(null);
+                lc.setParent(saved.getUuid());
+                return contentRepository.save(lc);
+            }).flatMap(lcSaved -> {
+                log.info("saved content {}", lcSaved);
+                return Mono.just(lcSaved);
+            }).collectList().flatMap(l -> {
+                return Mono.just(saved);
+            });
+        });
     }
 }
