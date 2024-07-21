@@ -32,7 +32,7 @@ public class AccountController {
                             .modelAttribute("title","Аккаунт пользователя " + user.getUsername())
                             .modelAttribute("index","account-personal-page")
                             .modelAttribute("user", u)
-                            .modelAttribute("locations", locationService.getAllByUserUuid(user.getUuid()))
+                            .modelAttribute("locations", user.getRole().equals(Role.ADMIN) ? locationService.getAllOrderByCount() : locationService.getAllByUserUuid(user.getUuid()))
                             .modelAttribute("roles", Role.valuesOfDTO())
                             .modelAttribute("users", userService.getAll())
                             .build()

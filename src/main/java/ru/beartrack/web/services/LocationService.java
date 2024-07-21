@@ -104,7 +104,7 @@ public class LocationService {
 
     public Flux<Location> getAllByUserUuid(UUID uuid) {
         return locationRepository.findAllByCreator(uuid).collectList().flatMapMany(l -> {
-            l = l.stream().sorted(Comparator.comparing(Location::getCreated)).collect(Collectors.toList());
+            l = l.stream().sorted(Comparator.comparing(Location::getCount).reversed()).collect(Collectors.toList());
             return Flux.fromIterable(l);
         }).flatMapSequential(Mono::just);
     }

@@ -128,26 +128,26 @@
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
-                                    <div class="row">
-                                        <div class="col-4">
+                                    <div class="row row-cols-auto">
+                                        <div class="col-sm-12 col-md-4 col-lg-4">
                                             <label class="ms-1" for="lastname">Фамилия</label>
                                             <input type="text" class="form-control" id="lastname" value="${user.lastname}">
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-sm-12 col-md-4 col-lg-4">
                                             <label class="ms-1" for="name">Имя</label>
                                             <input type="text" class="form-control" id="name" value="${user.name}">
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-sm-12 col-md-4 col-lg-4">
                                             <label class="ms-1" for="middlename">Отчество</label>
                                             <input type="text" class="form-control" id="middlename" value="${user.middleName}">
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-sm-12 col-md-6 col-lg-6">
                                             <label class="ms-1" for="birthday">День рождения</label>
                                             <input type="date" class="form-control" id="birthday" value="${user.birthday}">
                                         </div>
-                                        <div class="col-6">
+                                        <div class="col-sm-12 col-md-6 col-lg-6">
                                             <label class="ms-1" for="email">Email</label>
                                             <input type="email" class="form-control" id="email" value="${user.email}">
                                         </div>
@@ -231,18 +231,18 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <div class="row">
-                                                <div class="col-6">
+                                            <div class="row row-cols-auto">
+                                                <div class="col-sm-12 col-md-6 col-lg-6">
                                                     <label for="location-type-name ms-1">Уникальное имя типа места</label>
                                                     <input type="text" id="location-type-name" class="form-control">
                                                 </div>
-                                                <div class="col-6">
+                                                <div class="col-sm-12 col-md-6 col-lg-6">
                                                     <label for="location-type-image ms-1">Изображение</label>
                                                     <input type="file" id="location-type-image" accept="image/*" class="form-control">
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col">
+                                                <div class="col-sm-12 col-md-6 col-lg-6">
                                                     <label for="location-type-description ms-1">Описание</label>
                                                     <textarea type="text" id="location-type-description" class="form-control" rows="4"></textarea>
                                                 </div>
@@ -410,30 +410,30 @@
                                     </div>
                                     <div class="modal-body">
                                         <div class="container-fluid">
-                                            <div class="row">
-                                                <div class="col-4">
+                                            <div class="row row-cols-auto">
+                                                <div class="col-sm-12 col-md-4 col-lg-4">
                                                     <label class="ms-1" for="lastname-${u.uuid}">Фамилия</label>
                                                     <input type="text" class="form-control" id="lastname-${u.uuid}" value="${u.lastname}">
                                                 </div>
-                                                <div class="col-4">
+                                                <div class="col-sm-12 col-md-4 col-lg-4">
                                                     <label class="ms-1" for="name-${u.uuid}">Имя</label>
                                                     <input type="text" class="form-control" id="name-${u.uuid}" value="${u.name}">
                                                 </div>
-                                                <div class="col-4">
+                                                <div class="col-sm-12 col-md-4 col-lg-4">
                                                     <label class="ms-1" for="middlename-${u.uuid}">Отчество</label>
                                                     <input type="text" class="form-control" id="middlename-${u.uuid}" value="${u.middleName}">
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-4">
+                                            <div class="row row-cols-auto">
+                                                <div class="col-sm-12 col-md-4 col-lg-4">
                                                     <label class="ms-1" for="birthday-${u.uuid}">День рождения</label>
                                                     <input type="date" class="form-control" id="birthday-${u.uuid}" value="${u.birthday}">
                                                 </div>
-                                                <div class="col-4">
+                                                <div class="col-sm-12 col-md-4 col-lg-4">
                                                     <label class="ms-1" for="email-${u.uuid}">Email</label>
                                                     <input type="email" class="form-control" id="email-${u.uuid}" value="${u.email}">
                                                 </div>
-                                                <div class="col-4">
+                                                <div class="col-sm-12 col-md-4 col-lg-4-4">
                                                     <label class="ms-1" for="role-${u.uuid}">Роль</label>
                                                     <select class="form-select" id="role-${u.uuid}">
                                                         ${roles.map(function (role){
