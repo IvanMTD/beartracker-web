@@ -16,6 +16,7 @@ public class LocationDTO {
     private String latitude;
     private String longitude;
     private UUID subject;
+    private UUID locationType;
     private String metaTitle;
     private String metaDescription;
     private String metaKeywords;

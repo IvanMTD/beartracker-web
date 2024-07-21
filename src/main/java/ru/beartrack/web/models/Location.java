@@ -58,6 +58,7 @@ public class Location {
         setCreator(userId);
         setSef(TransliterateUtil.transliterate(locationDTO.getTitle()));
         setSubject(locationDTO.getSubject());
+        setLocationType(locationDTO.getLocationType());
 
         setMetaTitle(locationDTO.getMetaTitle());
         setMetaDescription(locationDTO.getMetaDescription());
@@ -78,6 +79,7 @@ public class Location {
         setNotation(locationDTO.getNotation());
         setSef(TransliterateUtil.transliterate(locationDTO.getTitle()));
         setSubject(locationDTO.getSubject());
+        setLocationType(locationDTO.getLocationType());
 
         setMetaTitle(locationDTO.getMetaTitle());
         setMetaDescription(locationDTO.getMetaDescription());

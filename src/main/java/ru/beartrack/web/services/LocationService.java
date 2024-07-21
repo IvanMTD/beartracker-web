@@ -70,19 +70,36 @@ public class LocationService {
     }
 
     public Flux<Location> getAllOrderByCount() {
-        return locationRepository.findAllByOrderByCountDesc().flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+        return locationRepository.findAllByOrderByCountDesc().flatMapSequential(location -> {
+            if(location.getLocationType() != null){
+                return typeRepository.findByUuid(location.getLocationType()).flatMap(type -> {
+                    location.setLocationTypeModel(type);
+                    return contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+                        l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+                        location.setContentList(l);
+                        return Mono.just(location);
+                    });
+                });
+            }else{
+                return contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+                    l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+                    location.setContentList(l);
+                    return Mono.just(location);
+                });
+            }
+        });
+        /*return locationRepository.findAllByOrderByCountDesc().flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
             location.setContentList(l);
             return Mono.just(location);
-        }));
+        }));*/
     }
 
     public Mono<Location> getBySef(String sef) {
-        return locationRepository.findBySef(sef).flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
-            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
-            location.setContentList(l);
-            return Mono.just(location);
-        }));
+        return locationRepository.findBySef(sef).flatMap(location -> typeRepository.findByUuid(location.getLocationType()).flatMap(type -> {
+            location.setLocationTypeModel(type);
+            return setupContent(location);
+        }).switchIfEmpty(Mono.just(location).flatMap(this::setupContent)));
     }
 
     public Flux<Location> getAllByUserUuid(UUID uuid) {
@@ -294,6 +311,14 @@ public class LocationService {
                 return Mono.error(new RuntimeException(e));
             }
             return Mono.just(imageUrl);
+        });
+    }
+
+    private Mono<Location> setupContent(Location location){
+        return contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
         });
     }
 }

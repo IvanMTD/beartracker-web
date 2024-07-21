@@ -214,6 +214,28 @@
     height: 40vh;
 }
 
+.my_btn-close {
+    width: 24px;
+    height: 24px;
+    background-color: red;
+    border: none;
+    border-radius: 50%;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.my_btn-close::before {
+    content: '✖';
+    color: white;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.my_btn-close:hover {
+    background-color: darkred;
+}
 
 
 

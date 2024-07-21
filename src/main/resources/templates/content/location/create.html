@@ -372,6 +372,7 @@
         let latitude = ll_parts[0].trim();
         let longitude = ll_parts[1].trim();
         let subject = $('#location-subject').val();
+        let locationType = $('#location-type').val();
         let metaTitle = $('#meta-title').val();
         let metaDescription = $('#meta-description').val();
         let metaKeywords = $('#meta-keywords').val();
@@ -383,6 +384,7 @@
         formData.append('latitude', latitude);
         formData.append('longitude', longitude);
         formData.append('subject', subject);
+        formData.append('locationType', locationType);
         formData.append('metaTitle',metaTitle);
         formData.append('metaDescription', metaDescription);
         formData.append('metaKeywords', metaKeywords);

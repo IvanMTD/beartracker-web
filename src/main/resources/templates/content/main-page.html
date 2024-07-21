@@ -152,6 +152,9 @@
 
             _createMarker() {
                 let imgUrl = '/img/loc/ekotropy.png';
+                if(this._post.locationTypeModel){
+                    imgUrl = this._post.locationTypeModel.imageUrl;
+                }
                 let element = document.createElement('div');
                 element.innerHTML = `
                     <div class="row p-0 m-0" style="width: 32px; height: 32px; cursor: pointer">
@@ -182,19 +185,18 @@
                 });
 
                 const element = document.createElement('div');
+
                 element.innerHTML = `
-                    <div class="card" style="width: 200px; transform: translate(-84px, -210px);">
+                    <div class="card position-relative" style="width: 200px; transform: translate(-84px, -200px);">
+                        <button id="close-btn-${this._post.uuid}" type="button" class="my_btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
                         <img src="${imageUrl}" class="card-img-top img-ratio-control" alt="${this._post.title}" style="height: 100px">
-                        <div class="card-body" style="height: 100px">
+                        <div class="card-body" style="height: 90px">
                             <div class="row p-0 m-0">
                                 <div class="col p-0 m-0">
                                     <div class="row">
                                         <a href="/location/${this._post.sef}" class="text-decoration-none text-dark">
-                                            <p class="my-font fs-5 clamp-line-2 text-center"><b>${this._post.title}</b></p>
+                                            <p class="my-font fs-6 clamp-line-2 text-center"><b>${this._post.title}</b></p>
                                         </a>
-                                    </div>
-                                    <div class="row">
-                                        <button id="close-btn-${this._post.uuid}" type="button" class="btn btn-link">Закрыть</button>
                                     </div>
                                 </div>
                             </div>
