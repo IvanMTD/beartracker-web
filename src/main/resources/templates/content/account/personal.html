@@ -76,6 +76,7 @@
     let users = [[${users}]];
     let roles = [[${roles}]];
     let locations = [[${locations}]];
+    let locationTypesArray = null;
     // location
     let locationPage = 0;
     let locationPageSize = 12;
@@ -205,9 +206,10 @@
                 url:'/api/location/type/get/all',
                 type:'get',
                 success:function (response){
+                    locationTypesArray = response;
                     let types = $('#location-types');
                     types.empty();
-                    response.forEach(function (type){
+                    /*response.forEach(function (type){
                         types.append(`
                             <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
                                 <div class="m-auto w-75 h-75">
@@ -215,7 +217,7 @@
                                 </div>
                             </div>
                         `);
-                    });
+                    });*/
                     types.append(`
                         <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
                             <div class="m-auto w-75 h-75 rounded-circle border">
@@ -545,4 +547,26 @@
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const types = document.getElementById('location-types');
+        locationTypesArray.forEach(function (type){
+            types.insertAdjacentHTML('afterbegin', `
+                    <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
+                        <div class="m-auto w-75 h-75">
+                            <img class="img-thumbnail rounded-circle m-auto" src="${type.imageUrl}" alt="${type.name}">
+                        </div>
+                    </div>
+                `);
+        });
+
+        // Инициализация Sortable.js
+        new Sortable(types, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function(){
+                console.log("Метод пересортировки");
+            }
+        });
+    });
 </script>

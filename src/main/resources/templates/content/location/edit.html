@@ -112,7 +112,7 @@
         $('#meta-title').val(post.metaTitle);
         $('#meta-description').val(post.metaDescription);
         $('#meta-keywords').val(post.keywords);
-        fillBlocks();
+        //fillBlocks();
     }
 
     function fillBlocks(){
@@ -593,5 +593,43 @@
             selectElement.value = optionToSelect.value;
         }
     }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const types = document.getElementById('blocks');
+        fillBlocks();
+
+        // Инициализация Sortable.js
+        new Sortable(types, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function(){
+                let blocks = document.querySelectorAll('[id^="full-block-"]');
+                let n = 0;
+                blocks.forEach(function (block){
+                    block.setAttribute('id', 'full-block-' + n);
+                    let inputUuid = block.querySelector('[id*="content-uuid-"]');
+                    inputUuid.setAttribute('id','content-uuid-' + n);
+                    let deleteBtn = block.querySelector('[id*="delete-"]');
+                    deleteBtn.setAttribute('id','delete-' + n);
+                    let innerBlock = block.querySelector('[id*="block-"]');
+                    innerBlock.setAttribute('id', 'block-' + n);
+                    let typeSelect = block.querySelector('[id*="type-select-"]');
+                    typeSelect.setAttribute('id','type-select-' + n);
+                    let fileInput = block.querySelector('[id*="file-input-"]');
+                    fileInput.setAttribute('id','file-input-' + n);
+                    let fileTitleInput = block.querySelector('[id*="file-title-input-"]');
+                    fileTitleInput.setAttribute('id','file-title-input-' + n);
+                    let contentTitleInput = block.querySelector('[id*="content-title-input-"]');
+                    contentTitleInput.setAttribute('id','content-title-input-' + n);
+                    let contentInput = block.querySelector('[id*="content-input-"]');
+                    contentInput.setAttribute('id','content-input-' + n);
+                    let preview = block.querySelector('[id*="preview-"]');
+                    preview.setAttribute('id','preview-' + n);
+                    n++;
+                });
+                blockIndex = blocks.length;
+            }
+        });
+    });
 
 </script>
