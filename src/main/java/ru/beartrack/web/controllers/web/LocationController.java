@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.enums.ContentType;
+import ru.beartrack.web.models.LocationContent;
 import ru.beartrack.web.services.LocationService;
 import ru.beartrack.web.services.SubjectService;
 
@@ -60,6 +61,15 @@ public class LocationController {
     public Mono<Rendering> locationShowPage(@PathVariable String sef){
         return locationService.getBySef(sef).flatMap(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
             location.setSubjectModel(subject);
+            String imageUrl = "";
+            for(LocationContent lc : location.getContentList()){
+                if(lc.getImageUrlLg() != null ){
+                    if(!lc.getImageUrlLg().equals("")){
+                        imageUrl = lc.getImageUrlLg();
+                        break;
+                    }
+                }
+            }
             return Mono.just(
                     Rendering.view("template")
                             .modelAttribute("title",location.getMetaTitle())
@@ -67,6 +77,10 @@ public class LocationController {
                             .modelAttribute("metaDescription",location.getMetaDescription())
                             .modelAttribute("metaKeywords",location.getKeywords())
                             .modelAttribute("post",location)
+                            .modelAttribute("ogUrl","/location/" + sef)
+                            .modelAttribute("ogType","article")
+                            .modelAttribute("ogImage",imageUrl)
+                            .modelAttribute("ogLogo","/img/logo.svg")
                             .build()
             );
         }));

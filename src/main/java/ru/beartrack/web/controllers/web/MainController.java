@@ -20,12 +20,19 @@ public class MainController {
 
     @GetMapping("/")
     public Mono<Rendering> homePage(){
+        String title = "BearTrack: маршруты для самостоятельных путешествий";
+        String description = "BearTrack – ваш путеводитель по самостоятельным путешествиям. Открывайте лучшие маршруты, карты и советы для активного отдыха. Путешествуйте легко и безопасно с BearTrack!";
+        String keywords = "трекинг, путешествия, туризм, экотропы, горы, вулканы";
         return Mono.just(
                 Rendering.view("template")
-                        .modelAttribute("title","BearTrack: маршруты для самостоятельных путешествий")
+                        .modelAttribute("title",title)
                         .modelAttribute("index","main-page")
-                        .modelAttribute("metaDescription","BearTrack – ваш путеводитель по самостоятельным путешествиям. Открывайте лучшие маршруты, карты и советы для активного отдыха. Путешествуйте легко и безопасно с BearTrack!")
-                        .modelAttribute("metaKeywords","камчатка, тропы, экотропы, туризм, вулканы")
+                        .modelAttribute("metaDescription", description)
+                        .modelAttribute("metaKeywords",keywords)
+                        .modelAttribute("ogUrl","/")
+                        .modelAttribute("ogType","website")
+                        .modelAttribute("ogImage","https://beartrack.ru/img/fon-3.png")
+                        .modelAttribute("ogLogo","/img/logo.svg")
                         .modelAttribute("posts", locationService.getAllOrderByCount().flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
                             location.setSubjectModel(subject);
                             return Mono.just(location);

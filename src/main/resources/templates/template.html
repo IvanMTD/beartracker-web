@@ -3,9 +3,21 @@
     <head>
         <meta charset="utf-8">
         <meta content="width=device-width, initial-scale=1" name="viewport">
+
+        <title th:text="${title}">page-title</title>
+
         <meta name="description" th:content="${metaDescription}">
         <meta name="keywords" th:content="${metaKeywords}">
-        <title th:text="${title}">page-title</title>
+
+        <meta property="og:title" th:content="${title}">
+        <meta property="og:description" th:content="${metaDescription}">
+        <meta property="og:type" th:content="${ogType}">
+        <meta property="og:image" th:content="${ogImage}">
+        <meta property="og:logo" th:content="'https://beartrack.ru' + ${ogLogo}">
+        <meta property="og:url" th:content="'https://beartrack.ru' + ${ogUrl}">
+        <meta property="og:image:width" content="1280"/>
+        <meta property="og:image:height" content="720"/>
+
         <!-- main -->
         <link href="/css/index.css" rel="stylesheet">
         <link href="/img/favicon.svg" rel="icon" type=" image/svg+xml">
