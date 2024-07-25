@@ -167,15 +167,19 @@ public class LocationService {
     public Flux<Location> getLocationsNear(Location baseLocation, double radius) {
         return locationRepository.findAll()
                 .flatMap(location -> {
-                    double distance = GeometricUtility.getInstance().calculateDistance(baseLocation.getLatitude(), baseLocation.getLongitude(), location.getLatitude(), location.getLongitude());
-                    if (distance <= radius) {
-                        return setupContent(location).flatMap(lc -> {
-                            return typeRepository.findByUuid(lc.getLocationType()).flatMap(type -> {
-                                lc.setLocationTypeModel(type);
-                                return Mono.just(lc);
-                            }).switchIfEmpty(Mono.just(lc));
-                        });
-                    } else {
+                    if(!location.getUuid().equals(baseLocation.getUuid())) {
+                        double distance = GeometricUtility.getInstance().calculateDistance(baseLocation.getLatitude(), baseLocation.getLongitude(), location.getLatitude(), location.getLongitude());
+                        if (distance <= radius) {
+                            return setupContent(location).flatMap(lc -> {
+                                return typeRepository.findByUuid(lc.getLocationType()).flatMap(type -> {
+                                    lc.setLocationTypeModel(type);
+                                    return Mono.just(lc);
+                                }).switchIfEmpty(Mono.just(lc));
+                            });
+                        } else {
+                            return Mono.empty();
+                        }
+                    }else{
                         return Mono.empty();
                     }
                 });

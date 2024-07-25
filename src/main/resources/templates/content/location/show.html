@@ -13,8 +13,6 @@
 <script th:inline="javascript">
     let post = [[${post}]];
     let nearestLocations = [[${nearestLocations}]];
-    nearestLocations.push(post);
-    console.log(nearestLocations);
     let blocks = post.contentList;
     setupMap();
     blocks.forEach(function (block){
@@ -175,11 +173,12 @@
 
         // Create a custom marker class with a popup
         class CustomMarkerWithPopup extends YMapComplexEntity {
-            constructor(props, post) {
+            constructor(props, post, self) {
                 super(props);
                 this._marker = null;
                 this._popup = null;
                 this._post = post;
+                this._self = self;
             }
 
             _onAttach() {
@@ -234,7 +233,8 @@
                 });
 
                 const element = document.createElement('div');
-                element.innerHTML = `
+                if(this._self === true){
+                    element.innerHTML = `
                     <div class="card position-relative" style="width: 200px; transform: translate(-84px, -210px);">
                         <button id="close-btn-${this._post.uuid}" type="button" class="my_btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
                         <img src="${imageUrl}" class="card-img-top img-ratio-control" alt="${this._post.title}" style="height: 100px">
@@ -250,6 +250,25 @@
                         </div>
                     </div>
                 `;
+                }else{
+                    element.innerHTML = `
+                    <div class="card position-relative" style="width: 200px; transform: translate(-84px, -210px);">
+                        <button id="close-btn-${this._post.uuid}" type="button" class="my_btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
+                        <img src="${imageUrl}" class="card-img-top img-ratio-control" alt="${this._post.title}" style="height: 100px">
+                        <div class="card-body">
+                            <div class="row p-0 m-0">
+                                <div class="col p-0 m-0">
+                                    <div class="row">
+                                        <a href="/location/${this._post.sef}" class="text-decoration-none text-dark">
+                                            <p class="my-font fs-6 clamp-line-2 text-center"><b>${this._post.title}</b></p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }
 
                 const zIndex = (this._props.zIndex ?? YMapMarker.defaultProps.zIndex) + 1000;
                 this._popup = new YMapMarker({
@@ -283,8 +302,9 @@
             ]
         );
 
+        map.addChild(new CustomMarkerWithPopup({coordinates: [post.longitude, post.latitude], popupContent: post.title}, post, true));
         nearestLocations.forEach(function (p){
-            map.addChild(new CustomMarkerWithPopup({coordinates: [p.longitude, p.latitude], popupContent: p.title}, p));
+            map.addChild(new CustomMarkerWithPopup({coordinates: [p.longitude, p.latitude], popupContent: p.title}, p, false));
         });
     }
 
