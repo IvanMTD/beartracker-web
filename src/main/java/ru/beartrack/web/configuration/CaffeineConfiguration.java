@@ -14,7 +14,11 @@ import java.time.Duration;
 public class CaffeineConfiguration {
     @Bean
     public Caffeine<Object, Object> caffeineConfig() {
-        return Caffeine.newBuilder().expireAfterWrite(Duration.ofMinutes(60));
+        return Caffeine.newBuilder()
+                .maximumSize(1000)
+                .expireAfterWrite(Duration.ofMinutes(60))
+                .expireAfterAccess(Duration.ofMinutes(30))
+                .recordStats();
     }
 
     @Bean
