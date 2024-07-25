@@ -5,7 +5,7 @@
             <nav class="m-auto">
                 <ul class="pagination">
                     <li class="page-item">
-                        <a class="page-link" th:href="@{/location/list(page=0)}">First</a>
+                        <a class="page-link" th:href="@{/location/list(page=0)}">Первая</a>
                     </li>
                     <li class="page-item">
                         <a class="page-link" th:href="@{/location/list(page=${page - 1})}"><i class="icon feather icon-arrow-left"></i></a>
@@ -29,7 +29,7 @@
                         <a class="page-link" th:href="@{/location/list(page=${page + 1})}"><i class="icon feather icon-arrow-right"></i></a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" th:href="@{/location/list(page=${lastPage})}">Last</a>
+                        <a class="page-link" th:href="@{/location/list(page=${lastPage})}">Последняя</a>
                     </li>
                 </ul>
             </nav>
