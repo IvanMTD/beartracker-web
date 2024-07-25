@@ -77,6 +77,7 @@ public class LocationController {
                             .modelAttribute("metaDescription",location.getMetaDescription())
                             .modelAttribute("metaKeywords",location.getKeywords())
                             .modelAttribute("post",location)
+                            .modelAttribute("nearestLocations", locationService.getLocationsNear(location,100.0))
                             .modelAttribute("ogUrl","/location/" + sef)
                             .modelAttribute("ogType","article")
                             .modelAttribute("ogImage",imageUrl)

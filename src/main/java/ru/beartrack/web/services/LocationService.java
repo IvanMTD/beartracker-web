@@ -22,6 +22,7 @@ import ru.beartrack.web.repositories.LocationContentRepository;
 import ru.beartrack.web.repositories.LocationRepository;
 import ru.beartrack.web.repositories.LocationTypeRepository;
 import ru.beartrack.web.repositories.SubjectRepository;
+import ru.beartrack.web.utils.GeometricUtility;
 import ru.beartrack.web.utils.ImageioUtil;
 
 import java.io.File;
@@ -160,6 +161,24 @@ public class LocationService {
             location.setContentList(l);
             return Mono.just(location);
         }));
+    }
+
+    @Cacheable("locations")
+    public Flux<Location> getLocationsNear(Location baseLocation, double radius) {
+        return locationRepository.findAll()
+                .flatMap(location -> {
+                    double distance = GeometricUtility.getInstance().calculateDistance(baseLocation.getLatitude(), baseLocation.getLongitude(), location.getLatitude(), location.getLongitude());
+                    if (distance <= radius) {
+                        return setupContent(location).flatMap(lc -> {
+                            return typeRepository.findByUuid(lc.getLocationType()).flatMap(type -> {
+                                lc.setLocationTypeModel(type);
+                                return Mono.just(lc);
+                            }).switchIfEmpty(Mono.just(lc));
+                        });
+                    } else {
+                        return Mono.empty();
+                    }
+                });
     }
 
     public Flux<LocationType> getAllLocationTypes() {

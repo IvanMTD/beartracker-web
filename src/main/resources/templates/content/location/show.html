@@ -12,6 +12,9 @@
 
 <script th:inline="javascript">
     let post = [[${post}]];
+    let nearestLocations = [[${nearestLocations}]];
+    nearestLocations.push(post);
+    console.log(nearestLocations);
     let blocks = post.contentList;
     setupMap();
     blocks.forEach(function (block){
@@ -280,8 +283,9 @@
             ]
         );
 
-        map.addChild(new CustomMarkerWithPopup({coordinates: [post.longitude, post.latitude], popupContent: post.title}, post));
-
+        nearestLocations.forEach(function (p){
+            map.addChild(new CustomMarkerWithPopup({coordinates: [p.longitude, p.latitude], popupContent: p.title}, p));
+        });
     }
 
     function showImage(image,title){
