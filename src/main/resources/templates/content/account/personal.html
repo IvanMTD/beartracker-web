@@ -39,7 +39,6 @@
                             <i class="icon feather icon-search fs-3 text-secondary my-auto"></i>
                         </div>
                     </div>
-                    <div id="location-types" class="row row-cols-auto"></div>
                     <div id="locations" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
                     <div class="row">
                         <div id="location-pagination" class="col d-flex">
@@ -209,7 +208,7 @@
                     locationTypesArray = response;
                     let types = $('#location-types');
                     types.empty();
-                    /*response.forEach(function (type){
+                    response.forEach(function (type){
                         types.append(`
                             <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
                                 <div class="m-auto w-75 h-75">
@@ -217,7 +216,7 @@
                                 </div>
                             </div>
                         `);
-                    });*/
+                    });
                     types.append(`
                         <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
                             <div class="m-auto w-75 h-75 rounded-circle border">
@@ -461,15 +460,19 @@
             let innerBlock = `
             <div class="row">
                 <div class="col">
-                    <p class="my-font fs-4 py-4 border-bottom"><b>Панель администратора</b></p>
+                    <p class="my-font fs-4 pt-4"><b>Панель администратора</b></p>
                 </div>
             </div>
+            <hr>
             <p class="my-font text-center">Пользователи</p>
             <div class="row">
                 <div class="col">
                     ${usersBlock}
                 </div>
             </div>
+            <hr>
+            <p class="my-font text-center">Типы локаций</p>
+            <div id="location-types" class="row row-cols-auto px-3"></div>
             `;
             panel.append(innerBlock);
         }
@@ -548,7 +551,7 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', (event) => {
+    /*document.addEventListener('DOMContentLoaded', (event) => {
         const types = document.getElementById('location-types');
         locationTypesArray.forEach(function (type){
             types.insertAdjacentHTML('afterbegin', `
@@ -568,5 +571,5 @@
                 console.log("Метод пересортировки");
             }
         });
-    });
+    });*/
 </script>

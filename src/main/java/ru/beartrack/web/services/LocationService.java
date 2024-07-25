@@ -3,6 +3,8 @@ package ru.beartrack.web.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,6 @@ import ru.beartrack.web.repositories.LocationTypeRepository;
 import ru.beartrack.web.repositories.SubjectRepository;
 import ru.beartrack.web.utils.ImageioUtil;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -40,6 +41,11 @@ public class LocationService {
     private final SubjectRepository subjectRepository;
     private final MinioService minioService;
 
+    //######################################################################################################################################################################
+    /*
+    CREATE - START
+     */
+    @CacheEvict(value = "locations", allEntries = true)
     public Mono<Location> saveLocation(LocationDTO locationDTO, UUID userID){
         return locationRepository.count().flatMap( count -> Mono.just(new Location(locationDTO, userID, (count + 1))).flatMap(locationRepository::save).flatMap(preSaved -> Flux.fromIterable(locationDTO.getBlocks()).flatMap(block -> {
             LocationContent locationContent = new LocationContent();
@@ -53,6 +59,31 @@ public class LocationService {
         }).collectList().flatMap(l -> locationRepository.save(preSaved))));
     }
 
+    @CacheEvict(value = "locations", allEntries = true)
+    public Mono<LocationType> saveLocationType(LocationTypeDTO locationTypeDTO) {
+        return Mono.just(new LocationType(locationTypeDTO)).flatMap(locationType -> {
+            try {
+                return saveImageSimple(locationTypeDTO.getImage()).flatMap(imageUrl -> {
+                    locationType.setImageUrl(imageUrl);
+                    return typeRepository.save(locationType);
+                });
+            } catch (IOException e) {
+                return Mono.error(new RuntimeException(e));
+            }
+        });
+    }
+    /*
+    CREATE - END
+     */
+    //######################################################################################################################################################################
+    /*
+    READ - START
+     */
+    public Mono<Long> getCount() {
+        return locationRepository.count();
+    }
+
+    @Cacheable("locations")
     public Flux<Location> getAll() {
         return locationRepository.findAll().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
@@ -61,6 +92,7 @@ public class LocationService {
         }));
     }
 
+    @Cacheable("locations")
     public Flux<Location> getAllOrderByCreated() {
         return locationRepository.findAllByOrderByCreatedDesc().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
@@ -69,6 +101,7 @@ public class LocationService {
         }));
     }
 
+    @Cacheable("locations")
     public Flux<Location> getAllOrderByCount() {
         return locationRepository.findAllByOrderByCountDesc().flatMapSequential(location -> {
             if(location.getLocationType() != null){
@@ -95,6 +128,7 @@ public class LocationService {
         }));*/
     }
 
+    @Cacheable("locations")
     public Mono<Location> getBySef(String sef) {
         return locationRepository.findBySef(sef).flatMap(location -> typeRepository.findByUuid(location.getLocationType()).flatMap(type -> {
             location.setLocationTypeModel(type);
@@ -102,6 +136,7 @@ public class LocationService {
         }).switchIfEmpty(Mono.just(location).flatMap(this::setupContent)));
     }
 
+    @Cacheable("locations")
     public Flux<Location> getAllByUserUuid(UUID uuid) {
         return locationRepository.findAllByCreator(uuid).collectList().flatMapMany(l -> {
             l = l.stream().sorted(Comparator.comparing(Location::getCount).reversed()).collect(Collectors.toList());
@@ -109,6 +144,38 @@ public class LocationService {
         }).flatMapSequential(Mono::just);
     }
 
+    @Cacheable("locations")
+    public Flux<Location> getAllOrderByCreated(Pageable pageable) {
+        return locationRepository.findAllByOrderByCreatedDesc(pageable).flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
+        }));
+    }
+
+    @Cacheable("locations")
+    public Flux<Location> getAllOrderByCount(Pageable pageable) {
+        return locationRepository.findAllByOrderByCountDesc(pageable).flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+            location.setContentList(l);
+            return Mono.just(location);
+        }));
+    }
+
+    public Flux<LocationType> getAllLocationTypes() {
+        return typeRepository.findAll().collectList().flatMapMany(l -> {
+            l = l.stream().sorted(Comparator.comparing(LocationType::getName)).collect(Collectors.toList());
+            return Flux.fromIterable(l);
+        }).flatMapSequential(Mono::just);
+    }
+    /*
+    READ - END
+     */
+    //######################################################################################################################################################################
+    /*
+    UPDATE - START
+     */
+    @CacheEvict(value = "locations", allEntries = true)
     public Mono<Boolean> update(LocationDTO locationPost) {
         return locationRepository.findByUuid(locationPost.getUuid()).flatMap(location -> {
             location.update(locationPost);
@@ -167,6 +234,39 @@ public class LocationService {
         });
     }
 
+    @CacheEvict(value = "locations", allEntries = true)
+    public Mono<Location> synchronise(Location location, ApplicationUser user) {
+        return Mono.just(location).flatMap(loc -> {
+            loc.setUuid(null);
+            loc.setCreator(user.getUuid());
+            loc.setCreated(LocalDate.now());
+            loc.setUpdated(null);
+            return subjectRepository.findByIso("RU-MOW").flatMap(subject -> {
+                loc.setSubject(subject.getUuid());
+                return locationRepository.save(loc);
+            });
+        }).flatMap(saved -> {
+            log.info("location saved {}", saved);
+            return Flux.fromIterable(location.getContentList()).flatMap(lc -> {
+                lc.setUuid(null);
+                lc.setParent(saved.getUuid());
+                return contentRepository.save(lc);
+            }).flatMap(lcSaved -> {
+                log.info("saved content {}", lcSaved);
+                return Mono.just(lcSaved);
+            }).collectList().flatMap(l -> {
+                return Mono.just(saved);
+            });
+        });
+    }
+    /*
+    UPDATE - END
+     */
+    //######################################################################################################################################################################
+    /*
+    DELETE - START
+     */
+    @CacheEvict(value = "locations", allEntries = true)
     public Mono<Location> delete(UUID uuid) {
         return locationRepository.findByUuid(uuid).flatMap(location -> {
             log.info("found location {}", location.getUuid());
@@ -180,6 +280,10 @@ public class LocationService {
             });
         });
     }
+    /*
+    DELETE - END
+     */
+    //######################################################################################################################################################################
 
     private Mono<LocationContent> saveImage(ContentDTO block, LocationContent locationContent, Location preSaved){
         try {
@@ -231,71 +335,6 @@ public class LocationService {
                 }
             }
         }
-    }
-
-    public Mono<Long> getCount() {
-        return locationRepository.count();
-    }
-
-    public Flux<Location> getAllOrderByCreated(Pageable pageable) {
-        return locationRepository.findAllByOrderByCreatedDesc(pageable).flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
-            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
-            location.setContentList(l);
-            return Mono.just(location);
-        }));
-    }
-
-    public Flux<Location> getAllOrderByCount(Pageable pageable) {
-        return locationRepository.findAllByOrderByCountDesc(pageable).flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
-            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
-            location.setContentList(l);
-            return Mono.just(location);
-        }));
-    }
-
-    public Mono<Location> synchronise(Location location, ApplicationUser user) {
-        return Mono.just(location).flatMap(loc -> {
-            loc.setUuid(null);
-            loc.setCreator(user.getUuid());
-            loc.setCreated(LocalDate.now());
-            loc.setUpdated(null);
-            return subjectRepository.findByIso("RU-MOW").flatMap(subject -> {
-                loc.setSubject(subject.getUuid());
-                return locationRepository.save(loc);
-            });
-        }).flatMap(saved -> {
-            log.info("location saved {}", saved);
-            return Flux.fromIterable(location.getContentList()).flatMap(lc -> {
-                lc.setUuid(null);
-                lc.setParent(saved.getUuid());
-                return contentRepository.save(lc);
-            }).flatMap(lcSaved -> {
-                log.info("saved content {}", lcSaved);
-                return Mono.just(lcSaved);
-            }).collectList().flatMap(l -> {
-                return Mono.just(saved);
-            });
-        });
-    }
-
-    public Flux<LocationType> getAllLocationTypes() {
-        return typeRepository.findAll().collectList().flatMapMany(l -> {
-            l = l.stream().sorted(Comparator.comparing(LocationType::getName)).collect(Collectors.toList());
-            return Flux.fromIterable(l);
-        }).flatMapSequential(Mono::just);
-    }
-
-    public Mono<LocationType> saveLocationType(LocationTypeDTO locationTypeDTO) {
-        return Mono.just(new LocationType(locationTypeDTO)).flatMap(locationType -> {
-            try {
-                return saveImageSimple(locationTypeDTO.getImage()).flatMap(imageUrl -> {
-                    locationType.setImageUrl(imageUrl);
-                    return typeRepository.save(locationType);
-                });
-            } catch (IOException e) {
-                return Mono.error(new RuntimeException(e));
-            }
-        });
     }
 
     private Mono<String> saveImageSimple(FilePart image) throws IOException {
