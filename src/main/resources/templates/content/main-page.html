@@ -55,57 +55,70 @@
     let posts = [[${posts}]];
     let postRow = $('#row-posts');
 
-    let n = 0;
-    posts.forEach(function (post) {
-        if(n < 8) {
-            let carouselId = 'carousel-' + post.uuid;
-            let prevId = 'prev-' + post.uuid;
-            let nextId = 'next-' + post.uuid;
-            let carouselInner = '';
-            let active = true;
-            post.contentList.forEach(function (block) {
-                if (block.imageUrlSm != null) {
-                    let activeClass = active === true ? 'active' : '';
-                    active = false;
-                    carouselInner += `
-                    <div class="carousel-item img-ratio-control size-h-150 ${activeClass}">
-                        <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="${post.title}">
+    setupPosts(posts);
+
+    function updatePosts(p){
+        if(p.length === 0){
+            setupPosts(posts);
+        }else{
+            setupPosts(p);
+        }
+    }
+
+    function setupPosts(posts){
+        postRow.empty();
+        let n = 0;
+        posts.forEach(function (post) {
+            if(n < 8) {
+                let carouselId = 'carousel-' + post.uuid;
+                let prevId = 'prev-' + post.uuid;
+                let nextId = 'next-' + post.uuid;
+                let carouselInner = '';
+                let active = true;
+                post.contentList.forEach(function (block) {
+                    if (block.imageUrlSm != null) {
+                        let activeClass = active === true ? 'active' : '';
+                        active = false;
+                        carouselInner += `
+                            <div class="carousel-item img-ratio-control size-h-150 ${activeClass}">
+                                <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="${post.title}">
+                            </div>
+                        `;
+                    }
+                });
+                let postHtml = `
+                    <div class="col mt-4">
+                        <div class="card zoom-in-light m-auto">
+                            <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    ${carouselInner}
+                                </div>
+                                <button id="${prevId}" class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button id="${nextId}" class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                            <a href="/location/${post.sef}">
+                                <div class="card-body size-h-200">
+                                    <p><strong class="text-decoration-none clamp-line-2 card-zag">${post.title}</strong></p>
+                                    <p class="card-text text-dark clamp-line-3 text-decoration-none">${post.notation}</p>
+                                </div>
+                            </a>
+                            <div class="card-footer">
+                                <span class="text-primary">#</span><span>${post.subjectModel.title}</span>
+                            </div>
+                        </div>
                     </div>
                 `;
-                }
-            });
-            let postHtml = `
-            <div class="col mt-4">
-                <div class="card zoom-in-light m-auto">
-                    <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            ${carouselInner}
-                        </div>
-                        <button id="${prevId}" class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button id="${nextId}" class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                    <a href="/location/${post.sef}">
-                        <div class="card-body size-h-200">
-                            <p><strong class="text-decoration-none clamp-line-2 card-zag">${post.title}</strong></p>
-                            <p class="card-text text-dark clamp-line-3 text-decoration-none">${post.notation}</p>
-                        </div>
-                    </a>
-                    <div class="card-footer">
-                        <span class="text-primary">#</span><span>${post.subjectModel.title}</span>
-                    </div>
-                </div>
-            </div>
-            `;
-            postRow.append(postHtml);
-        }
-        n++;
-    });
+                postRow.append(postHtml);
+            }
+            n++;
+        });
+    }
 
     if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(position => {

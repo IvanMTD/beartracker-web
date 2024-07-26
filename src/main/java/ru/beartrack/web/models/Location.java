@@ -32,6 +32,7 @@ public class Location {
     private String metaDescription;
     private long count;
     private UUID locationType;
+    private boolean indexation;
     private Set<String> metaKeywords = new HashSet<>();
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate created;

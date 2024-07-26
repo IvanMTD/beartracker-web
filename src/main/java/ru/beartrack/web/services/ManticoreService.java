@@ -3,17 +3,19 @@ package ru.beartrack.web.services;
 import com.manticoresearch.client.api.IndexApi;
 import com.manticoresearch.client.api.SearchApi;
 import com.manticoresearch.client.api.UtilsApi;
-import com.manticoresearch.client.model.DeleteDocumentRequest;
-import com.manticoresearch.client.model.InsertDocumentRequest;
+import com.manticoresearch.client.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @PropertySource("classpath:application.properties")
@@ -28,7 +30,8 @@ public class ManticoreService {
     public void addDocument(String tableName, Map<String,Object> document) {
         InsertDocumentRequest documentRequest = new InsertDocumentRequest();
         documentRequest.index(tablePrefix + "_" + tableName).doc(document);
-        indexApi.insert(documentRequest);
+        SuccessResponse successResponse = indexApi.insert(documentRequest);
+        log.info("add document success response: {}",successResponse);
     }
 
     @SneakyThrows
@@ -44,7 +47,8 @@ public class ManticoreService {
                 long sourceId = Long.parseLong(source.get("id").toString());
                 InsertDocumentRequest replaceRequest = new InsertDocumentRequest();
                 replaceRequest.index(tablePrefix + "_" + tableName).id(sourceId).setDoc(document);
-                indexApi.replace(replaceRequest);
+                SuccessResponse successResponse = indexApi.replace(replaceRequest);
+                log.info("update document success response: {}",successResponse);
             }
         }
     }
@@ -62,19 +66,45 @@ public class ManticoreService {
                 long sourceId = Long.parseLong(source.get("id").toString());
                 DeleteDocumentRequest deleteRequest = new DeleteDocumentRequest();
                 deleteRequest.index(tablePrefix + "_" + tableName).setId(sourceId);
-                indexApi.delete(deleteRequest);
+                DeleteResponse deleteResponse = indexApi.delete(deleteRequest);
+                log.info("delete document delete response: {}", deleteResponse);
             }
         }
     }
 
-    /*@SneakyThrows
+    @SneakyThrows
     public Flux<UUID> searchDocument(String tableName, String searchQuery){
-        if(!searchQuery.equals("")){
 
+        if(searchQuery.equals("")){
+            log.info("search query equals empty field");
+        }
+        if(searchQuery.isBlank()){
+            log.info("search query is blank");
+        }
+        if(searchQuery.isEmpty()){
+            log.info("search query is empty");
+        }
+
+        if(!searchQuery.isEmpty() || !searchQuery.isBlank() || !searchQuery.equals("")){
+            log.info("incoming query is {}",searchQuery);
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.setIndex(tablePrefix + "_" + tableName);
+            QueryFilter queryFilter = new QueryFilter();
+            queryFilter.setQueryString(searchQuery);
+            searchRequest.setQuery(queryFilter);
+            SearchResponse response = searchApi.search(searchRequest);
+            List<Object> hits = response.getHits().getHits();
+            return Flux.fromIterable(hits).flatMapSequential(hit -> {
+                log.info("found hit: {}",hit);
+                Map<String, Object> mainSource = (LinkedHashMap<String,Object>)hit;
+                Map<String, Object> postMap = (LinkedHashMap<String,Object>)mainSource.get("_source");
+                UUID uuid = UUID.fromString(postMap.get("uuid").toString());
+                return Mono.just(uuid);
+            });
         }else{
             return Flux.empty();
         }
-    }*/
+    }
 
     @SneakyThrows
     private List<Object> sqlQuery(String command){
@@ -82,18 +112,25 @@ public class ManticoreService {
     }
 
     @SneakyThrows
+    public void dropIndex(String name) {
+        String tableName = tablePrefix + "_" + name;
+        String dropTableQuery = String.format("DROP TABLE IF EXISTS %s;", tableName);
+        utilsApi.sql(dropTableQuery, true);
+    }
+
+    @SneakyThrows
     public void createIndex(String name) {
         String tableName = tablePrefix + "_" + name;
         String createIndexQuery = String.format(
                 "CREATE TABLE IF NOT EXISTS %s (" +
-                        "uuid UUID," +
-                        "title TEXT FULLTEXT," +
-                        "notation TEXT FULLTEXT," +
-                        "content TEXT FULLTEXT," +
-                        "metaTitle TEXT FULLTEXT," +
-                        "metaDescription TEXT FULLTEXT," +
-                        "metaKeywords TEXT FULLTEXT," +
-                        ") TYPE='rt';", tableName);
+                "uuid UUID," +
+                "title TEXT FULLTEXT," +
+                "notation TEXT FULLTEXT," +
+                "content TEXT FULLTEXT," +
+                "metaTitle TEXT FULLTEXT," +
+                "metaDescription TEXT FULLTEXT," +
+                "metaKeywords TEXT FULLTEXT," +
+                ") TYPE='rt', morphology='stem_enru, libstemmer_ru' html_strip = '1';", tableName);
         utilsApi.sql(createIndexQuery, true);
     }
 }

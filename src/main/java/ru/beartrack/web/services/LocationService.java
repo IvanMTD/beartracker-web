@@ -1,6 +1,5 @@
 package ru.beartrack.web.services;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -34,13 +33,25 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class LocationService {
     private final LocationRepository locationRepository;
     private final LocationContentRepository contentRepository;
     private final LocationTypeRepository typeRepository;
     private final SubjectRepository subjectRepository;
     private final MinioService minioService;
+    private final ManticoreService manticoreService;
+
+    private final String tableName = "location";
+
+    public LocationService(LocationRepository locationRepository, LocationContentRepository contentRepository, LocationTypeRepository typeRepository, SubjectRepository subjectRepository, MinioService minioService, ManticoreService manticoreService) {
+        this.locationRepository = locationRepository;
+        this.contentRepository = contentRepository;
+        this.typeRepository = typeRepository;
+        this.subjectRepository = subjectRepository;
+        this.minioService = minioService;
+        this.manticoreService = manticoreService;
+        this.manticoreService.createIndex(tableName);
+    }
 
     //######################################################################################################################################################################
     /*
@@ -57,7 +68,12 @@ public class LocationService {
             locationContent.setParent(preSaved.getUuid());
             locationContent.setImageDescription(block.getImageDescription());
             return saveImage(block,locationContent,preSaved).flatMap(lc -> contentRepository.save(locationContent));
-        }).collectList().flatMap(l -> locationRepository.save(preSaved))));
+        }).collectList().flatMap(l -> {
+            preSaved.setContentList(l);
+            manticoreService.addDocument(tableName,getDocument(preSaved));
+            preSaved.setIndexation(true);
+            return locationRepository.save(preSaved);
+        })));
     }
 
     @CacheEvict(value = "locations", allEntries = true)
@@ -185,6 +201,24 @@ public class LocationService {
                 });
     }
 
+    public Flux<Location> globalSearch(String request) {
+        return manticoreService.searchDocument(tableName,request).flatMapSequential(uuid -> {
+            return locationRepository.findByUuid(uuid).flatMap(location -> {
+                return typeRepository.findByUuid(location.getLocationType()).flatMap(type -> {
+                    location.setLocationTypeModel(type);
+                    return subjectRepository.findByUuid(location.getSubject()).flatMap(subject -> {
+                        location.setSubjectModel(subject);
+                        return contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
+                            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
+                            location.setContentList(l);
+                            return Mono.just(location);
+                        });
+                    });
+                });
+            });
+        });
+    }
+
     public Flux<LocationType> getAllLocationTypes() {
         return typeRepository.findAll().collectList().flatMapMany(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationType::getName)).collect(Collectors.toList());
@@ -251,8 +285,12 @@ public class LocationService {
                     }
                 }));
             }).collectList().flatMap(l -> {
-                log.info("content list updated [{}]",l);
-                return Mono.just(true);
+                return locationRepository.findByUuid(locationPost.getUuid()).flatMap(loc -> {
+                    loc.setContentList(l);
+                    manticoreService.updateDocument(tableName,getDocument(loc));
+                    log.info("content list updated [{}]",l);
+                    return Mono.just(true);
+                });
             }));
         });
     }
@@ -282,6 +320,16 @@ public class LocationService {
             });
         });
     }
+
+    public Flux<Location> manticoreIndexation(){
+        manticoreService.dropIndex(tableName);
+        manticoreService.createIndex(tableName);
+        return getAll().flatMap(location -> {
+            manticoreService.addDocument(tableName, getDocument(location));
+            location.setIndexation(true);
+            return locationRepository.save(location);
+        });
+    }
     /*
     UPDATE - END
      */
@@ -297,6 +345,7 @@ public class LocationService {
                 return contentRepository.delete(content).then(Mono.just(content));
             }).collectList().flatMap(l -> {
                 location.setContentList(l);
+                manticoreService.deleteDocument(tableName,location.getUuid());
                 Set<LocationContent> sl = new HashSet<>(l);
                 deleteFiles(sl);
                 return locationRepository.delete(location).then(Mono.just(location));
@@ -382,5 +431,21 @@ public class LocationService {
             location.setContentList(l);
             return Mono.just(location);
         });
+    }
+
+    private Map<String,Object> getDocument(Location location){
+        Map<String,Object> document = new HashMap<>();
+        document.put("uuid",location.getUuid());
+        document.put("title",location.getTitle());
+        document.put("notation",location.getNotation());
+        document.put("metaTitle",location.getMetaTitle());
+        document.put("metaDescription",location.getMetaDescription());
+        document.put("metaKeywords",location.getKeywords());
+        StringBuilder content = new StringBuilder();
+        for(LocationContent locationContent : location.getContentList()){
+            content.append(locationContent.getContent()).append(" ");
+        }
+        document.put("content", content.toString());
+        return document;
     }
 }

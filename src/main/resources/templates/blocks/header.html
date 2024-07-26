@@ -25,9 +25,10 @@
                     </ul>
                     <i class="icon feather icon-search ic_serch"></i>
 
-                    <form class="d-flex">
-                        <input class="form-control me-2" type="serch" placeholder="Поиск..." aria-label="serch">
-                    </form>
+                    <div class="d-flex">
+                        <input class="form-control me-2" type="search" placeholder="Поиск..." aria-label="serch" id="main-search" list="main-search-data-list" oninput="mainSearch()">
+                        <datalist id="main-search-data-list"></datalist>
+                    </div>
 
                     <ul class="navbar-nav justify-content-end mt-0 mt-lg-0 ">
                         <li class="nav-item" th:if="${auth}">
@@ -490,6 +491,22 @@
         } else {
             submitButton.setAttribute('disabled', 'disabled');
         }
+    }
+
+    function mainSearch(){
+        let searchRequest = $('#main-search').val();
+        searchRequest = '\"' + searchRequest + '\"';
+        $.ajax({
+            url:'/api/global/search',
+            type:'get',
+            data:{
+                query:searchRequest
+            },
+            success:function (response){
+                console.log(response);
+                updatePosts(response.locations);
+            }
+        });
     }
 
 

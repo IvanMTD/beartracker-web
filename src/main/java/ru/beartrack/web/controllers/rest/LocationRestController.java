@@ -76,4 +76,12 @@ public class LocationRestController {
                     return Mono.just(true);
                 });
     }
+
+    @GetMapping("/manticore/indexation")
+    public Mono<String> indexation(){
+        return locationService.manticoreIndexation().flatMap(location -> {
+            log.info("location {} is indexation", location);
+            return Mono.just(location);
+        }).collectList().flatMap(l -> Mono.just("indexing of " + l.size() + " locations data"));
+    }
 }
