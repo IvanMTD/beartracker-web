@@ -74,19 +74,7 @@ public class ManticoreService {
 
     @SneakyThrows
     public Flux<UUID> searchDocument(String tableName, String searchQuery){
-
-        if(searchQuery.equals("")){
-            log.info("search query equals empty field");
-        }
-        if(searchQuery.isBlank()){
-            log.info("search query is blank");
-        }
-        if(searchQuery.isEmpty()){
-            log.info("search query is empty");
-        }
-
-        if(!searchQuery.isEmpty() || !searchQuery.isBlank() || !searchQuery.equals("")){
-            log.info("incoming query is {}",searchQuery);
+        if(!searchQuery.equals("")){
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.setIndex(tablePrefix + "_" + tableName);
             QueryFilter queryFilter = new QueryFilter();
@@ -114,8 +102,17 @@ public class ManticoreService {
     @SneakyThrows
     public void dropIndex(String name) {
         String tableName = tablePrefix + "_" + name;
-        String dropTableQuery = String.format("DROP TABLE IF EXISTS %s;", tableName);
-        utilsApi.sql(dropTableQuery, true);
+        String truncateQuery = String.format("TRUNCATE TABLE %s", tableName);
+        List<Object> truncateResponse = utilsApi.sql(truncateQuery, true);
+        for(Object obj : truncateResponse){
+            log.info("truncate response is [{}]",obj);
+        }
+
+        String dropTableQuery = String.format("DROP TABLE %s", tableName);
+        List<Object> deleteResponse = utilsApi.sql(dropTableQuery, true);
+        for(Object obj : deleteResponse){
+            log.info("delete response is [{}]",obj);
+        }
     }
 
     @SneakyThrows
@@ -130,7 +127,10 @@ public class ManticoreService {
                 "metaTitle TEXT FULLTEXT," +
                 "metaDescription TEXT FULLTEXT," +
                 "metaKeywords TEXT FULLTEXT," +
-                ") TYPE='rt', morphology='stem_enru, libstemmer_ru' html_strip = '1';", tableName);
-        utilsApi.sql(createIndexQuery, true);
+                ") TYPE='rt', morphology='stem_enru, libstemmer_ru' html_strip = '1'", tableName);
+        List<Object> createResponse = utilsApi.sql(createIndexQuery, true);
+        for(Object obj : createResponse){
+            log.info("creating response [{}]",obj);
+        }
     }
 }

@@ -495,7 +495,6 @@
 
     function mainSearch(){
         let searchRequest = $('#main-search').val();
-        searchRequest = '\"' + searchRequest + '\"';
         $.ajax({
             url:'/api/global/search',
             type:'get',
