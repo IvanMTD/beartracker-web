@@ -272,6 +272,9 @@ public class LocationService {
                 return contentRepository.findByUuid(block.getUuid()).flatMap(locationContent -> {
                     locationContent.baseUpdate(block);
                     if(block.getImage() != null){
+                        if(locationContent.getImageUrlSm() != null){
+                            deleteFile(locationContent);
+                        }
                         return locationRepository.findByUuid(locationPost.getUuid()).flatMap(location -> saveImage(block,locationContent,location).flatMap(contentRepository::save));
                     }else{
                         return contentRepository.save(locationContent);
@@ -392,17 +395,21 @@ public class LocationService {
 
     private void deleteFiles(Set<LocationContent> onDelete){
         for(LocationContent locationContent : onDelete){
-            if(locationContent.getImageUrlSm() != null) {
-                String[] smParts = locationContent.getImageUrlSm().split("/");
-                String smName = smParts[smParts.length - 3] + "/" + smParts[smParts.length - 2] + "/" + smParts[smParts.length - 1];
-                String[] mdParts = locationContent.getImageUrlMd().split("/");
-                String mdName = mdParts[mdParts.length - 3] + "/" + mdParts[mdParts.length - 2] + "/" + mdParts[mdParts.length - 1];
-                String[] lgParts = locationContent.getImageUrlLg().split("/");
-                String lfName = lgParts[lgParts.length - 3] + "/" + lgParts[lgParts.length - 2] + "/" + lgParts[lgParts.length - 1];
-                List<String> names = Arrays.asList(smName, mdName, lfName);
-                for (String fileName : names) {
-                    minioService.deleteFile(fileName);
-                }
+            deleteFile(locationContent);
+        }
+    }
+
+    private void deleteFile(LocationContent locationContent){
+        if(locationContent.getImageUrlSm() != null) {
+            String[] smParts = locationContent.getImageUrlSm().split("/");
+            String smName = smParts[smParts.length - 3] + "/" + smParts[smParts.length - 2] + "/" + smParts[smParts.length - 1];
+            String[] mdParts = locationContent.getImageUrlMd().split("/");
+            String mdName = mdParts[mdParts.length - 3] + "/" + mdParts[mdParts.length - 2] + "/" + mdParts[mdParts.length - 1];
+            String[] lgParts = locationContent.getImageUrlLg().split("/");
+            String lfName = lgParts[lgParts.length - 3] + "/" + lgParts[lgParts.length - 2] + "/" + lgParts[lgParts.length - 1];
+            List<String> names = Arrays.asList(smName, mdName, lfName);
+            for (String fileName : names) {
+                minioService.deleteFile(fileName);
             }
         }
     }
