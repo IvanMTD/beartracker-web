@@ -133,9 +133,178 @@
         initLocationsMap([105.3188, 61.5240], 3); // Центр России
     }
 
-    async function initLocationsMap(center, zoom){
+    async function initLocationsMap(center, zoom) {
         await ymaps3.ready;
-        const {YMapComplexEntity, YMapListener, YMap, YMapDefaultSchemeLayer,YMapDefaultFeaturesLayer, YMapMarker, YMapTileDataSource} = ymaps3;
+        const { YMapComplexEntity, YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapFeatureDataSource, YMapLayer, YMapMarker } = ymaps3;
+        const { YMapClusterer, clusterByGrid } = await ymaps3.import('@yandex/ymaps3-clusterer@0.0.1');
+
+        class CustomMarkerWithPopup extends YMapComplexEntity {
+            constructor(props, post) {
+                super(props);
+                this._marker = null;
+                this._popup = null;
+                this._post = post;
+            }
+
+            _onAttach() {
+                this._createMarker();
+            }
+
+            _onDetach() {
+                this._marker = null;
+            }
+
+            _onUpdate(props) {
+                if (props.zIndex !== undefined) {
+                    this._marker?.update({ zIndex: props.zIndex });
+                }
+                if (props.coordinates !== undefined) {
+                    this._marker?.update({ coordinates: props.coordinates });
+                }
+            }
+
+            _createMarker() {
+                let imgUrl = '/img/loc/ekotropy.png';
+                if (this._post.locationTypeModel) {
+                    imgUrl = this._post.locationTypeModel.imageUrl;
+                }
+                let element = document.createElement('div');
+                element.innerHTML = `
+                <div class="row p-0 m-0" style="width: 32px; height: 32px; cursor: pointer">
+                    <div class="col p-0 m-0" style="overflow: hidden">
+                        <img class="img-fluid rounded-circle border border-white border-3" src="${imgUrl}" alt="${this._post.title}" style="object-fit: cover; height: 100%">
+                    </div>
+                </div>
+            `;
+                element.className = 'marker';
+                element.onclick = () => {
+                    this._openPopup();
+                };
+
+                this._marker = new YMapMarker({ coordinates: this._props.coordinates }, element);
+                this.addChild(this._marker);
+            }
+
+            _openPopup() {
+                if (this._popup) {
+                    return;
+                }
+
+                let imageUrl = '';
+                this._post.contentList.forEach(function (block) {
+                    if (block.imageUrlSm !== null) {
+                        imageUrl = block.imageUrlSm;
+                    }
+                });
+
+                const element = document.createElement('div');
+
+                element.innerHTML = `
+                <div class="card position-relative" style="width: 200px; transform: translate(-84px, -200px);">
+                    <button id="close-btn-${this._post.uuid}" type="button" class="my_btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
+                    <img src="${imageUrl}" class="card-img-top img-ratio-control" alt="${this._post.title}" style="height: 100px">
+                    <div class="card-body" style="height: 90px">
+                        <div class="row p-0 m-0">
+                            <div class="col p-0 m-0">
+                                <div class="row">
+                                    <a href="/location/${this._post.sef}" class="text-decoration-none text-dark">
+                                        <p class="my-font fs-6 clamp-line-2 text-center"><b>${this._post.title}</b></p>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                const zIndex = (this._props.zIndex ?? YMapMarker.defaultProps.zIndex) + 1000;
+                this._popup = new YMapMarker({
+                    coordinates: this._props.coordinates,
+                    zIndex,
+                    blockBehaviors: this._props.blockBehaviors
+                }, element);
+                this.addChild(this._popup);
+
+                const closeButton = element.querySelector(`#close-btn-${this._post.uuid}`);
+                closeButton.addEventListener('click', () => this._closePopup());
+            }
+
+            _closePopup() {
+                if (!this._popup) {
+                    return;
+                }
+
+                this.removeChild(this._popup);
+                this._popup = null;
+            }
+        }
+
+        const map = new YMap(
+            document.getElementById('locations-map'),
+            { location: { center: center, zoom: zoom } },
+            [
+                new YMapDefaultSchemeLayer({}),
+                new YMapDefaultFeaturesLayer({}),
+                new YMapFeatureDataSource({ id: 'clusterer-source' }),
+                new YMapLayer({source: 'clusterer-source', type: 'markers', zIndex: 1400})
+            ]
+        );
+
+        //console.log("Initializing markers for posts:", posts);
+
+        // Создаем функцию для рендеринга маркеров
+        const marker = (feature) => {
+            //console.log("Creating marker for feature:", feature);
+            return new CustomMarkerWithPopup(
+                { coordinates: feature.geometry.coordinates },
+                feature.properties.post
+            );
+        };
+
+        // Создаем функцию для рендеринга кластеров
+        const cluster = (coordinates, features) => {
+            //console.log("Creating cluster for coordinates:", coordinates, "with features:", features);
+            return new YMapMarker(
+                { coordinates, source: 'clusterer-source' },
+                circle(features.length).cloneNode(true)
+            );
+        };
+
+        function circle(count) {
+            const circle = document.createElement('div');
+            circle.classList.add('circle');
+            circle.innerHTML = `
+                <div class="cluster">
+                    <span class="cluster-content">${count}</span>
+                </div>
+            `;
+            return circle;
+        }
+
+        // Генерируем features из posts
+        const features = posts.map(post => ({
+            type: 'Feature',
+            id: post.uuid,
+            geometry: { type: 'Point', coordinates: [post.longitude, post.latitude] },
+            properties: { post }
+        }));
+
+        //console.log("Features for clustering:", features);
+
+        const clusterer = new YMapClusterer({
+            method: clusterByGrid({ gridSize: 80 }),
+            features: features,
+            marker: marker,
+            cluster: cluster
+        });
+
+        map.addChild(clusterer);
+    }
+
+    /*async function initLocationsMap(center, zoom){
+        await ymaps3.ready;
+        const {YMapComplexEntity, YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapFeatureDataSource, YMapLayer, YMapMarker} = ymaps3;
+        const {YMapClusterer, clusterByGrid} = await ymaps3.import('@yandex/ymaps3-clusterer@0.0.1');
 
         // Create a custom marker class with a popup
         class CustomMarkerWithPopup extends YMapComplexEntity {
@@ -252,5 +421,5 @@
         posts.forEach(function (post){
             map.addChild(new CustomMarkerWithPopup({coordinates: [post.longitude, post.latitude], popupContent: post.title}, post));
         });
-    }
+    }*/
 </script>
