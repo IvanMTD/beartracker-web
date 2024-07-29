@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.enums.ContentType;
+import ru.beartrack.web.models.Location;
 import ru.beartrack.web.models.LocationContent;
 import ru.beartrack.web.services.LocationService;
 import ru.beartrack.web.services.SubjectService;
@@ -42,18 +43,28 @@ public class LocationController {
             if(pageControl >= lastPage){
                 pageControl = (int)lastPage;
             }
-            return Mono.just(
-                    Rendering.view("template")
-                            .modelAttribute("title","Интересные места")
-                            .modelAttribute("index","location-list-page")
-                            .modelAttribute("page",pageControl)
-                            .modelAttribute("lastPage",lastPage)
-                            .modelAttribute("posts", locationService.getAllOrderByCount(PageRequest.of(pageControl,pageSize)).flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
-                                location.setSubjectModel(subject);
-                                return Mono.just(location);
-                            })))
-                            .build()
-            );
+
+            int finalPageControl = pageControl;
+            return locationService.getAllOrderByCount(PageRequest.of(pageControl,pageSize)).flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
+                location.setSubjectModel(subject);
+                return Mono.just(location);
+            })).collectList().flatMap(locations -> {
+                String description = "Интересные места на странице: ";
+                for(Location location : locations){
+                    description += location.getTitle() + ", ";
+                }
+                description = description.substring(0, description.length() - 2);
+                return Mono.just(
+                        Rendering.view("template")
+                                .modelAttribute("title","Интересные места страница " + finalPageControl)
+                                .modelAttribute("index","location-list-page")
+                                .modelAttribute("metaDescription", description)
+                                .modelAttribute("page", finalPageControl)
+                                .modelAttribute("lastPage",lastPage)
+                                .modelAttribute("posts", locations)
+                                .build()
+                );
+            });
         });
     }
 

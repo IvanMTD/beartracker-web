@@ -71,7 +71,6 @@ public class LocationService {
         }).collectList().flatMap(l -> {
             preSaved.setContentList(l);
             manticoreService.addDocument(tableName,getDocument(preSaved));
-            preSaved.setIndexation(true);
             return locationRepository.save(preSaved);
         })));
     }
@@ -326,9 +325,8 @@ public class LocationService {
         manticoreService.createIndex(tableName);
         return getAll().flatMap(location -> {
             manticoreService.addDocument(tableName, getDocument(location));
-            location.setIndexation(true);
             return locationRepository.save(location);
-        });
+        }).switchIfEmpty(Flux.fromIterable(new ArrayList<>()));
     }
     /*
     UPDATE - END

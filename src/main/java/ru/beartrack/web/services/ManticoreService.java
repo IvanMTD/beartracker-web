@@ -75,6 +75,7 @@ public class ManticoreService {
     @SneakyThrows
     public Flux<UUID> searchDocument(String tableName, String searchQuery){
         if(!searchQuery.equals("")){
+            log.info("incoming query is {}",searchQuery);
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.setIndex(tablePrefix + "_" + tableName);
             QueryFilter queryFilter = new QueryFilter();
@@ -102,35 +103,23 @@ public class ManticoreService {
     @SneakyThrows
     public void dropIndex(String name) {
         String tableName = tablePrefix + "_" + name;
-        String truncateQuery = String.format("TRUNCATE TABLE %s", tableName);
-        List<Object> truncateResponse = utilsApi.sql(truncateQuery, true);
-        for(Object obj : truncateResponse){
-            log.info("truncate response is [{}]",obj);
-        }
-
-        String dropTableQuery = String.format("DROP TABLE %s", tableName);
-        List<Object> deleteResponse = utilsApi.sql(dropTableQuery, true);
-        for(Object obj : deleteResponse){
-            log.info("delete response is [{}]",obj);
-        }
+        String dropTableQuery = String.format("DROP TABLE IF EXISTS %s", tableName);
+        utilsApi.sql(dropTableQuery, true);
     }
 
     @SneakyThrows
     public void createIndex(String name) {
         String tableName = tablePrefix + "_" + name;
-        String createIndexQuery = String.format(
-                "CREATE TABLE IF NOT EXISTS %s (" +
-                "uuid UUID," +
-                "title TEXT FULLTEXT," +
-                "notation TEXT FULLTEXT," +
-                "content TEXT FULLTEXT," +
-                "metaTitle TEXT FULLTEXT," +
-                "metaDescription TEXT FULLTEXT," +
-                "metaKeywords TEXT FULLTEXT," +
-                ") TYPE='rt', morphology='stem_enru, libstemmer_ru' html_strip = '1'", tableName);
-        List<Object> createResponse = utilsApi.sql(createIndexQuery, true);
-        for(Object obj : createResponse){
-            log.info("creating response [{}]",obj);
-        }
+        String createIndexQuery =
+                "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
+                "uuid TEXT," +
+                "title TEXT," +
+                "notation TEXT," +
+                "content TEXT," +
+                "metaTitle TEXT," +
+                "metaDescription TEXT," +
+                "metaKeywords TEXT" +
+                ") TYPE='rt' morphology='stem_enru, libstemmer_ru' html_strip = '1'";
+        utilsApi.sql(createIndexQuery, true);
     }
 }

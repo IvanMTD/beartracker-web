@@ -1,1 +1,0 @@
-ALTER TABLE location ADD COLUMN indexation BOOLEAN;
