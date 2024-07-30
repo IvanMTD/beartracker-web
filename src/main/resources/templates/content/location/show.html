@@ -8,6 +8,12 @@
     <div id="blocks"></div>
     <div id="image-viewer"></div>
     <div class="row pt-3 g-1" id="social-share"></div>
+    <div class="row border-bottom border-dark" th:if="${nearestLocations.size() != 0}">
+        <div class="col">
+            <p class="my-font fs-5">Места по близости</p>
+        </div>
+    </div>
+    <div class="row py-3 g-3 row-cols-sm-1 row-cols-md-2 row-cols-lg-4" id="nearby-locations"></div>
 </div>
 
 <script th:inline="javascript">
@@ -30,6 +36,7 @@
         }
     });
     setupSocialShare();
+    setupNearbyLocations();
 
     function bgImage(block){
         $('#blocks').append(
@@ -330,28 +337,85 @@
         modal.show();
     }
 
-    function setupSocialShare(){
+    function setupSocialShare() {
         let url = [[${ogUrl}]];
         let socialBlock = $('#social-share');
         socialBlock.empty();
         socialBlock.append(`
             <div class="col">
                 <div class="float-end p-1" style="width: 32px; height: 32px">
-                    <a href="https://telegram.me/share/url?url=https://beartrack.ru${url}" data-telegram-share-url="https://beartrack.ru${url}"><img class="img-fluid" src="/img/social/telegram.png" alt="telegram" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в Телеграм"></a>
+                    <a href="https://telegram.me/share/url?url=https://beartrack.ru${url}" data-telegram-share-url="https://beartrack.ru${url}" target="_blank" rel="noopener noreferrer"><img class="img-fluid" src="/img/social/telegram.png" alt="telegram" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в Телеграм"></a>
                 </div>
                 <div class="float-end p-1" style="width: 32px; height: 32px">
-                    <a href="https://vk.com/share.php?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в ВКонтакте"><img class="img-fluid" src="/img/social/vk.png" alt="vk"></a>
+                    <a href="https://vk.com/share.php?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в ВКонтакте" target="_blank" rel="noopener noreferrer"><img class="img-fluid" src="/img/social/vk.png" alt="vk"></a>
                 </div>
                 <div class="float-end p-1" style="width: 32px; height: 32px">
-                    <a href="https://connect.ok.ru/offer?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в Одноклассниках"><img class="img-fluid" src="/img/social/ok.png" alt="ok"></a>
+                    <a href="https://connect.ok.ru/offer?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в Одноклассниках" target="_blank" rel="noopener noreferrer"><img class="img-fluid" src="/img/social/ok.png" alt="ok"></a>
                 </div>
                 <div class="float-end p-1" style="width: 32px; height: 32px">
-                    <a href="https://pinterest.com/pin/create/button/?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в Pinterest"><img class="img-fluid" src="/img/social/pinterest.png" alt="pinterest"></a>
+                    <a href="https://pinterest.com/pin/create/button/?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в Pinterest" target="_blank" rel="noopener noreferrer"><img class="img-fluid" src="/img/social/pinterest.png" alt="pinterest"></a>
                 </div>
                 <div class="float-end p-1" style="width: 32px; height: 32px">
-                    <a href="https://twitter.com/intent/tweet?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в X (Twitter)"><img class="img-fluid" src="/img/social/x.png" alt="x"></a>
+                    <a href="https://twitter.com/intent/tweet?url=https://beartrack.ru${url}" data-bs-toggle="tooltip" data-bs-placement="top" title="Поделится в X (Twitter)" target="_blank" rel="noopener noreferrer"><img class="img-fluid" src="/img/social/x.png" alt="x"></a>
                 </div>
             </div>
         `);
     }
+
+    function setupNearbyLocations(){
+        let nearbyLocations = $('#nearby-locations');
+        nearbyLocations.empty();
+        let n = 0;
+        nearestLocations.forEach(function (post) {
+            if(n < 4) {
+                let carouselId = 'carousel-' + post.uuid;
+                let prevId = 'prev-' + post.uuid;
+                let nextId = 'next-' + post.uuid;
+                let carouselInner = '';
+                let active = true;
+                post.contentList.forEach(function (block) {
+                    if (block.imageUrlSm != null) {
+                        let activeClass = active === true ? 'active' : '';
+                        active = false;
+                        carouselInner += `
+                            <div class="carousel-item img-ratio-control size-h-150 ${activeClass}">
+                                <img src="${block.imageUrlSm}" class="d-block w-100 rounded-2" alt="${post.title}">
+                            </div>
+                        `;
+                    }
+                });
+                let postHtml = `
+                    <div class="col mt-4">
+                        <div class="card zoom-in-light m-auto">
+                            <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    ${carouselInner}
+                                </div>
+                                <button id="${prevId}" class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button id="${nextId}" class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                            <a href="/location/${post.sef}">
+                                <div class="card-body size-h-200">
+                                    <p><strong class="text-decoration-none clamp-line-2 card-zag">${post.title}</strong></p>
+                                    <p class="card-text text-dark clamp-line-3 text-decoration-none">${post.notation}</p>
+                                </div>
+                            </a>
+                            <div class="card-footer">
+                                <span class="text-primary">#</span><span>${post.subjectModel.title}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                nearbyLocations.append(postHtml);
+            }
+            n++;
+        });
+    }
+
 </script>

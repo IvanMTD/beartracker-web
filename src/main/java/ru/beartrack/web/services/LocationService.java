@@ -434,7 +434,13 @@ public class LocationService {
         return contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
             location.setContentList(l);
-            return Mono.just(location);
+            return typeRepository.findByUuid(location.getLocationType()).flatMap(type -> {
+                location.setLocationTypeModel(type);
+                return subjectRepository.findByUuid(location.getSubject()).flatMap(subject -> {
+                    location.setSubjectModel(subject);
+                    return Mono.just(location);
+                });
+            });
         });
     }
 
