@@ -11,7 +11,7 @@
                     </div>
                 </div>
                 <div class="col-6 py-2 d-flex">
-                    <button class="btn btn-outline-dark ms-auto">Отправить</button>
+                    <button class="btn btn-outline-dark ms-auto" onclick="sendAndCheckArticle()">Отправить</button>
                 </div>
             </div>
             <div class="row pt-1">
@@ -100,21 +100,41 @@
     </div>
 </div>
 
-<script th:inline="javascript">
-
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <!-- Initialize Quill editor -->
-<script>
+<script th:inline="javascript">
     const options = {
-        debug: 'info',
+        /*debug: 'info',*/
         modules: {
             syntax: true,
             toolbar: '#toolbar-container',
         },
-        placeholder: 'Compose an epic...',
+        placeholder: 'Контент ...',
         theme: 'snow'
     };
     const quill = new Quill('#editor', options);
+
+    function sendAndCheckArticle(){
+        let article = {
+            title: $('#article-title').val(),
+            notation: $('#article-notation').val(),
+            content: quill.root.innerHTML,
+            metaTitle: $('#meta-title').val(),
+            metaDescription: $('#meta-description').val(),
+            metaKeywords: $('#meta-keywords').val()
+        }
+
+        let images = quill.root.getElementsByTagName('img');
+        let imageFiles = [];
+        for (let i = 0; i < images.length; i++) {
+            let src = images[i].src;
+            let match = src.match(/^data:image\/(\w+);base64,/);
+            if (match) {
+                let type = match[1];
+                let data = src.replace(/^data:image\/\w+;base64,/, '');
+                imageFiles.push({ data: data, type: type });
+            }
+        }
+        console.log(imageFiles);
+    }
 </script>

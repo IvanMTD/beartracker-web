@@ -30,20 +30,24 @@
                             <a th:href="@{/location/create}" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100" th:if="${admin} or ${moderator}"><i class="icon feather icon-map-pin"></i> Добавить локацию</a>
                         </div>
                     </div>
+                    <div class="row py-2" th:if="${admin}">
+                        <div class="col-12" id="user-select"></div>
+                    </div>
                     <div class="row border-bottom py-2">
-                        <div class="col-10">
+                        <div class="col-8">
                             <input type="search" list="location-search-list" class="form-control" id="location-search" onchange="updateLocationList()">
                             <datalist id="location-search-list"></datalist>
                         </div>
                         <div class="col-2 d-flex">
                             <i class="icon feather icon-search fs-3 text-secondary my-auto"></i>
                         </div>
+                        <div class="col-2 d-flex">
+                            <div class="m-auto" id="locations-size"></div>
+                        </div>
                     </div>
                     <div id="locations" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
                     <div class="row">
-                        <div id="location-pagination" class="col d-flex">
-
-                        </div>
+                        <div id="location-pagination" class="col d-flex"></div>
                     </div>
                 </div>
                 <div class="col-12 border rounded-3 mt-4">
@@ -93,6 +97,7 @@
     });
 
     setupUserBlock();
+    setupUserSelect()
     setupLocationSearchList();
     setupLocationTypes();
     setupLocationsFiled();
@@ -168,7 +173,48 @@
         );
     }
 
+    function setupUserSelect(){
+        let userSelect = $('#user-select');
+        userSelect.empty();
+        userSelect.append(`
+            <select class="form-select" id="user-selector" onchange="reloadLocations()">
+                <option value="0">Все</option>
+            </select>
+        `);
+
+        let userSelector = $('#user-selector');
+        users.forEach(function (user){
+            userSelector.append(`
+                <option value="${user.uuid}">${user.fullName}</option>
+            `);
+        });
+    }
+
+    function reloadLocations(){
+        let uuid = $('#user-selector').val();
+        $.ajax({
+            url:'/api/location/user/get/all',
+            type:'get',
+            data:{
+                user:uuid
+            },
+            success:function (response){
+                locations = response;
+                locationPage = 0;
+                setupLocationSearchList();
+                setupLocationsFiled();
+                setupLocationPagination();
+            }
+        });
+    }
+
     function setupLocationSearchList(){
+        let locationsSize = $('#locations-size');
+        locationsSize.empty();
+        locationsSize.append(`
+            <p class="fs-6 text-dark text-center my-font"><i class="icon feather icon-map-pin"></i> ${locations.length}</p>
+        `);
+
         let locationList = $('#location-search-list');
         locationList.empty();
         let locationSearchList = '';

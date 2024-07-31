@@ -335,7 +335,7 @@
     position: relative;
     width: 40px;
     height: 40px;
-    background-color: green;
+    background-color: #75a275;
     border-radius: 50%;
     border: solid white 3px;
     color: white;
@@ -384,4 +384,12 @@
     border-radius: 0 0 0.25rem 0.25rem;
     background-color: #fff;
     min-height: 100px; /* Установите высоту по вашему усмотрению */
+}
+
+.my-link {
+    color: black;
+}
+
+.my-link:hover {
+    color: grey;
 }

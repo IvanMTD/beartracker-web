@@ -89,8 +89,14 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                         return Mono.just(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
                     }).switchIfEmpty(Mono.error(new BadCredentialsException("Authentication failed")));
                 }else{
-                    log.error("the digital signature of refresh token does not match the signature in the token [{},{}]", digitalSignature, jwt.getDigitalSignatureFromToken(refreshToken));
-                    return Mono.error(new BadCredentialsException("Authentication failed"));
+                    log.error("the digital signature of refresh token does not match the signature in the token [{}] | [{}]", digitalSignature, jwt.getDigitalSignatureFromToken(refreshToken));
+                    ResponseCookie refreshCookie = ResponseCookie.from(CookieUtil.getInstance().getREFRESH(), "")
+                            .httpOnly(true)
+                            .path("/")
+                            .maxAge(0)
+                            .build();
+                    exchange.getResponse().addCookie(refreshCookie);
+                    return baseAuth(authentication);
                 }
             });
         }else{

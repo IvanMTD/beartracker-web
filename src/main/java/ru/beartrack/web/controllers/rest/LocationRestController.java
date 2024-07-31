@@ -15,6 +15,8 @@ import ru.beartrack.web.models.Location;
 import ru.beartrack.web.models.LocationType;
 import ru.beartrack.web.services.LocationService;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -55,6 +57,18 @@ public class LocationRestController {
     @GetMapping("/get/all")
     public Flux<Location> getAllLocation(){
         return locationService.getAll();
+    }
+
+    @GetMapping("/user/get/all")
+    public Flux<Location> getAllByUser(@RequestParam(name = "user") String userUUID){
+        if(userUUID.equals("0")){
+            log.info("This is all {}", userUUID);
+            return locationService.getAll();
+        }else{
+            log.info("personal {}", userUUID);
+            UUID uuid = UUID.fromString(userUUID);
+            return locationService.getAllByUserUuid(uuid);
+        }
     }
 
     @GetMapping("/synchronise")

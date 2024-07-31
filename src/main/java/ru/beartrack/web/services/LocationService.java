@@ -101,20 +101,12 @@ public class LocationService {
 
     @Cacheable("locations")
     public Flux<Location> getAll() {
-        return locationRepository.findAll().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
-            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
-            location.setContentList(l);
-            return Mono.just(location);
-        }));
+        return locationRepository.findAll().flatMap(this::setupContent);
     }
 
     @Cacheable("locations")
     public Flux<Location> getAllOrderByCreated() {
-        return locationRepository.findAllByOrderByCreatedDesc().flatMap(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
-            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
-            location.setContentList(l);
-            return Mono.just(location);
-        }));
+        return locationRepository.findAllByOrderByCreatedDesc().flatMap(this::setupContent);
     }
 
     @Cacheable("locations")
@@ -157,7 +149,7 @@ public class LocationService {
         return locationRepository.findAllByCreator(uuid).collectList().flatMapMany(l -> {
             l = l.stream().sorted(Comparator.comparing(Location::getCount).reversed()).collect(Collectors.toList());
             return Flux.fromIterable(l);
-        }).flatMapSequential(Mono::just);
+        }).flatMapSequential(this::setupContent);
     }
 
     @Cacheable("locations")
@@ -439,9 +431,9 @@ public class LocationService {
                 return subjectRepository.findByUuid(location.getSubject()).flatMap(subject -> {
                     location.setSubjectModel(subject);
                     return Mono.just(location);
-                });
-            });
-        });
+                }).switchIfEmpty(Mono.just(location));
+            }).switchIfEmpty(Mono.just(location));
+        }).switchIfEmpty(Mono.just(location));
     }
 
     private Map<String,Object> getDocument(Location location){

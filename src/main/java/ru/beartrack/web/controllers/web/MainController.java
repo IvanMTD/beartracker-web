@@ -26,7 +26,7 @@ public class MainController {
         return Mono.just(
                 Rendering.view("template")
                         .modelAttribute("title",title)
-                        .modelAttribute("index","main-page")
+                        .modelAttribute("index","main")
                         .modelAttribute("metaDescription", description)
                         .modelAttribute("metaKeywords",keywords)
                         .modelAttribute("ogUrl","/")
@@ -37,6 +37,16 @@ public class MainController {
                             location.setSubjectModel(subject);
                             return Mono.just(location);
                         })))
+                        .build()
+        );
+    }
+
+    @GetMapping("/about")
+    public Mono<Rendering> aboutUs(){
+        return Mono.just(
+                Rendering.view("template")
+                        .modelAttribute("title", "О нас")
+                        .modelAttribute("index","about-page")
                         .build()
         );
     }

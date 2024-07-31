@@ -30,6 +30,8 @@
         <script src="https://api-maps.yandex.ru/v3/?apikey=7c13cf7d-c937-4ca6-8021-145ac16bdcae&lang=ru_RU"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
     </head>
 
     <body>
@@ -44,7 +46,8 @@
         <!-- page -->
         <header th:insert="~{blocks/header}"></header>
 
-        <div th:insert="~{content/main-page}" th:if="${index} == 'main-page'"></div>
+        <div th:insert="~{content/main}" th:if="${index} == 'main'"></div>
+        <div th:insert="~{content/about}" th:if="${index} == 'about-page'"></div>
 
         <div th:insert="~{content/account/personal}" th:if="${index} == 'account-personal-page'"></div>
 
