@@ -103,27 +103,79 @@
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <!-- Initialize Quill editor -->
 <script th:inline="javascript">
+
+    class ImageResize {
+        constructor(quill, options) {
+            this.quill = quill;
+            this.options = options;
+            this.dragging = false;
+            this.quill.root.addEventListener('mouseover', this.handleMouseOver.bind(this), false);
+            this.quill.root.addEventListener('mousedown', this.handleMouseDown.bind(this), false);
+            this.quill.root.addEventListener('mouseup', this.handleMouseUp.bind(this), false);
+            this.quill.root.addEventListener('mousemove', this.handleMouseMove.bind(this), false);
+        }
+
+        handleMouseOver(evt) {
+            if (evt.target.tagName === 'IMG') {
+                evt.target.style.cursor = 'se-resize';
+            }
+        }
+
+        handleMouseDown(evt) {
+            if (evt.target.tagName === 'IMG') {
+                this.dragging = true;
+                this.startX = evt.clientX;
+                this.startY = evt.clientY;
+                this.startWidth = evt.target.width;
+                this.startHeight = evt.target.height;
+            }
+        }
+
+        handleMouseUp() {
+            this.dragging = false;
+        }
+
+        handleMouseMove(evt) {
+            if (this.dragging && evt.target.tagName === 'IMG') {
+                const deltaX = evt.clientX - this.startX;
+                const deltaY = evt.clientY - this.startY;
+                const newWidth = this.startWidth + deltaX;
+                const newHeight = this.startHeight + deltaY;
+                evt.target.width = newWidth;
+                evt.target.height = newHeight;
+            }
+        }
+    }
+
+    Quill.register('modules/imageResize', ImageResize);
+
     const options = {
         /*debug: 'info',*/
         modules: {
             syntax: true,
             toolbar: '#toolbar-container',
+            imageResize: {
+                minWidth: 32,
+                minHeight: 32,
+                maxWidth: 1280,
+                maxHeight: 1280
+            }
         },
         placeholder: 'Контент ...',
         theme: 'snow'
     };
     const quill = new Quill('#editor', options);
+    quill.on('text-change', function(delta, oldDelta, source) {
+        if (source === 'user') {
+            let images = quill.root.getElementsByTagName('img');
+            for (let i = 0; i < images.length; i++) {
+                images[i].classList.add('img-thumbnail');
+                images[i].setAttribute('align', 'left');
+            }
+        }
+    });
 
     function sendAndCheckArticle(){
-        let article = {
-            title: $('#article-title').val(),
-            notation: $('#article-notation').val(),
-            content: quill.root.innerHTML,
-            metaTitle: $('#meta-title').val(),
-            metaDescription: $('#meta-description').val(),
-            metaKeywords: $('#meta-keywords').val()
-        }
-
         let images = quill.root.getElementsByTagName('img');
         let imageFiles = [];
         for (let i = 0; i < images.length; i++) {
@@ -135,6 +187,25 @@
                 imageFiles.push({ data: data, type: type });
             }
         }
-        console.log(imageFiles);
+
+        let links = quill.root.getElementsByTagName('a');
+        let urls = [];
+        for (let i = 0; i < links.length; i++) {
+            let url = links[i].href;
+            urls.push(url);
+        }
+
+        let article = {
+            title: $('#article-title').val(),
+            notation: $('#article-notation').val(),
+            content: quill.root.innerHTML,
+            links: urls,
+            images: imageFiles,
+            metaTitle: $('#meta-title').val(),
+            metaDescription: $('#meta-description').val(),
+            metaKeywords: $('#meta-keywords').val()
+        }
+
+        console.log(article);
     }
 </script>

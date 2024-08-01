@@ -310,9 +310,9 @@
         );
 
         map.addChild(new CustomMarkerWithPopup({coordinates: [post.longitude, post.latitude], popupContent: post.title}, post, true));
-        nearestLocations.forEach(function (p){
+        /*nearestLocations.forEach(function (p){
             map.addChild(new CustomMarkerWithPopup({coordinates: [p.longitude, p.latitude], popupContent: p.title}, p, false));
-        });
+        });*/
     }
 
     function showImage(image,title){
