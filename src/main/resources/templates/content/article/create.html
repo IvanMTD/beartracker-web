@@ -159,7 +159,8 @@
                 minHeight: 32,
                 maxWidth: 1280,
                 maxHeight: 1280
-            }
+            },
+            customImageHandler: {}
         },
         placeholder: 'Контент ...',
         theme: 'snow'
@@ -170,7 +171,7 @@
             let images = quill.root.getElementsByTagName('img');
             for (let i = 0; i < images.length; i++) {
                 images[i].classList.add('img-thumbnail');
-                images[i].setAttribute('align', 'left');
+                /*images[i].setAttribute('align', 'left');*/
             }
         }
     });
@@ -195,17 +196,36 @@
             urls.push(url);
         }
 
-        let article = {
-            title: $('#article-title').val(),
-            notation: $('#article-notation').val(),
-            content: quill.root.innerHTML,
-            links: urls,
-            images: imageFiles,
-            metaTitle: $('#meta-title').val(),
-            metaDescription: $('#meta-description').val(),
-            metaKeywords: $('#meta-keywords').val()
-        }
+        let formData = new FormData();
+        formData.append('title', $('#article-title').val());
+        formData.append('notation', $('#article-notation').val());
+        formData.append('content', quill.root.innerHTML);
+        formData.append('metaTitle', $('#meta-title').val());
+        formData.append('metaDescription', $('#meta-description').val());
+        formData.append('metaKeywords', $('#meta-keywords').val());
 
-        console.log(article);
+        /*$.ajax({
+            url:'/api/article/create',
+            type:'post',
+            data:formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(admin_csrf.headerName, admin_csrf.token);
+            },
+            success: function (response) {
+                console.log(response);
+                hideSpinner();
+                localStorage.setItem('showToast', 'true');
+                localStorage.setItem('status', 'success');
+                localStorage.setItem('message','Новый тип места успешно добавлен')
+                location.reload(true);
+            },
+            error: function (xhr, status, error) {
+                hideSpinner();
+                console.error(status, error);
+                showToast("error", 'error: ' + xhr.responseJSON.message)
+            }
+        });*/
     }
 </script>

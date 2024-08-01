@@ -255,11 +255,47 @@
                     locationTypesArray = response;
                     let types = $('#location-types');
                     types.empty();
-                    response.forEach(function (type){
+                    response.forEach(function (type) {
+                        const typeData = JSON.stringify(type).replace(/"/g, '&quot;'); // Экранируем одинарные кавычки
                         types.append(`
                             <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
                                 <div class="m-auto w-75 h-75">
-                                    <img class="img-thumbnail rounded-circle m-auto" src="${type.imageUrl}" alt="${type.name}">
+                                    <span data-bs-toggle="tooltip" data-bs-title="${type.name}">
+                                        <img class="img-thumbnail rounded-circle zoom-in cursor-pointer m-auto" src="${type.imageUrl}" alt="${type.name}" data-type="${typeData}" data-bs-toggle="modal" data-bs-target="#location-type-${type.uuid}">
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="location-type-${type.uuid}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="location-modal-label" aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Окно редактирования типа места: ${type.name}</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row row-cols-auto">
+                                                <input type="text" value="${type.uuid}" id="location-type-uuid" hidden>
+                                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                                    <label for="location-type-name ms-1">Уникальное имя типа места</label>
+                                                    <input type="text" id="location-type-name" value="${type.name}" class="form-control">
+                                                </div>
+                                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                                    <label for="location-type-image ms-1">Изображение</label>
+                                                    <input type="file" id="location-type-image" accept="image/*" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                                    <label for="location-type-description ms-1">Описание</label>
+                                                    <textarea type="text" id="location-type-description" class="form-control" rows="4">${type.description}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                            <button type="button" class="btn btn-primary" onclick="updateLocationType()">Обновить</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         `);
@@ -548,7 +584,7 @@
                 hideSpinner();
                 localStorage.setItem('showToast', 'true');
                 localStorage.setItem('status', 'success');
-                localStorage.setItem('message','Данные пользователя' + person.name + 'обновлены')
+                localStorage.setItem('message','Данные пользователя ' + person.name + ' обновлены')
                 location.reload(true);
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -596,6 +632,51 @@
                 showToast("error", 'error: ' + xhr.responseJSON.message)
             }
         });
+    }
+
+    function updateLocationType(){
+        let formData = new FormData();
+        formData.append('uuid',$('#location-type-uuid').val());
+        formData.append('name',$('#location-type-name').val());
+        formData.append('description',$('#location-type-description').val());
+        let file = $('#location-type-image')[0];
+        if(file){
+            file = file.files[0];
+            if(file){
+                formData.append('image',file);
+            }
+        }
+
+        showSpinner();
+        $.ajax({
+            url:'/api/location/type/update',
+            type:'post',
+            data:formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(admin_csrf.headerName, admin_csrf.token);
+            },
+            success: function (response) {
+                console.log(response);
+                hideSpinner();
+                localStorage.setItem('showToast', 'true');
+                localStorage.setItem('status', 'success');
+                localStorage.setItem('message','Тип места успешно обновлен')
+                location.reload(true);
+            },
+            error: function (xhr, status, error) {
+                hideSpinner();
+                console.error(status, error);
+                showToast("error", 'error: ' + xhr.responseJSON.message)
+            }
+        });
+    }
+
+    function openTypeEditor(element){
+        let typeJSON = element.getAttribute('data-type');
+        let type = JSON.parse(typeJSON.replace(/&quot;/g, '"'));
+
     }
 
     /*document.addEventListener('DOMContentLoaded', (event) => {

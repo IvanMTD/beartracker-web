@@ -54,6 +54,16 @@ public class LocationRestController {
         }).switchIfEmpty(Mono.just(false));
     }
 
+    @PostMapping("/type/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<Boolean> updateLocationType(@ModelAttribute LocationTypeDTO locationTypeDTO){
+        log.info("incoming data {}", locationTypeDTO);
+        return locationService.updateLocationType(locationTypeDTO).flatMap(locationType -> {
+            log.info("location type has been updated {}", locationType);
+            return Mono.just(true);
+        }).switchIfEmpty(Mono.just(false));
+    }
+
     @GetMapping("/get/all")
     public Flux<Location> getAllLocation(){
         return locationService.getAll();

@@ -88,6 +88,28 @@ public class LocationService {
             }
         });
     }
+
+    @CacheEvict(value = "locations", allEntries = true)
+    public Mono<LocationType> updateLocationType(LocationTypeDTO locationTypeDTO) {
+        UUID uuid = UUID.fromString(locationTypeDTO.getUuid());
+        return typeRepository.findByUuid(uuid).flatMap(locationType -> {
+            locationType.setName(locationTypeDTO.getName());
+            locationType.setDescription(locationTypeDTO.getDescription());
+            if(locationTypeDTO.getImage() != null){
+                try {
+                    deleteFile(locationType);
+                    return saveImageSimple(locationTypeDTO.getImage()).flatMap(imageUrl -> {
+                        locationType.setImageUrl(imageUrl);
+                        return typeRepository.save(locationType);
+                    });
+                } catch (IOException e) {
+                    return Mono.error(new RuntimeException(e));
+                }
+            }else{
+                return typeRepository.save(locationType);
+            }
+        });
+    }
     /*
     CREATE - END
      */
@@ -388,6 +410,14 @@ public class LocationService {
     private void deleteFiles(Set<LocationContent> onDelete){
         for(LocationContent locationContent : onDelete){
             deleteFile(locationContent);
+        }
+    }
+
+    private void deleteFile(LocationType locationType){
+        if(locationType.getImageUrl() != null) {
+            String[] imageParts = locationType.getImageUrl().split("/");
+            String fileName = imageParts[imageParts.length - 3] + "/" + imageParts[imageParts.length - 2] + "/" + imageParts[imageParts.length - 1];
+            minioService.deleteFile(fileName);
         }
     }
 
