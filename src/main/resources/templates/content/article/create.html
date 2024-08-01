@@ -93,7 +93,7 @@
                 <div class="col-12">
                     <label for="meta-keywords" class="ms-1 text-secondary"><small>Meta keywords: </small><small
                             class="text-danger">Указывайте keywords через запятую с пробелом</small></label>
-                    <input id="meta-keywords" type="text" class="form-control text-dark" oninput="validateKeywords()">
+                    <input id="meta-keywords" type="text" class="form-control text-dark">
                 </div>
             </div>
         </div>
@@ -103,6 +103,7 @@
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <!-- Initialize Quill editor -->
 <script th:inline="javascript">
+    let article_csrf = [[${_csrf}]];
 
     class ImageResize {
         constructor(quill, options) {
@@ -159,8 +160,7 @@
                 minHeight: 32,
                 maxWidth: 1280,
                 maxHeight: 1280
-            },
-            customImageHandler: {}
+            }
         },
         placeholder: 'Контент ...',
         theme: 'snow'
@@ -178,14 +178,14 @@
 
     function sendAndCheckArticle(){
         let images = quill.root.getElementsByTagName('img');
-        let imageFiles = [];
+        let files = [];
         for (let i = 0; i < images.length; i++) {
             let src = images[i].src;
             let match = src.match(/^data:image\/(\w+);base64,/);
             if (match) {
                 let type = match[1];
                 let data = src.replace(/^data:image\/\w+;base64,/, '');
-                imageFiles.push({ data: data, type: type });
+                files.push({ data: data, type: type });
             }
         }
 
@@ -203,29 +203,29 @@
         formData.append('metaTitle', $('#meta-title').val());
         formData.append('metaDescription', $('#meta-description').val());
         formData.append('metaKeywords', $('#meta-keywords').val());
+        for(let i=0; i<files.length; i++){
+            formData.append(`images[${i}]`,files[i]);
+        }
+        for(let i=0; i<urls.length; i++){
+            formData.append(`links[${i}]`,links[i]);
+        }
 
-        /*$.ajax({
+        $.ajax({
             url:'/api/article/create',
-            type:'post',
-            data:formData,
+            type: 'post',
+            data: formData,
             processData: false,
             contentType: false,
             beforeSend: function(xhr) {
-                xhr.setRequestHeader(admin_csrf.headerName, admin_csrf.token);
+                xhr.setRequestHeader(article_csrf.headerName, article_csrf.token);
             },
             success: function (response) {
-                console.log(response);
-                hideSpinner();
-                localStorage.setItem('showToast', 'true');
-                localStorage.setItem('status', 'success');
-                localStorage.setItem('message','Новый тип места успешно добавлен')
-                location.reload(true);
+                showToast('success',response);
             },
             error: function (xhr, status, error) {
-                hideSpinner();
-                console.error(status, error);
-                showToast("error", 'error: ' + xhr.responseJSON.message)
+                console.error(error);
+                showToast("error", status + ': ' + error)
             }
-        });*/
+        });
     }
 </script>
