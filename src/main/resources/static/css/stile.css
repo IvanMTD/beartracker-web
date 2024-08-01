@@ -342,6 +342,7 @@
     text-align: center;
     line-height: 40px;
     font-size: 16px;
+    transform: translate(-20px,-20px);
 }
 
 .cluster-content {

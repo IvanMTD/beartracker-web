@@ -138,9 +138,9 @@
                 }
                 let element = document.createElement('div');
                 element.innerHTML = `
-                <div class="row p-0 m-0" style="width: 32px; height: 32px; cursor: pointer">
+                <div class="row p-0 m-0" style="width: 32px; height: 32px; cursor: pointer; transform: translate(-16px,-16px)">
                     <div class="col p-0 m-0" style="overflow: hidden">
-                        <img class="img-fluid rounded-circle border border-white border-3" src="${imgUrl}" alt="${this._post.title}" style="object-fit: cover; height: 100%">
+                        <img class="img-fluid rounded-circle border border-white border-3" src="${imgUrl}" alt="${this._post.title}" style="object-fit: cover; height: 100%;">
                     </div>
                 </div>
             `;
@@ -168,7 +168,7 @@
                 const element = document.createElement('div');
 
                 element.innerHTML = `
-                <div class="card position-relative" style="width: 200px; transform: translate(-84px, -200px);">
+                <div class="card position-relative" style="width: 200px; transform: translate(-100px, -216px);">
                     <button id="close-btn-${this._post.uuid}" type="button" class="my_btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
                     <img src="${imageUrl}" class="card-img-top img-ratio-control" alt="${this._post.title}" style="height: 100px">
                     <div class="card-body" style="height: 90px">
