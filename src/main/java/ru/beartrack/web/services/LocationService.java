@@ -183,7 +183,7 @@ public class LocationService {
         }));
     }
 
-    @Cacheable("locations")
+    //@Cacheable("locations")
     public Flux<Location> getAllOrderByCount(Pageable pageable) {
         return locationRepository.findAllByOrderByCountDesc(pageable).flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
             l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());

@@ -45,6 +45,7 @@ public class LocationController {
             }
 
             int finalPageControl = pageControl;
+            log.info("current page: {}", pageControl);
             return locationService.getAllOrderByCount(PageRequest.of(pageControl,pageSize)).flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
                 location.setSubjectModel(subject);
                 return Mono.just(location);
