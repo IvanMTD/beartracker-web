@@ -183,13 +183,9 @@ public class LocationService {
         }));
     }
 
-    //@Cacheable("locations")
+    @Cacheable("locations")
     public Flux<Location> getAllOrderByCount(Pageable pageable) {
-        return locationRepository.findAllByOrderByCountDesc(pageable).flatMapSequential(location -> contentRepository.findByParent(location.getUuid()).collectList().flatMap(l -> {
-            l = l.stream().sorted(Comparator.comparing(LocationContent::getPosition)).collect(Collectors.toList());
-            location.setContentList(l);
-            return Mono.just(location);
-        }));
+        return locationRepository.findAllByOrderByCountDesc(pageable).flatMapSequential(this::setupContent);
     }
 
     @Cacheable("locations")
@@ -250,7 +246,7 @@ public class LocationService {
         return locationRepository.findByUuid(locationPost.getUuid()).flatMap(location -> {
             location.update(locationPost);
             return locationRepository.save(location).flatMapMany(locationUpdated -> {
-                log.info("location has been updated [{}]",locationUpdated);
+                //log.info("location has been updated [{}]",locationUpdated);
                 return contentRepository.findByParent(locationUpdated.getUuid());
             }).collectList();
         }).flatMap(contents -> {
@@ -304,7 +300,7 @@ public class LocationService {
                 return locationRepository.findByUuid(locationPost.getUuid()).flatMap(loc -> {
                     loc.setContentList(l);
                     manticoreService.updateDocument(tableName,getDocument(loc));
-                    log.info("content list updated [{}]",l);
+                    //log.info("content list updated [{}]",l);
                     return Mono.just(true);
                 });
             }));
@@ -323,13 +319,13 @@ public class LocationService {
                 return locationRepository.save(loc);
             });
         }).flatMap(saved -> {
-            log.info("location saved {}", saved);
+            //log.info("location saved {}", saved);
             return Flux.fromIterable(location.getContentList()).flatMap(lc -> {
                 lc.setUuid(null);
                 lc.setParent(saved.getUuid());
                 return contentRepository.save(lc);
             }).flatMap(lcSaved -> {
-                log.info("saved content {}", lcSaved);
+                //log.info("saved content {}", lcSaved);
                 return Mono.just(lcSaved);
             }).collectList().flatMap(l -> {
                 return Mono.just(saved);
@@ -355,7 +351,7 @@ public class LocationService {
     @CacheEvict(value = "locations", allEntries = true)
     public Mono<Location> delete(UUID uuid) {
         return locationRepository.findByUuid(uuid).flatMap(location -> {
-            log.info("found location {}", location.getUuid());
+            //log.info("found location {}", location.getUuid());
             return contentRepository.findByParent(location.getUuid()).flatMap(content -> {
                 return contentRepository.delete(content).then(Mono.just(content));
             }).collectList().flatMap(l -> {
@@ -384,7 +380,7 @@ public class LocationService {
                         File resizedFile = new File(originalFile.getParent(), FilenameUtils.removeExtension(fileName) + "-" + size + ".webp");
                         String objectName = "/images/" + preSaved.getUuid() + "/" + resizedFile.getName();
                         String imageUrl = minioService.uploadFile(resizedFile, objectName);
-                        log.info("Uploaded image URL: " + imageUrl);
+                        //log.info("Uploaded image URL: " + imageUrl);
                         if(size.equals(sizes[0])){
                             locationContent.setImageUrlSm(imageUrl);
                         }else if(size.equals(sizes[1])){
@@ -402,7 +398,7 @@ public class LocationService {
                 }
             }).switchIfEmpty(contentRepository.save(locationContent));
         } catch (Exception e) {
-            log.error("Error processing image", e);
+            //log.error("Error processing image", e);
         }
         return Mono.just(locationContent);
     }

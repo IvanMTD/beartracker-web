@@ -30,12 +30,14 @@ public class LocationController {
 
     @GetMapping("/list")
     public Mono<Rendering> locationListPage(@RequestParam(name = "page") int page){
+        log.info("incoming page: {}", page);
         return locationService.getCount().flatMap(locationCount -> {
             int pageSize = 12;
             int pageControl = page;
             long lastPage = locationCount / pageSize;
-            if(lastPage == pageSize){
-                pageControl = 0;
+            long dif = (locationCount % pageSize);
+            if(dif == 0){
+                lastPage = lastPage - 1;
             }
             if(pageControl <= 0){
                 pageControl = 0;
@@ -45,11 +47,9 @@ public class LocationController {
             }
 
             int finalPageControl = pageControl;
-            log.info("current page: {}", pageControl);
-            return locationService.getAllOrderByCount(PageRequest.of(pageControl,pageSize)).flatMapSequential(location -> subjectService.getByUuid(location.getSubject()).flatMap(subject -> {
-                location.setSubjectModel(subject);
-                return Mono.just(location);
-            })).collectList().flatMap(locations -> {
+            log.info("final: {}", finalPageControl);
+            long finalLastPage = lastPage;
+            return locationService.getAllOrderByCount(PageRequest.of(finalPageControl,pageSize)).collectList().flatMap(locations -> {
                 String description = "Интересные места на странице: ";
                 for(Location location : locations){
                     description += location.getTitle() + ", ";
@@ -61,7 +61,7 @@ public class LocationController {
                                 .modelAttribute("index","location-list-page")
                                 .modelAttribute("metaDescription", description)
                                 .modelAttribute("page", finalPageControl)
-                                .modelAttribute("lastPage",lastPage)
+                                .modelAttribute("lastPage", finalLastPage)
                                 .modelAttribute("posts", locations)
                                 .build()
                 );

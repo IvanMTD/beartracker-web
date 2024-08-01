@@ -27,21 +27,21 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        log.info("start auth manager");
+        //log.info("start auth manager");
         String accessToken = authentication.getPrincipal().toString();
         String refreshToken = authentication.getCredentials().toString();
 
         if(jwt.validateToken(accessToken)){
-            log.info("access token is valid");
+            //log.info("access token is valid");
             return Mono.deferContextual(contextView -> {
                 ServerWebExchange exchange = contextView.get(ServerWebExchange.class);
                 String digitalSignature = exchange.getRequest().getHeaders().getFirst("User-Agent");
                 assert digitalSignature != null;
                 if(digitalSignature.equals(jwt.getDigitalSignatureFromToken(accessToken))) {
-                    log.info("the correct digital signature has been presented");
+                    //log.info("the correct digital signature has been presented");
                     return userService.findByUsername(jwt.getUsernameFromToken(accessToken)).flatMap(user -> Mono.just(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())));
                 }else{
-                    log.error("the digital signature does not match the signature in the token [{}] | [{}]", digitalSignature, jwt.getDigitalSignatureFromToken(accessToken));
+                    //log.error("the digital signature does not match the signature in the token [{}] | [{}]", digitalSignature, jwt.getDigitalSignatureFromToken(accessToken));
                     ServerHttpResponse response = exchange.getResponse();
                     response.addCookie(ResponseCookie.from(CookieUtil.getInstance().getACCESS(), "")
                             .httpOnly(true)
@@ -62,13 +62,13 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                 }
             });
         }else if(jwt.validateToken(refreshToken)){
-            log.info("access token is not valid, but refresh token is ok");
+            //log.info("access token is not valid, but refresh token is ok");
             return Mono.deferContextual(contextView -> {
                 ServerWebExchange exchange = contextView.get(ServerWebExchange.class);
                 String digitalSignature = exchange.getRequest().getHeaders().getFirst("User-Agent");
                 assert digitalSignature != null;
                 if(digitalSignature.equals(jwt.getDigitalSignatureFromToken(refreshToken))) {
-                    log.info("digital signature of refresh token is ok - update jwt");
+                    //log.info("digital signature of refresh token is ok - update jwt");
                     return userService.findByUsername(jwt.getUsernameFromToken(refreshToken)).flatMap(user -> {
                         String username = user.getUsername();
                         String newAccessToken = jwt.generateAccessToken(username, digitalSignature);
@@ -89,7 +89,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                         return Mono.just(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
                     }).switchIfEmpty(Mono.error(new BadCredentialsException("Authentication failed")));
                 }else{
-                    log.error("the digital signature of refresh token does not match the signature in the token [{}] | [{}]", digitalSignature, jwt.getDigitalSignatureFromToken(refreshToken));
+                    //log.error("the digital signature of refresh token does not match the signature in the token [{}] | [{}]", digitalSignature, jwt.getDigitalSignatureFromToken(refreshToken));
                     ResponseCookie refreshCookie = ResponseCookie.from(CookieUtil.getInstance().getREFRESH(), "")
                             .httpOnly(true)
                             .path("/")
@@ -105,7 +105,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
     }
 
     private Mono<Authentication> baseAuth(Authentication authentication){
-        log.info("access and refresh token is not valid - try authenticate by basic login");
+        //log.info("access and refresh token is not valid - try authenticate by basic login");
         String username = authentication.getPrincipal().toString();
         String password = authentication.getCredentials().toString();
         return userService.findByUsername(username).flatMap(user -> {

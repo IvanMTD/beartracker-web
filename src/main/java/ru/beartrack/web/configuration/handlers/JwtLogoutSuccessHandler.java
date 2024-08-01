@@ -13,7 +13,7 @@ import ru.beartrack.web.utils.CookieUtil;
 public class JwtLogoutSuccessHandler extends RedirectServerLogoutSuccessHandler {
     @Override
     public Mono<Void> onLogoutSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
-        log.info("auth logout success");
+        //log.info("auth logout success");
         ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
         response.addCookie(ResponseCookie.from(CookieUtil.getInstance().getACCESS(), "")
                 .httpOnly(true)

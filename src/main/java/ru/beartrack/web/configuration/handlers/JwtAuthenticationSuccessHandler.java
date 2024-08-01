@@ -25,7 +25,7 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
 
     @Override
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
-        log.info("auth login success");
+        //log.info("auth login success");
         String username = authentication.getName();
         String digitalSignature = webFilterExchange.getExchange().getRequest().getHeaders().getFirst("User-Agent");
         String accessToken = jwt.generateAccessToken(username, digitalSignature);
