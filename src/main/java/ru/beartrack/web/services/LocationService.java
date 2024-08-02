@@ -433,6 +433,7 @@ public class LocationService {
     }
 
     private Mono<String> saveImageSimple(FilePart image) throws IOException {
+        log.info("incoming file [{}]", image);
         String extension = FilenameUtils.getExtension(image.filename());
         String fileName = UUID.randomUUID() + "." + extension;
         return ImageioUtil.saveImage(image,fileName).flatMap(originalFile -> {

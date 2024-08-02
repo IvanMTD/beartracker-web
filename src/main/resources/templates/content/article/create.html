@@ -185,7 +185,8 @@
             if (match) {
                 let type = match[1];
                 let data = src.replace(/^data:image\/\w+;base64,/, '');
-                files.push({ data: data, type: type });
+                let blob = base64ToBlob(data, type);
+                files.push(new File([blob], `image${i}.${type}`));
             }
         }
 
@@ -203,15 +204,12 @@
         formData.append('metaTitle', $('#meta-title').val());
         formData.append('metaDescription', $('#meta-description').val());
         formData.append('metaKeywords', $('#meta-keywords').val());
-        for(let i=0; i<files.length; i++){
-            formData.append(`images[${i}]`,files[i]);
-        }
-        for(let i=0; i<urls.length; i++){
-            formData.append(`links[${i}]`,links[i]);
-        }
+
+        files.forEach((file, index) => formData.append('images', file));
+        urls.forEach((url, index) => formData.append(`links[${index}]`, url));
 
         $.ajax({
-            url:'/api/article/create',
+            url: '/api/article/create',
             type: 'post',
             data: formData,
             processData: false,
@@ -219,13 +217,23 @@
             beforeSend: function(xhr) {
                 xhr.setRequestHeader(article_csrf.headerName, article_csrf.token);
             },
-            success: function (response) {
-                showToast('success',response);
+            success: function(response) {
+                showToast('success', response);
             },
-            error: function (xhr, status, error) {
-                console.error(error);
-                showToast("error", status + ': ' + error)
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                showToast("error", status + ': ' + error);
             }
         });
+    }
+
+    function base64ToBlob(base64, type) {
+        let binaryString = atob(base64);
+        let len = binaryString.length;
+        let bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return new Blob([bytes], { type: `image/${type}` });
     }
 </script>

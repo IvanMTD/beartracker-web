@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 @Slf4j
 public class ImageioUtil {
@@ -28,6 +29,14 @@ public class ImageioUtil {
         }else{
             return Mono.empty();
         }
+    }
+
+    public static Mono<File> saveImage(String base64image, String type, String name) throws IOException {
+        byte[] decodedBytes = Base64.getDecoder().decode(base64image);
+        Path filePath = Paths.get(BASE_PATH + name + "." + type);
+        Files.createDirectories(filePath.getParent());
+        Files.write(filePath, decodedBytes);
+        return Mono.justOrEmpty(filePath.toFile());
     }
 
     public static void createResizedImages(File imageFile, String fileName, String[] sizes) throws IOException {

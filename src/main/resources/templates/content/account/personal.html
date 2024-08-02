@@ -260,9 +260,7 @@
                         types.append(`
                             <div class="col-1 m-0 p-0 d-flex" style="width: 64px; height: 64px">
                                 <div class="m-auto w-75 h-75">
-                                    <span data-bs-toggle="tooltip" data-bs-title="${type.name}">
-                                        <img class="img-thumbnail rounded-circle zoom-in cursor-pointer m-auto" src="${type.imageUrl}" alt="${type.name}" data-type="${typeData}" data-bs-toggle="modal" data-bs-target="#location-type-${type.uuid}">
-                                    </span>
+                                    <img class="img-thumbnail rounded-circle zoom-in cursor-pointer m-auto" src="${type.imageUrl}" alt="${type.name}" data-type="${typeData}" data-bs-toggle="modal" data-bs-target="#location-type-${type.uuid}">
                                 </div>
                             </div>
                             <div class="modal fade" id="location-type-${type.uuid}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="location-modal-label" aria-hidden="true">
@@ -274,26 +272,25 @@
                                         </div>
                                         <div class="modal-body">
                                             <div class="row row-cols-auto">
-                                                <input type="text" value="${type.uuid}" id="location-type-uuid" hidden>
                                                 <div class="col-sm-12 col-md-6 col-lg-6">
-                                                    <label for="location-type-name ms-1">Уникальное имя типа места</label>
-                                                    <input type="text" id="location-type-name" value="${type.name}" class="form-control">
+                                                    <label for="location-type-name-${type.uuid}" class="ms-1">Уникальное имя типа места</label>
+                                                    <input type="text" id="location-type-name-${type.uuid}" value="${type.name}" class="form-control">
                                                 </div>
                                                 <div class="col-sm-12 col-md-6 col-lg-6">
-                                                    <label for="location-type-image ms-1">Изображение</label>
-                                                    <input type="file" id="location-type-image" accept="image/*" class="form-control">
+                                                    <label for="location-type-image-${type.uuid}" class="ms-1">Изображение</label>
+                                                    <input type="file" id="location-type-image-${type.uuid}" accept="image/*" class="form-control">
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                                    <label for="location-type-description ms-1">Описание</label>
-                                                    <textarea type="text" id="location-type-description" class="form-control" rows="4">${type.description}</textarea>
+                                                    <label for="location-type-description-${type.uuid}" class="ms-1">Описание</label>
+                                                    <textarea type="text" id="location-type-description-${type.uuid}" class="form-control" rows="4">${type.description}</textarea>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                                            <button type="button" class="btn btn-primary" onclick="updateLocationType()">Обновить</button>
+                                            <button id="update~${type.uuid}" type="button" class="btn btn-primary" onclick="updateLocationType(this.id)">Обновить</button>
                                         </div>
                                     </div>
                                 </div>
@@ -392,23 +389,23 @@
         let lastPage = parseInt(locations.length / 12);
         $('#location-pagination').empty();
         let pagination = `
-        <nav aria-label="Page navigation" class="m-auto">
-            <ul class="pagination">
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Previous" onclick="locationPrevious()">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                ${0 < locationPage ? `<li class="page-item"><a class="page-link" href="#" onclick="locationGoToPage(${locationPage - 1})">${locationPage}</a></li>` : ''}
-                <li class="page-item"><a class="page-link active" href="#">${locationPage + 1}</a></li>
-                ${locationPage < lastPage ? `<li class="page-item"><a class="page-link" href="#" onclick="locationGoToPage(${locationPage + 1})">${locationPage + 2}</a></li>` : ''}
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Next" onclick="locationNext()">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+            <nav aria-label="Page navigation" class="m-auto">
+                <ul class="pagination">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous" onclick="locationPrevious()">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    ${0 < locationPage ? `<li class="page-item"><a class="page-link" href="#" onclick="locationGoToPage(${locationPage - 1})">${locationPage}</a></li>` : ''}
+                    <li class="page-item"><a class="page-link active" href="#">${locationPage + 1}</a></li>
+                    ${locationPage < lastPage ? `<li class="page-item"><a class="page-link" href="#" onclick="locationGoToPage(${locationPage + 1})">${locationPage + 2}</a></li>` : ''}
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next" onclick="locationNext()">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         `;
         $('#location-pagination').append(pagination);
     }
@@ -634,12 +631,14 @@
         });
     }
 
-    function updateLocationType(){
+    function updateLocationType(id){
+        let parts = id.split('~');
+        let uuid = parts[parts.length - 1];
         let formData = new FormData();
-        formData.append('uuid',$('#location-type-uuid').val());
-        formData.append('name',$('#location-type-name').val());
-        formData.append('description',$('#location-type-description').val());
-        let file = $('#location-type-image')[0];
+        formData.append('uuid',uuid);
+        formData.append('name',$('#location-type-name-' + uuid).val());
+        formData.append('description',$('#location-type-description-' + uuid).val());
+        let file = $('#location-type-image-' + uuid)[0];
         if(file){
             file = file.files[0];
             if(file){
