@@ -204,12 +204,15 @@
         formData.append('metaTitle', $('#meta-title').val());
         formData.append('metaDescription', $('#meta-description').val());
         formData.append('metaKeywords', $('#meta-keywords').val());
-
-        files.forEach((file, index) => formData.append('images', file));
-        urls.forEach((url, index) => formData.append(`links[${index}]`, url));
+        for (let i = 0; i < files.length; i++) {
+            formData.append(`images[${i}]`, files[i]);
+        }
+        for(let i=0; i<urls.length; i++){
+            formData.append(`links[${i}]`,links[i]);
+        }
 
         $.ajax({
-            url: '/api/article/create',
+            url:'/api/article/create',
             type: 'post',
             data: formData,
             processData: false,
@@ -217,12 +220,12 @@
             beforeSend: function(xhr) {
                 xhr.setRequestHeader(article_csrf.headerName, article_csrf.token);
             },
-            success: function(response) {
-                showToast('success', response);
+            success: function (response) {
+                showToast('success',response);
             },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
-                showToast("error", status + ': ' + error);
+            error: function (xhr, status, error) {
+                console.error(error);
+                showToast("error", status + ': ' + error)
             }
         });
     }
