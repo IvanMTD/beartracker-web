@@ -62,7 +62,7 @@
                             <a th:href="@{/article/create}" class="btn btn-sm btn-outline-secondary ms-auto m-2 w-100" th:if="${admin} or ${moderator}"><i class="icon feather icon-book-open"></i> Написать статью</a>
                         </div>
                     </div>
-                    <div id="posts" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
+                    <div id="articles" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
                 </div>
             </div>
         </div>
@@ -80,10 +80,14 @@
     let users = [[${users}]];
     let roles = [[${roles}]];
     let locations = [[${locations}]];
+    let articles = [[${articles}]];
     let locationTypesArray = null;
     // location
     let locationPage = 0;
     let locationPageSize = 12;
+    // articles
+    let articlePage = 0;
+    let articlePageSize = 12;
 
     document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('showToast') === 'true') {
@@ -101,6 +105,7 @@
     setupLocationSearchList();
     setupLocationTypes();
     setupLocationsFiled();
+    setupArticleField();
     setupUserPanel();
 
     function setupUserBlock(){
@@ -435,6 +440,44 @@
         reloadTooltip();
     }
 
+    function setupArticleField(){
+        let articlesField = $('#articles');
+        articlesField.empty();
+        for(let i=(articlePage * articlePageSize); i<((articlePage * articlePageSize) + articlePageSize); i++){
+            let article = articles[i];
+            if(article){
+                articlesField.append(`
+                    <div class="col-6 col-md-4 col-lg-4 g-3 mb-2">
+                        <div class="row p-0 m-0 shadow rounded-3 zoom-in h-100">
+                            <div class="col p-0 m-0 d-flex flex-column justify-content-between">
+                                <div class="row p-0 m-0 h-100 border-bottom">
+                                    <div class="col-3 m-0 p-0 d-flex">
+                                        <a class="text-decoration-none text-dark m-auto" href="/article/${article.sef}">
+                                            <i class="icon feather icon-map-pin"></i>
+                                        </a>
+                                    </div>
+                                    <div class="col-9 m-0 p-0 d-flex">
+                                        <a class="text-decoration-none text-dark my-auto p-2" href="/article/${article.sef}">
+                                            <p class="clamp-line-2" data-bs-toggle="tooltip" data-bs-title="${article.title}" style="font-size: 10px">${article.title}</p>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row p-0 mx-0 mt-auto">
+                                    <div class="col-6 m-0 p-0 d-flex border-end">
+                                        <a href="/article/edit/${article.sef}" class="p-1 m-auto"><i class="icon feather icon-edit-2"></i></a>
+                                    </div>
+                                    <div class="col-6 m-0 p-0 d-flex">
+                                        <a href="/article/delete/${article.uuid}" class="p-1 m-auto text-danger"><i class="icon feather icon-trash"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+        }
+    }
+
     function updateUserDataSelf(uuid){
         let person = {
             uuid:uuid,
@@ -670,12 +713,6 @@
                 showToast("error", 'error: ' + xhr.responseJSON.message)
             }
         });
-    }
-
-    function openTypeEditor(element){
-        let typeJSON = element.getAttribute('data-type');
-        let type = JSON.parse(typeJSON.replace(/&quot;/g, '"'));
-
     }
 
     /*document.addEventListener('DOMContentLoaded', (event) => {

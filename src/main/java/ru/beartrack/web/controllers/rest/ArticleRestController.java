@@ -28,20 +28,14 @@ public class ArticleRestController {
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     public Mono<ResponseEntity<String>> articleCreate(@AuthenticationPrincipal ApplicationUser user, @ModelAttribute ArticleDTO articleDTO) {
-        /*return images.collectList().flatMap(fileParts -> {
-            articleDTO.setImages(fileParts);
-            return articleService.createArticle(articleDTO, user)
-                    .flatMap(article -> {
-                        log.info("article saved [{}]", article);
-                        return Mono.just(ResponseEntity.ok("Article created successfully"));
-                    })
-                    .onErrorResume(e -> {
-                        log.error("Error creating article", e);
-                        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating article: " + e.getMessage()));
-                    });
-        });*/
-        log.info("incoming data: [{}]", articleDTO);
-        return Mono.just(ResponseEntity.ok("Article created successfully"));
-    }
-
+        return articleService.createArticle(articleDTO, user)
+                .flatMap(article -> {
+                    log.info("article saved [{}]", article);
+                    return Mono.just(ResponseEntity.ok("Статья создана успешно"));
+                })
+                .onErrorResume(e -> {
+                    log.error("Ошибка создания статьи", e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка создания статьи: " + e.getMessage()));
+                });
+        }
 }

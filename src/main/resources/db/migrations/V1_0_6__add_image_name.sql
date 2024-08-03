@@ -1,0 +1,1 @@
+ALTER TABLE article_image ADD COLUMN image_name TEXT;

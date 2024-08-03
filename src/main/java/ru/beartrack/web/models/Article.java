@@ -3,17 +3,17 @@ package ru.beartrack.web.models;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Table;
 import ru.beartrack.web.dto.ArticleDTO;
 import ru.beartrack.web.utils.TransliterateUtil;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
+@Table(name = "article")
 public class Article {
     @Id
     private UUID uuid;
@@ -33,6 +33,9 @@ public class Article {
     private LocalDate created;
     private LocalDate updated;
 
+    @Transient
+    private List<ArticleImage> images = new ArrayList<>();
+
     public Article(ArticleDTO articleDTO, ApplicationUser user) {
         setSef(TransliterateUtil.transliterate(articleDTO.getTitle()));
         setCreator(user.getUuid());
@@ -48,11 +51,18 @@ public class Article {
             metaKeywords.add(keyword);
         }
         setCreated(LocalDate.now());
-        metaKeywords = new HashSet<>();
         for(String link : articleDTO.getLinks()){
             String[] linkParts = link.split("/");
             String locationSef = linkParts[linkParts.length - 1];
-            metaKeywords.add(locationSef);
+            links.add(locationSef);
         }
+    }
+
+    public String getKeywords(){
+        StringBuilder s = new StringBuilder();
+        for(String keyword : metaKeywords){
+            s.append(keyword).append(", ");
+        }
+        return s.substring(0,s.length()-2);
     }
 }

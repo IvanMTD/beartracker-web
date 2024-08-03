@@ -105,6 +105,17 @@
 <script th:inline="javascript">
     let article_csrf = [[${_csrf}]];
 
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('showToast') === 'true') {
+            // отображаем toast
+            showToast(localStorage.getItem('status'),localStorage.getItem('message'));
+            // удаляем информацию о том, что нужно отобразить toast
+            localStorage.removeItem('showToast');
+            localStorage.removeItem('status');
+            localStorage.removeItem('message');
+        }
+    });
+
     class ImageResize {
         constructor(quill, options) {
             this.quill = quill;
@@ -197,10 +208,19 @@
             urls.push(url);
         }
 
+        let quillContent = quill.root.innerHTML;
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = quillContent;
+        let imgTags = tempDiv.getElementsByTagName('img');
+        for (let i=0; i<imgTags.length; i++) {
+            imgTags[i].src = 'image-' + i;
+            imgTags[i].style.cursor = null;
+        }
+
         let formData = new FormData();
         formData.append('title', $('#article-title').val());
         formData.append('notation', $('#article-notation').val());
-        formData.append('content', quill.root.innerHTML);
+        formData.append('content', tempDiv.innerHTML);
         formData.append('metaTitle', $('#meta-title').val());
         formData.append('metaDescription', $('#meta-description').val());
         formData.append('metaKeywords', $('#meta-keywords').val());
@@ -210,7 +230,7 @@
         for(let i=0; i<urls.length; i++){
             formData.append(`links[${i}]`,links[i]);
         }
-
+        showSpinner();
         $.ajax({
             url:'/api/article/create',
             type: 'post',
@@ -221,10 +241,15 @@
                 xhr.setRequestHeader(article_csrf.headerName, article_csrf.token);
             },
             success: function (response) {
-                showToast('success',response);
+                hideSpinner();
+                localStorage.setItem('showToast', 'true');
+                localStorage.setItem('status', 'success');
+                localStorage.setItem('message',response);
+                location.reload(true);
             },
             error: function (xhr, status, error) {
-                console.error(error);
+                hideSpinner();
+                console.error(xhr.responseJSON.message);
                 showToast("error", status + ': ' + error)
             }
         });

@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import ru.beartrack.web.enums.Role;
 import ru.beartrack.web.models.ApplicationUser;
 import ru.beartrack.web.services.ApplicationUserService;
+import ru.beartrack.web.services.ArticleService;
 import ru.beartrack.web.services.LocationService;
 
 @Slf4j
@@ -22,6 +23,7 @@ public class AccountController {
 
     private final ApplicationUserService userService;
     private final LocationService locationService;
+    private final ArticleService articleService;
 
     @GetMapping("/personal")
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN')")
@@ -33,6 +35,7 @@ public class AccountController {
                             .modelAttribute("index","account-personal-page")
                             .modelAttribute("user", u)
                             .modelAttribute("locations", user.getRole().equals(Role.ADMIN) ? locationService.getAllOrderByCount() : locationService.getAllByUserUuid(user.getUuid()))
+                            .modelAttribute("articles", user.getRole().equals(Role.ADMIN) ? articleService.getAllOrderByDate() : articleService.getAllByUserUuid(user.getUuid()))
                             .modelAttribute("roles", Role.valuesOfDTO())
                             .modelAttribute("users", userService.getAll())
                             .build()

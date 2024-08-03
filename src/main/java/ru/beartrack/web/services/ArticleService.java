@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beartrack.web.dto.ArticleDTO;
@@ -19,7 +21,9 @@ import ru.beartrack.web.utils.ImageioUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +32,11 @@ public class ArticleService {
     private final ArticleImageRepository imageRepository;
 
     private final MinioService minioService;
+
+    @Cacheable("article")
+    public Mono<Article> getBySef(String sef) {
+        return articleRepository.findBySef(sef).flatMap(this::setupImages);
+    }
 
     @CacheEvict("articles")
     public Mono<Article> createArticle(ArticleDTO articleDTO, ApplicationUser user) {
@@ -41,6 +50,7 @@ public class ArticleService {
                                 try {
                                     ArticleImage articleImage = new ArticleImage();
                                     articleImage.setParent(saved.getUuid());
+                                    articleImage.setImageName(image.filename());
                                     String[] sizes = {"300", "640", "1280"};
                                     ImageioUtil.createResizedImages(originalFile,fileName,sizes);
                                     for (String size : sizes) {
@@ -70,6 +80,30 @@ public class ArticleService {
                     return Mono.just(saved);
                 }
             });
+        });
+    }
+
+    @Cacheable("articles")
+    public Flux<Article> getAllOrderByDate() {
+        return articleRepository.findAllByOrderByCreatedDesc().flatMap(this::setupImages).collectList().flatMapMany(articles -> {
+            articles = articles.stream().sorted(Comparator.comparing(Article::getCreated).reversed()).collect(Collectors.toList());
+            return Flux.fromIterable(articles);
+        }).flatMapSequential(Mono::just);
+    }
+
+    @Cacheable("articles")
+    public Flux<Article> getAllByUserUuid(UUID uuid) {
+        return articleRepository.findByCreator(uuid).flatMap(this::setupImages).collectList().flatMapMany(articles -> {
+            articles = articles.stream().sorted(Comparator.comparing(Article::getCreated).reversed()).collect(Collectors.toList());
+            return Flux.fromIterable(articles);
+        }).flatMapSequential(Mono::just);
+    }
+
+    private Mono<Article> setupImages(Article article){
+        return imageRepository.findByParent(article.getUuid()).collectList().flatMap(l -> {
+            l = l.stream().sorted(Comparator.comparing(ArticleImage::getImageName)).collect(Collectors.toList());
+            article.setImages(l);
+            return Mono.just(article);
         });
     }
 }

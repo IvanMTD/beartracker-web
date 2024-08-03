@@ -1,0 +1,25 @@
+<div class="container">
+    <div class="row">
+        <div id="inner-content" class="col">
+
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let article = [[${article}]];
+    console.log(article);
+
+    setupContent();
+
+    function setupContent(){
+        let innerContent = $('#inner-content');
+        innerContent.empty();
+        innerContent.append(`
+            ${article.content}
+        `);
+        innerContent.find('img').each(function(index) {
+            $(this).attr('src', article.images[index].imageUrlMd);
+        });
+    }
+</script>
