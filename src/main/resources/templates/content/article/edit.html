@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row m-0 p-0 shadow">
         <div class="col-12 d-flex">
-            <p class="my-font fs-2 text-dark m-auto">Добавление новой статьи</p>
+            <p class="my-font fs-2 text-dark m-auto" th:text="'Редактор статьи: ' + ${article.title}"></p>
         </div>
         <div class="col-12">
             <div class="row border-bottom border-dark pt-4">
@@ -11,17 +11,17 @@
                     </div>
                 </div>
                 <div class="col-6 py-2 d-flex">
-                    <button class="btn btn-outline-dark ms-auto" onclick="sendAndCheckArticle()">Отправить</button>
+                    <button class="btn btn-outline-dark ms-auto" onclick="updateAndCheckArticle()">Обновить</button>
                 </div>
             </div>
             <div class="row pt-1">
                 <div class="col-12">
                     <label for="article-title" class="ms-1">Название статьи</label>
-                    <input type="text" class="form-control" id="article-title">
+                    <input type="text" class="form-control" id="article-title" th:value="${article.title}">
                 </div>
                 <div class="col-12">
                     <label for="article-notation" class="ms-1">Аннотация</label>
-                    <input type="text" class="form-control" id="article-notation">
+                    <input type="text" class="form-control" id="article-notation" th:value="${article.notation}">
                 </div>
             </div>
             <div class="row m-0 mt-3 p-0">
@@ -93,16 +93,15 @@
             <div class="row pt-1 pb-4">
                 <div class="col-12">
                     <label for="meta-title" class="ms-1 text-secondary"><small>Meta title</small></label>
-                    <input id="meta-title" type="text" class="form-control text-dark">
+                    <input id="meta-title" type="text" class="form-control text-dark" th:value="${article.metaTitle}">
                 </div>
                 <div class="col-12">
                     <label for="meta-description" class="ms-1 text-secondary"><small>Meta description</small></label>
-                    <input id="meta-description" type="text" class="form-control text-dark">
+                    <input id="meta-description" type="text" class="form-control text-dark" th:value="${article.metaDescription}">
                 </div>
                 <div class="col-12">
-                    <label for="meta-keywords" class="ms-1 text-secondary"><small>Meta keywords: </small><small
-                            class="text-danger">Указывайте keywords через запятую с пробелом</small></label>
-                    <input id="meta-keywords" type="text" class="form-control text-dark">
+                    <label for="meta-keywords" class="ms-1 text-secondary"><small>Meta keywords: </small><small class="text-danger">Указывайте keywords через запятую с пробелом</small></label>
+                    <input id="meta-keywords" type="text" class="form-control text-dark" th:value="${article.keywords}">
                 </div>
             </div>
         </div>
@@ -111,6 +110,8 @@
 
 <script th:inline="javascript">
     let article_csrf = [[${_csrf}]];
+    let article = [[${article}]];
+    let quill;
 
     document.addEventListener('DOMContentLoaded', function () {
         if (localStorage.getItem('showToast') === 'true') {
@@ -123,140 +124,153 @@
         }
     });
 
-    class ImageResize {
-        constructor(quill, options) {
-            this.quill = quill;
-            this.options = options;
-            this.dragging = false;
-            this.quill.root.addEventListener('mouseover', this.handleMouseOver.bind(this), false);
-            this.quill.root.addEventListener('mousedown', this.handleMouseDown.bind(this), false);
-            this.quill.root.addEventListener('mouseup', this.handleMouseUp.bind(this), false);
-            this.quill.root.addEventListener('mousemove', this.handleMouseMove.bind(this), false);
-        }
-
-        handleMouseOver(evt) {
-            if (evt.target.tagName === 'IMG') {
-                evt.target.style.cursor = 'se-resize';
+    updateImageSources(article.content, article.images).then(content => {
+        class ImageResize {
+            constructor(quill, options) {
+                this.quill = quill;
+                this.options = options;
+                this.dragging = false;
+                this.quill.root.addEventListener('mouseover', this.handleMouseOver.bind(this), false);
+                this.quill.root.addEventListener('mousedown', this.handleMouseDown.bind(this), false);
+                this.quill.root.addEventListener('mouseup', this.handleMouseUp.bind(this), false);
+                this.quill.root.addEventListener('mousemove', this.handleMouseMove.bind(this), false);
             }
-        }
 
-        handleMouseDown(evt) {
-            if (evt.target.tagName === 'IMG') {
-                this.dragging = true;
-                this.startX = evt.clientX;
-                this.startY = evt.clientY;
-                this.startWidth = parseFloat(evt.target.style.width) || 100;
-                this.startHeight = parseFloat(evt.target.style.height) || 100;
-                evt.target.setAttribute('data-start-width', this.startWidth);
-                evt.target.setAttribute('data-start-height', this.startHeight);
-            }
-        }
-
-        handleMouseUp() {
-            this.dragging = false;
-        }
-
-        handleMouseMove(evt) {
-            if (this.dragging && evt.target.tagName === 'IMG') {
-                const deltaX = evt.clientX - this.startX;
-                const deltaY = evt.clientY - this.startY;
-
-                const containerWidth = this.quill.root.clientWidth;
-                const containerHeight = this.quill.root.clientHeight;
-
-                const startWidthPercent = parseFloat(evt.target.getAttribute('data-start-width'));
-                const startHeightPercent = parseFloat(evt.target.getAttribute('data-start-height'));
-
-                const newWidthPercent = startWidthPercent + deltaX / containerWidth * 100;
-                const newHeightPercent = startHeightPercent + deltaY / containerHeight * 100;
-
-                const newWidth = Math.max(this.options.minWidth, Math.min(this.options.maxWidth, newWidthPercent)) + '%';
-                const newHeight = Math.max(this.options.minHeight, Math.min(this.options.maxHeight, newHeightPercent)) + '%';
-
-                evt.target.style.width = newWidth;
-                evt.target.style.height = newHeight;
-            }
-        }
-    }
-
-    class CustomImageHandler {
-        constructor(quill, options) {
-            this.quill = quill;
-            this.options = options;
-            this.quill.root.addEventListener('input', this.handleInput.bind(this), false);
-        }
-
-        handleInput(evt) {
-            const images = this.quill.root.querySelectorAll('img');
-            images.forEach(img => {
-                if (img.parentElement.tagName === 'P') {
-                    const parent = img.parentElement;
-                    parent.parentElement.insertBefore(img, parent);
-                    parent.parentElement.removeChild(parent);
+            handleMouseOver(evt) {
+                if (evt.target.tagName === 'IMG') {
+                    evt.target.style.cursor = 'se-resize';
                 }
-            });
+            }
+
+            handleMouseDown(evt) {
+                if (evt.target.tagName === 'IMG') {
+                    this.dragging = true;
+                    this.startX = evt.clientX;
+                    this.startY = evt.clientY;
+                    this.startWidth = parseFloat(evt.target.style.width) || 100;
+                    this.startHeight = parseFloat(evt.target.style.height) || 100;
+                    evt.target.setAttribute('data-start-width', this.startWidth);
+                    evt.target.setAttribute('data-start-height', this.startHeight);
+                }
+            }
+
+            handleMouseUp() {
+                this.dragging = false;
+            }
+
+            handleMouseMove(evt) {
+                if (this.dragging && evt.target.tagName === 'IMG') {
+                    const deltaX = evt.clientX - this.startX;
+                    const deltaY = evt.clientY - this.startY;
+
+                    const containerWidth = this.quill.root.clientWidth;
+                    const containerHeight = this.quill.root.clientHeight;
+
+                    const startWidthPercent = parseFloat(evt.target.getAttribute('data-start-width'));
+                    const startHeightPercent = parseFloat(evt.target.getAttribute('data-start-height'));
+
+                    const newWidthPercent = startWidthPercent + deltaX / containerWidth * 100;
+                    const newHeightPercent = startHeightPercent + deltaY / containerHeight * 100;
+
+                    const newWidth = Math.max(this.options.minWidth, Math.min(this.options.maxWidth, newWidthPercent)) + '%';
+                    const newHeight = Math.max(this.options.minHeight, Math.min(this.options.maxHeight, newHeightPercent)) + '%';
+
+                    evt.target.style.width = newWidth;
+                    evt.target.style.height = newHeight;
+                }
+            }
         }
 
-        toggle() {
-            const selection = this.quill.getSelection();
-            if(selection){
-                const [leaf] = this.quill.getLeaf(selection.index);
-                if (leaf && leaf.domNode.tagName === 'IMG') {
-                    const img = leaf.domNode;
-                    const hasAlign = img.getAttribute('align');
-                    if(hasAlign){
-                        img.removeAttribute('align');
-                    }else{
-                        img.setAttribute('align', 'left');
+        class CustomImageHandler {
+            constructor(quill, options) {
+                this.quill = quill;
+                this.options = options;
+                this.quill.root.addEventListener('input', this.handleInput.bind(this), false);
+            }
+
+            handleInput(evt) {
+                const images = this.quill.root.querySelectorAll('img');
+                images.forEach(img => {
+                    if (img.parentElement.tagName === 'P') {
+                        const parent = img.parentElement;
+                        parent.parentElement.insertBefore(img, parent);
+                        parent.parentElement.removeChild(parent);
+                    }
+                });
+            }
+
+            toggle() {
+                const selection = this.quill.getSelection();
+                if(selection){
+                    const [leaf] = this.quill.getLeaf(selection.index);
+                    if (leaf && leaf.domNode.tagName === 'IMG') {
+                        const img = leaf.domNode;
+                        const hasAlign = img.getAttribute('align');
+                        if(hasAlign){
+                            img.removeAttribute('align');
+                        }else{
+                            img.setAttribute('align', 'left');
+                        }
                     }
                 }
             }
         }
-    }
 
-    Quill.register('modules/imageResize', ImageResize);
-    Quill.register('modules/customImageHandler', CustomImageHandler);
+        Quill.register('modules/imageResize', ImageResize);
+        Quill.register('modules/customImageHandler', CustomImageHandler);
 
-    const options = {
-        modules: {
-            syntax: true,
-            toolbar: '#toolbar-container',
-            imageResize: {
-                minWidth: 10,
-                minHeight: 10,
-                maxWidth: 100,
-                maxHeight: 100
+        const options = {
+            modules: {
+                syntax: true,
+                toolbar: '#toolbar-container',
+                imageResize: {
+                    minWidth: 10,
+                    minHeight: 10,
+                    maxWidth: 100,
+                    maxHeight: 100
+                },
+                customImageHandler: {}
             },
-            customImageHandler: {}
-        },
-        placeholder: 'Контент ...',
-        theme: 'snow'
-    };
-    const quill = new Quill('#editor', options);
+            placeholder: 'Контент ...',
+            theme: 'snow'
+        };
 
-    // Обработчик для новой кнопки
-    document.querySelector('.ql-custom-image-handler').addEventListener('click', function() {
-        const customImageHandler = quill.getModule('customImageHandler');
-        customImageHandler.toggle();
-    });
+        quill = new Quill('#editor', options);
 
-    quill.on('text-change', function (delta, oldDelta, source) {
-        if (source === 'user') {
-            let images = quill.root.getElementsByTagName('img');
-            for (let i = 0; i < images.length; i++) {
-                images[i].removeAttribute('width');
-                images[i].removeAttribute('height');
-                images[i].classList.add('img-thumbnail');
-                images[i].classList.add('mx-2');
+        // Обработчик для новой кнопки
+        document.querySelector('.ql-custom-image-handler').addEventListener('click', function() {
+            const customImageHandler = quill.getModule('customImageHandler');
+            customImageHandler.toggle();
+        });
+
+        quill.on('text-change', function (delta, oldDelta, source) {
+            if (source === 'user') {
+                let images = quill.root.getElementsByTagName('img');
+                for (let i = 0; i < images.length; i++) {
+                    images[i].removeAttribute('width');
+                    images[i].removeAttribute('height');
+                    images[i].classList.add('img-thumbnail');
+                    images[i].classList.add('mx-2');
+                }
+
+                let urls = quill.root.getElementsByTagName('a');
+                for (let i = 0; i < urls.length; i++) {
+                    urls[i].style = null;
+                    urls[i].classList.add('classic-link');
+                }
             }
-        }
+        });
+
+        document.querySelector('.ql-clean').addEventListener('click', function() {
+            quill.setText(''); // Очищает содержимое редактора
+        });
+
+        quill.root.innerHTML = content;
+    }).catch(error => {
+        console.error('Ошибка при преобразовании изображений в base64:', error);
     });
 
-    document.querySelector('.ql-clean').addEventListener('click', function() {
-        quill.setText(''); // Очищает содержимое редактора
-    });
-
-    function sendAndCheckArticle() {
+    function updateAndCheckArticle() {
         let images = quill.root.getElementsByTagName('img');
         let files = [];
         for (let i = 0; i < images.length; i++) {
@@ -287,6 +301,7 @@
         }
 
         let formData = new FormData();
+        formData.append('uuid',article.uuid);
         formData.append('title', $('#article-title').val());
         formData.append('notation', $('#article-notation').val());
         formData.append('content', tempDiv.innerHTML);
@@ -301,7 +316,7 @@
         }
         showSpinner();
         $.ajax({
-            url: '/api/article/create',
+            url: '/api/article/update',
             type: 'post',
             data: formData,
             processData: false,
@@ -321,6 +336,40 @@
                 console.error(xhr.responseJSON.message);
                 showToast("error", status + ': ' + error)
             }
+        });
+    }
+
+    async function updateImageSources(content, images) {
+        // Преобразование строки HTML в DOM-объект
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(content, 'text/html');
+        // Получение всех изображений
+        let imagesElements = doc.getElementsByTagName('img');
+        // Изменение атрибутов src
+        for (let i = 0; i < imagesElements.length; i++) {
+            if (images[i]) {
+                let base64Image = await imageToBase64(images[i].imageUrlMd);
+                imagesElements[i].src = base64Image;
+            }
+        }
+        // Преобразование DOM-объекта обратно в строку
+        let serializer = new XMLSerializer();
+        return serializer.serializeToString(doc);
+    }
+
+    function imageToBase64(url) {
+        return new Promise((resolve, reject) => {
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    let reader = new FileReader();
+                    reader.onloadend = () => {
+                        resolve(reader.result);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                })
+                .catch(reject);
         });
     }
 

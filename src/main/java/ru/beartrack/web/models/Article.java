@@ -65,4 +65,24 @@ public class Article {
         }
         return s.substring(0,s.length()-2);
     }
+
+    public void update(ArticleDTO articleDTO) {
+        setSef(TransliterateUtil.transliterate(articleDTO.getTitle()));
+        setTitle(articleDTO.getTitle());
+        setNotation(articleDTO.getNotation());
+        setContent(articleDTO.getContent());
+        setMetaTitle(articleDTO.getMetaTitle());
+        setMetaDescription(articleDTO.getMetaDescription());
+        metaKeywords.clear();
+        String[] keywords = articleDTO.getMetaKeywords().split(",");
+        for(String keyword : keywords){
+            keyword = keyword.trim();
+            metaKeywords.add(keyword);
+        }
+        for(String link : articleDTO.getLinks()){
+            String[] linkParts = link.split("/");
+            String locationSef = linkParts[linkParts.length - 1];
+            links.add(locationSef);
+        }
+    }
 }

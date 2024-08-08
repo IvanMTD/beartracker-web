@@ -32,7 +32,8 @@ public class SitemapController {
                         "<priority>0.8</priority>\n" +
                         "</url>"
                 ),
-                sitemapService.getUrlData().flatMap(data -> Flux.just("<url>", data, "</url>")),
+                sitemapService.getLocationUrls().flatMap(data -> Flux.just("<url>", data, "</url>")),
+                sitemapService.getArticlesUrls().flatMap(data -> Flux.just("<url>", data, "</url>")),
                 Flux.just("</urlset>")
         );
     }

@@ -1,6 +1,6 @@
 <div class="container">
     <div class="row">
-        <div id="inner-content" class="col">
+        <div id="inner-content" class="col ql-editor">
 
         </div>
     </div>
@@ -8,18 +8,17 @@
 
 <script th:inline="javascript">
     let article = [[${article}]];
-    console.log(article);
 
-    setupContent();
+    $(document).ready(function() {
+        setupContent();
+    });
 
     function setupContent(){
-        let innerContent = $('#inner-content');
-        innerContent.empty();
-        innerContent.append(`
-            ${article.content}
-        `);
-        innerContent.find('img').each(function(index) {
-            $(this).attr('src', article.images[index].imageUrlMd);
-        });
+        document.getElementById('inner-content').innerHTML = article.content;
+
+        let images = document.getElementById('inner-content').getElementsByTagName('img');
+        for (let i = 0; i < images.length; i++) {
+            images[i].src = article.images[i].imageUrlMd;
+        }
     }
 </script>

@@ -29,9 +29,11 @@
         <!-- ynadex.map.api 7c13cf7d-c937-4ca6-8021-145ac16bdcae -->
         <script src="https://api-maps.yandex.ru/v3/?apikey=7c13cf7d-c937-4ca6-8021-145ac16bdcae&lang=ru_RU"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+        <!-- Quill -->
+        <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     </head>
 
     <body>
@@ -57,6 +59,8 @@
         <div th:insert="~{content/location/edit}" th:if="${index} == 'location-edit-page'"></div>
 
         <div th:insert="~{content/article/create}" th:if="${index} == 'article-create-page'"></div>
+        <div th:insert="~{content/article/edit}" th:if="${index} == 'article-edit-page'"></div>
+        <div th:insert="~{content/article/list}" th:if="${index} == 'article-list-page'"></div>
         <div th:insert="~{content/article/show}" th:if="${index} == 'article-show-page'"></div>
 
         <footer th:insert="~{blocks/footer}"></footer>

@@ -30,7 +30,6 @@ public class LocationController {
 
     @GetMapping("/list")
     public Mono<Rendering> locationListPage(@RequestParam(name = "page") int page){
-        log.info("incoming page: {}", page);
         return locationService.getCount().flatMap(locationCount -> {
             int pageSize = 12;
             int pageControl = page;
@@ -38,6 +37,9 @@ public class LocationController {
             long dif = (locationCount % pageSize);
             if(dif == 0){
                 lastPage = lastPage - 1;
+                if(lastPage < 0){
+                    lastPage = 0;
+                }
             }
             if(pageControl <= 0){
                 pageControl = 0;
@@ -47,7 +49,6 @@ public class LocationController {
             }
 
             int finalPageControl = pageControl;
-            log.info("final: {}", finalPageControl);
             long finalLastPage = lastPage;
             return locationService.getAllOrderByCount(PageRequest.of(finalPageControl,pageSize)).collectList().flatMap(locations -> {
                 String description = "Интересные места на странице: ";

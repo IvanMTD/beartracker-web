@@ -63,6 +63,9 @@
                         </div>
                     </div>
                     <div id="articles" class="row row-cols-sm-2 row-cols-md-3 row-cols-lg-3"></div>
+                    <div class="row">
+                        <div id="article-pagination" class="col d-flex"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -476,6 +479,60 @@
                 `);
             }
         }
+
+        if(articles.length !== 0){
+            setupArticlePagination();
+        }
+    }
+
+    function setupArticlePagination(){
+        let lastPage = parseInt(articles.length / 12);
+        $('#article-pagination').empty();
+        let pagination = `
+            <nav aria-label="Page navigation" class="m-auto">
+                <ul class="pagination">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous" onclick="articlePrevious()">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    ${0 < articlePage ? `<li class="page-item"><a class="page-link" href="#" onclick="articleGoToPage(${articlePage - 1})">${articlePage}</a></li>` : ''}
+                    <li class="page-item"><a class="page-link active" href="#">${articlePage + 1}</a></li>
+                    ${articlePage < lastPage ? `<li class="page-item"><a class="page-link" href="#" onclick="articleGoToPage(${articlePage + 1})">${articlePage + 2}</a></li>` : ''}
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next" onclick="articleNext()">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        `;
+        $('#article-pagination').append(pagination);
+    }
+
+    function articleNext(){
+        let lastPage = parseInt(articles.length / 12);
+        articlePage ++;
+        if(articlePage > lastPage){
+            articlePage = lastPage;
+        }
+        setupArticleField();
+        reloadTooltip();
+    }
+
+    function articlePrevious(){
+        articlePage --;
+        if(articlePage < 0){
+            articlePage = 0;
+        }
+        setupArticleField();
+        reloadTooltip();
+    }
+
+    function articleGoToPage(page){
+        articlePage = page;
+        setupArticleField();
+        reloadTooltip();
     }
 
     function updateUserDataSelf(uuid){

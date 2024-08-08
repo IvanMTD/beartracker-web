@@ -20,7 +20,7 @@ public class GlobalSearchRestController {
 
     @GetMapping("/search")
     public Mono<GlobalSearchDTO> globalSearch(@RequestParam(name = "query") String query){
-        log.info("INCOMING QUERY {}",query);
+        //log.info("INCOMING QUERY {}",query);
         return locationService.globalSearch(query).collectList().flatMap(l -> {
             GlobalSearchDTO globalSearch = new GlobalSearchDTO();
             globalSearch.setLocations(l);

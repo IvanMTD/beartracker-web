@@ -353,7 +353,7 @@
     transform: translate(-50%, -50%);
 }
 
-
+/* Общие стили для всех экранов */
 #editor {
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
@@ -361,6 +361,7 @@
     background-color: #fff;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    min-height: 200px; /* Установите минимальную высоту редактора */
 }
 
 #editor:focus-within {
@@ -372,19 +373,21 @@
 #editor .ql-container {
     border: none;
     border-radius: 0.25rem;
+    min-height: 150px; /* Установите минимальную высоту контейнера */
 }
 
 #editor .ql-toolbar {
     border: none;
     border-radius: 0.25rem 0.25rem 0 0;
     background-color: #f8f9fa;
+    flex-wrap: wrap; /* Позволяет кнопкам переноситься на новые строки */
 }
 
 #editor .ql-editor {
     border: none;
     border-radius: 0 0 0.25rem 0.25rem;
     background-color: #fff;
-    min-height: 100px; /* Установите высоту по вашему усмотрению */
+    min-height: 150px; /* Установите минимальную высоту редактора */
 }
 
 .my-link {
@@ -394,3 +397,36 @@
 .my-link:hover {
     color: grey;
 }
+
+.classic-link {
+    color: #0000EE; /* Синий цвет текста */
+    text-decoration: underline; /* Подчеркивание текста */
+    cursor: pointer; /* Курсор в виде указателя */
+    font-weight: normal; /* Нормальный вес шрифта */
+    text-transform: none; /* Без преобразования текста */
+    text-shadow: none; /* Без тени текста */
+    background-color: transparent; /* Прозрачный фон */
+    border: none; /* Без границ */
+    outline: none; /* Без контура */
+    transition: color 0.3s ease; /* Плавный переход цвета */
+}
+
+.classic-link:hover {
+    color: #0000CD; /* Темно-синий цвет при наведении */
+    text-decoration: none; /* Убираем подчеркивание при наведении */
+}
+
+.classic-link:active {
+    color: #FF0000; /* Красный цвет при нажатии */
+}
+
+.classic-link:visited {
+    color: #551A8B; /* Фиолетовый цвет для посещенных ссылок */
+}
+
+.ql-custom-image-handler::before {
+    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-credit-card-2-front" viewBox="0 0 16 16"> <path d="M14 3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/> <path d="M2 5.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5"/> </svg>');
+    width: 24px; /* Ширина иконки */
+    height: 24px; /* Высота иконки */
+}
+
