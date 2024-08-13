@@ -30,48 +30,51 @@
                         <div class="col">
                             <div id="toolbar-container">
                                 <span class="ql-formats">
-                                    <select class="ql-font"></select>
-                                    <select class="ql-size"></select>
+                                    <select class="ql-font" title="Шрифт"></select>
+                                    <select class="ql-size" title="Размер текста"></select>
                                 </span>
                                 <span class="ql-formats">
-                                    <button class="ql-bold"></button>
-                                    <button class="ql-italic"></button>
-                                    <button class="ql-underline"></button>
-                                    <button class="ql-strike"></button>
+                                    <button class="ql-bold" title="Жирный"></button>
+                                    <button class="ql-italic" title="Наклонный"></button>
+                                    <button class="ql-underline" title="Подчеркнутый"></button>
+                                    <button class="ql-strike" title="Зачеркнутый"></button>
                                 </span>
                                 <span class="ql-formats">
-                                    <select class="ql-color"></select>
-                                    <select class="ql-background"></select>
+                                    <select class="ql-color" title="Цвет текста"></select>
+                                    <select class="ql-background" title="Выделения текста"></select>
                                 </span>
                                 <span class="ql-formats">
-                                    <button class="ql-script" value="sub"></button>
-                                    <button class="ql-script" value="super"></button>
+                                    <button class="ql-script" value="sub" title="Нижний регистр"></button>
+                                    <button class="ql-script" value="super" title="Верхний регистр"></button>
                                 </span>
                                 <span class="ql-formats">
                                     <button class="ql-header" value="1"></button>
                                     <button class="ql-header" value="2"></button>
-                                    <button class="ql-blockquote"></button>
-                                    <button class="ql-code-block"></button>
+                                    <button class="ql-blockquote" title="Цитата"></button>
+                                    <!--<button class="ql-code-block"></button>-->
                                 </span>
                                 <span class="ql-formats">
-                                    <button class="ql-list" value="ordered"></button>
-                                    <button class="ql-list" value="bullet"></button>
-                                    <button class="ql-indent" value="-1"></button>
-                                    <button class="ql-indent" value="+1"></button>
+                                    <button class="ql-list" value="ordered" title="Нумерованный список"></button>
+                                    <button class="ql-list" value="bullet" title="Не нумерованный список"></button>
+                                    <button class="ql-indent" value="-1" title="Отступ вправо"></button>
+                                    <button class="ql-indent" value="+1" title="Отступ влево"></button>
                                 </span>
                                 <span class="ql-formats">
-                                    <button class="ql-direction" value="rtl"></button>
-                                    <select class="ql-align"></select>
+                                    <button class="ql-direction" value="rtl" title="Направление текста"></button>
+                                    <select class="ql-align" title="Выравнивание"></select>
                                 </span>
                                 <span class="ql-formats">
-                                    <button class="ql-link"></button>
-                                    <button class="ql-image"></button>
-                                    <button class="ql-custom-image-handler" title="Custom Image Handler"></button>
-                                    <button class="ql-video"></button>
-                                    <button class="ql-formula"></button>
+                                    <button class="ql-link" title="Создать ссылку"></button>
+                                    <button class="ql-image" title="Добавить изображение"></button>
+                                    <button class="ql-custom-image-handler" title="Оптикание изображения (img align left)"></button>
+                                    <button class="ql-video" title="Ссылка на видео"></button>
+                                    <button class="ql-formula" title="Создать формулу"></button>
                                 </span>
                                 <span class="ql-formats">
-                                    <button class="ql-clean"></button>
+                                    <button id="toggle-code" class="ql-view-code" title="Показать код"></button>
+                                </span>
+                                <span class="ql-formats">
+                                    <button class="ql-clean" title="Очистить"></button>
                                 </span>
                             </div>
                         </div>
@@ -240,6 +243,18 @@
         customImageHandler.toggle();
     });
 
+    const toggleButton = document.getElementById('toggle-code');
+    let codeView = false;
+
+    toggleButton.addEventListener('click', () => {
+        if (codeView) {
+            switchToEditorView();
+        } else {
+            switchToCodeView();
+        }
+        codeView = !codeView;
+    });
+
     quill.on('text-change', function (delta, oldDelta, source) {
         if (source === 'user') {
             let images = quill.root.getElementsByTagName('img');
@@ -255,6 +270,45 @@
     document.querySelector('.ql-clean').addEventListener('click', function() {
         quill.setText(''); // Очищает содержимое редактора
     });
+
+    function switchToCodeView() {
+        const html = formatHTML(quill.root.innerHTML);
+        const editorContainer = document.getElementById('editor');
+        editorContainer.innerHTML = `<textarea class="form-control text-white bg-black border border-0" style="width: 100%; height: auto; overflow:hidden;">${html}</textarea>`;
+        quill.enable(false); // Отключаем Quill
+
+        const textarea = editorContainer.querySelector('textarea');
+        autoResizeTextarea(textarea);
+    }
+
+    function switchToEditorView() {
+        const editorContainer = document.getElementById('editor');
+        const textarea = editorContainer.querySelector('textarea');
+        const html = textarea.value;
+
+        quill.root.innerHTML = cleanHTML(html);
+        quill.enable(true); // Включаем Quill
+        editorContainer.innerHTML = ''; // Убираем textarea
+        editorContainer.appendChild(quill.root); // Добавляем Quill обратно
+    }
+
+    function cleanHTML(html) {
+        // Удаление пробелов между тегами
+        return html.replace(/>\s+</g, '><').trim();
+    }
+
+    function formatHTML(html) {
+        return html_beautify(html, {
+            indent_size: 4,  // Размер отступа (в пробелах)
+            preserve_newlines: false, // Не сохранять существующие переводы строк
+            max_preserve_newlines: 1  // Максимальное количество сохраненных переводов строк подряд
+        });
+    }
+
+    function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';  // Сбрасываем высоту
+        textarea.style.height = textarea.scrollHeight + 'px';  // Устанавливаем высоту по содержимому
+    }
 
     function sendAndCheckArticle() {
         let images = quill.root.getElementsByTagName('img');
